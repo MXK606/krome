@@ -392,7 +392,7 @@ def H_alpha_index(file_path,
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
            
-            shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
+            shift = ((RV/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .fits files!
             
             # Since the HARPS spectra have their individual spectral orders stitched together, we do not have to extract them separately as done for NARVAL. Thus for HARPS, the required region is extracted by slicing the spectrum with the index corresponding to the left and right continuum obtained using the 'find_nearest' function. 
@@ -595,6 +595,12 @@ def H_alpha_index(file_path,
             spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
                               flux=flx[left_idx:right_idx]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+            
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(RV, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
+                print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+                print('----------------------------------------------------------------------------------------------------------------')
             
             if norm_spec:
                 if print_stat:
@@ -1046,7 +1052,7 @@ def NaI_index_Rodrigo(file_path,
                                                                                                               spec3.spectral_axis[0].value, 
                                                                                                               spec3.spectral_axis[-1].value))
                 print('----------------------------------------------------------------------------------------------------------------')
-                print('The doppler shift size is: {}nm'.format(shift))
+                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(radial_velocity, shift))
                 print('----------------------------------------------------------------------------------------------------------------')
                 
             # Fitting the continuum for each order separately using 'specutils'
@@ -1062,7 +1068,7 @@ def NaI_index_Rodrigo(file_path,
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
-                    print(g_fit)
+                    print(g1_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted1 = g1_fit(spec1.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
@@ -1082,8 +1088,8 @@ def NaI_index_Rodrigo(file_path,
                     ax2.plot(spec_normalized1.spectral_axis, spec_normalized1.flux, label='Normalized', alpha=0.6)
                     ax2.plot(spec1.spectral_axis, spec1.flux, color='red', label='Non-Normalized', alpha=0.6)
                     plt.axhline(1.0, ls='--', c='gray')
-                    plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='--', colors='black', label='Blue cont. region')
+                    plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
                     ax2.set_title("Continuum Normalized First Order")  
@@ -1101,7 +1107,7 @@ def NaI_index_Rodrigo(file_path,
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
-                    print(g_fit)
+                    print(g2_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted2 = g2_fit(spec2.spectral_axis)
@@ -1119,8 +1125,8 @@ def NaI_index_Rodrigo(file_path,
                     ax2.plot(spec_normalized2.spectral_axis, spec_normalized2.flux, label='Normalized', alpha=0.6)
                     ax2.plot(spec2.spectral_axis, spec2.flux, color='red', label='Non-Normalized', alpha=0.6)
                     plt.axhline(1.0, ls='--', c='gray')
-                    plt.vlines(NaID1-1.0, ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    plt.vlines(NaID2+1.0, ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    plt.vlines(NaID1-1.0, ymin=0, ymax=max(spec2.flux.value), linestyles='--', colors='black', label='NaID lines region')
+                    plt.vlines(NaID2+1.0, ymin=0, ymax=max(spec2.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
                     ax2.set_title("Continuum Normalized Second Order")  
@@ -1135,7 +1141,7 @@ def NaI_index_Rodrigo(file_path,
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
-                    print(g_fit)
+                    print(g3_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted3 = g3_fit(spec3.spectral_axis)
@@ -1153,8 +1159,8 @@ def NaI_index_Rodrigo(file_path,
                     ax2.plot(spec_normalized3.spectral_axis, spec_normalized3.flux, label='Normalized', alpha=0.6)
                     ax2.plot(spec3.spectral_axis, spec3.flux, color='red', label='Non-Normalized', alpha=0.6)
                     plt.axhline(1.0, ls='--', c='gray')
-                    plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec3.flux.value), linestyles='--', colors='black', label='F2 region')
+                    plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec3.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
                     ax2.set_title("Continuum Normalized Third Order")  
@@ -1368,7 +1374,8 @@ def NaI_index_Rodrigo(file_path,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using NaID1 is: {}nm'.format(shift))
+                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(RV, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('----------------------------------------------------------------------------------------------------------------')
             
@@ -1596,7 +1603,8 @@ def NaI_index_Rodrigo(file_path,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using NaID1 is: {}nm'.format(shift))
+                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(RV, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('----------------------------------------------------------------------------------------------------------------')
                 
@@ -1978,7 +1986,8 @@ def CaIIH_Index(file_path,
             # Printing info
             
             if print_stat:
-                print('The doppler shift size using the CaIIH line of 396.847nm is: {}nm'.format(shift))
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
                 print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('----------------------------------------------------------------------------------------------------------------')
                 
@@ -2101,7 +2110,7 @@ def CaIIH_Index(file_path,
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
            
-            shift = ((radial_velocity/ap.constants.c.value)*CaIIH_line)  
+            shift = ((RV/ap.constants.c.value)*CaIIH_line)  
             shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .fits files!
             
             # Since the HARPS spectra have their individual spectral orders stitched together, 
@@ -2144,7 +2153,8 @@ def CaIIH_Index(file_path,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
 
             if print_stat:
-                print('The doppler shift size using CaIIH line of 396.847nm is: {}nm'.format(shift))
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(RV, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
                                                                                                                                                               spec1d.spectral_axis[-1].value))
                 print('----------------------------------------------------------------------------------------------------------------')
@@ -2287,6 +2297,13 @@ def CaIIH_Index(file_path,
                               flux=flx[left_idx:right_idx]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(RV, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
+                print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
+                                                                                                                                                              spec1d.spectral_axis[-1].value))
+                print('----------------------------------------------------------------------------------------------------------------')
+            
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
             if norm_spec:
@@ -2405,11 +2422,11 @@ def CaIIH_Index(file_path,
         if print_stat:
             print('CaIIH region used ranges from {}nm to {}nm:'.format(F_CaIIH_region.spectral_axis[0].value, 
                                                                  F_CaIIH_region.spectral_axis[-1].value))
-            print('cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
+            print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
                                                                  cont_R_region.spectral_axis[-1].value))
             print('----------------------------------------------------------------------------------------------------------------')
-            print('Mean of flux points in CaIIH: {}±{}'.format(F_CaIIH_mean, F_CaIIH_mean_err))
-            print('Mean of flux points in cont R: {}±{}'.format(cont_R_mean, cont_R_mean_err))
+            print('Mean of {} flux points in CaIIH: {}±{}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
+            print('Mean of {} flux points in cont R: {}±{}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
             print('----------------------------------------------------------------------------------------------------------------')
             print('Index from mean of flux points in each band: {}±{}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
             print('----------------------------------------------------------------------------------------------------------------')
