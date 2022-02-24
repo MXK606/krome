@@ -9,7 +9,7 @@ index_calc.py: This python module contains the CaIIH, NaI, and Hα (CaI within i
 __author__ = "Mukul Kumar"
 __email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
 __date__ = "24-02-2022"
-__version__ = "1.7.1"
+__version__ = "1.7.2"
 
 import numpy as np
 import pandas as pd
@@ -238,6 +238,7 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(radial_velocity, shift))
+                print('----------------------------------------------------------------------------------------------------------------')
                 print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('----------------------------------------------------------------------------------------------------------------')
                 
@@ -1217,20 +1218,42 @@ def NaI_index_Rodrigo(file_path,
                 y = [F1_mean.value, F2_mean.value]
                 
                 f, ax  = plt.subplots(figsize=(10,4)) 
-                ax.plot(spec1.spectral_axis, spec1.flux, color='red', alpha=0.5)
-                ax.plot(spec2.spectral_axis, spec2.flux, color='blue', alpha=0.5)
-                ax.plot(spec3.spectral_axis, spec3.flux, color='green', alpha=0.5)
-                ax.plot(x, y, 'or--')
+                ax.plot(spec1.spectral_axis, spec1.flux, color='red', label='#39', alpha=0.5)
+                ax.plot(spec2.spectral_axis, spec2.flux, color='blue', label='#38', alpha=0.5)
+                ax.plot(spec3.spectral_axis, spec3.flux, color='green', label='#37', alpha=0.5)
+                ax.plot(x, y, 'ok--', label='pseudo-continuum')
                 ax.set_xlabel('$\lambda (nm)$')
                 ax.set_ylabel("Normalized Flux")
                 ax.set_title('Overplotting 3 orders around NaI D lines')
-                plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='--', colors='black')
+                plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}'.format(F1_line, F1_band/2))
+                plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='dotted', colors='blue')
+                plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}'.format(F2_line, F2_band/2))
+                plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='dashdot', colors='red')
                 plt.axhline(1.0, ls='--', c='gray')
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(HJD), format='pdf')
+                    if print_stat:
+                        print('Saving plots as PDFs in the working directory')
+                        print('----------------------------------------------------------------------------------------------------------------')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(HJD), format='pdf')
+                        
+                f, ax1  = plt.subplots(figsize=(10,4))
+                ax1.plot(spec2.spectral_axis, spec2.flux, color='blue', label='#38')
+                ax1.set_xlabel('$\lambda (nm)$')
+                ax1.set_ylabel("Normalized Flux")
+                plt.vlines(NaID1, ymin=0, ymax=max(spec2.flux.value), linestyles='dotted', colors='red', label='D1')
+                plt.vlines(NaID2, ymin=0, ymax=max(spec2.flux.value), linestyles='dotted', colors='blue', label='D2')
+                plt.vlines(NaID1-(NaI_band/2), ymin=0, ymax=max(spec2.flux.value), linestyles='--', colors='black', label='D1,D2 band width = {}nm'.format(NaI_band))
+                plt.vlines(NaID1+(NaI_band/2), ymin=0, ymax=max(spec2.flux.value), linestyles='--', colors='black')
+                plt.vlines(NaID2-(NaI_band/2), ymin=0, ymax=max(spec2.flux.value), linestyles='--', colors='black')
+                plt.vlines(NaID2+(NaI_band/2), ymin=0, ymax=max(spec2.flux.value), linestyles='--', colors='black')
+                ax1.set_xlim(NaID2-(NaI_band/2)-0.2, NaID1+(NaI_band/2)+0.2)
+                plt.tight_layout()
+                plt.legend()
+                
+                if save_figs:
+                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(HJD), format='pdf')
                 
             # Calculating the mean flux in the D1 D2 lines
             
@@ -1254,13 +1277,13 @@ def NaI_index_Rodrigo(file_path,
             sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + np.square(F_cont_err/F_cont.value))), 5)
             
             if print_stat:
-                print('Using {} higher flux values in each band for the pseudo-cont. calculation'.format(hfv))
+                print('Using {} highest flux values in each band for the pseudo-cont. calculation'.format(hfv))
                 print('----------------------------------------------------------------------------------------------------------------')
-                print('Flux in blue cont. is {}±{}'.format(F1_mean, F1_err))
-                print('Flux in red cont. is {}±{}'.format(F2_mean, F2_err))
-                print('Mean cont. flux is {}±{}'.format(F_cont.value, F_cont_err))
-                print('NaID1 mean flux is {}±{}'.format(NaID1_mean, NaID1_err))
-                print('NaID2 mean flux is {}±{}'.format(NaID2_mean, NaID2_err))
+                print('Mean of {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), F1_mean, F1_err))
+                print('Mean of {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), F2_mean, F2_err))
+                print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
+                print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
+                print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
                 print('----------------------------------------------------------------------------------------------------------------')
                 print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
                 print('----------------------------------------------------------------------------------------------------------------')
