@@ -24,6 +24,7 @@ from specutils.manipulation import extract_region
 from astropy.modeling.polynomial import Chebyshev1D
 from astropy.nddata import StdDevUncertainty
 from astropy.io import fits
+from spec_analysis import find_string_idx, find_nearest, extract_orders
     
 ## Defining a function for calculating the H alpha index following Boisse et al. 2009 (2009A&A...495..959B)
 
@@ -378,9 +379,9 @@ def H_alpha_index(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
             
             if flx_err_nan:
-                
-                print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
+                    print('----------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
@@ -388,8 +389,9 @@ def H_alpha_index(file_path,
                 flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
-                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    if print_stat:
+                        print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('----------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -418,7 +420,6 @@ def H_alpha_index(file_path,
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -553,7 +554,6 @@ def H_alpha_index(file_path,
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree))
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -742,7 +742,6 @@ def H_alpha_index(file_path,
     if save_results:
         
         if print_stat:
-            
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('----------------------------------------------------------------------------------------------------------------')
             
@@ -904,7 +903,9 @@ def NaI_index_Rodrigo(file_path,
                 HJD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
                 
             else:
-                print('out_file_path not given as an argument. Returning HJD as NaN instead.')
+                if print_stat:
+                    print('out_file_path not given as an argument. Returning HJD as NaN instead.')
+                    print('----------------------------------------------------------------------------------------------------------------')
                 HJD = float('nan')
                 
             # Defining column names for pandas to read the file easily
@@ -983,7 +984,6 @@ def NaI_index_Rodrigo(file_path,
                 g1_fit = fit_generic_continuum(spec1, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -1020,7 +1020,6 @@ def NaI_index_Rodrigo(file_path,
                 g2_fit = fit_generic_continuum(spec2, model=Chebyshev1D(degree))
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -1055,7 +1054,6 @@ def NaI_index_Rodrigo(file_path,
                 g3_fit = fit_generic_continuum(spec3, model=Chebyshev1D(degree))
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -1239,9 +1237,9 @@ def NaI_index_Rodrigo(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns True if there is one NaN value or all are NaN values!
             
             if flx_err_nan:
-                
-                print('File contains NaN in flux errors array. Calculating flux errors using CCD readout noise: {}'.format(np.round(RON, 4)))
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('File contains NaN in flux errors array. Calculating flux errors using CCD readout noise: {}'.format(np.round(RON, 4)))
+                    print('----------------------------------------------------------------------------------------------------------------')
                 
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
@@ -1250,8 +1248,9 @@ def NaI_index_Rodrigo(file_path,
                 flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
-                    print('The calculated flux array contains a few NaN values due to negative flux encountered in the square root.')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    if print_stat:
+                        print('The calculated flux array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('----------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -1272,9 +1271,10 @@ def NaI_index_Rodrigo(file_path,
                 print('----------------------------------------------------------------------------------------------------------------')
             
             if norm_spec=='scale':
-                
-                print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
+                    print('----------------------------------------------------------------------------------------------------------------')
+                    
                 flux_norm = (spec1d.flux - min(spec1d.flux))/(max(spec1d.flux) - min(spec1d.flux)) # Same normalization as the ACTIN code. See here for more info on ACTIN https://github.com/gomesdasilva/ACTIN 
                 
                 spec_normalized = Spectrum1D(spectral_axis=spec1d.spectral_axis,
@@ -1297,14 +1297,13 @@ def NaI_index_Rodrigo(file_path,
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                             
             elif norm_spec=='poly1dfit':
-                
-                print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
+                    print('----------------------------------------------------------------------------------------------------------------')
                 
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(1))
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -1497,9 +1496,9 @@ def NaI_index_Rodrigo(file_path,
                 print('----------------------------------------------------------------------------------------------------------------')
                 
             if norm_spec=='scale':
-                
-                print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
+                    print('----------------------------------------------------------------------------------------------------------------')
                 flux_norm = (spec1d.flux - min(spec1d.flux))/(max(spec1d.flux) - min(spec1d.flux)) # Same normalization as the ACTIN code!
                 spec_normalized = Spectrum1D(spectral_axis=spec1d.spectral_axis,
                                              flux=flux_norm*u.Jy,
@@ -1521,14 +1520,13 @@ def NaI_index_Rodrigo(file_path,
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
             elif norm_spec=='poly1dfit':
-                
-                print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
+                    print('----------------------------------------------------------------------------------------------------------------')
                 
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(1))
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -1664,7 +1662,6 @@ def NaI_index_Rodrigo(file_path,
     if save_results:
         
         if print_stat:
-            
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('----------------------------------------------------------------------------------------------------------------')
             
@@ -1809,7 +1806,9 @@ def CaIIH_Index(file_path,
                 HJD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
 
             else:
-                print('out_file_path not given as an argument. Returning NaN as HJD instead.')
+                if print_stat:
+                    print('out_file_path not given as an argument. Returning NaN as HJD instead.')
+                    print('----------------------------------------------------------------------------------------------------------------')
                 HJD = float('nan')
                 
             # Defining column names for pandas to read the file easily
@@ -2006,9 +2005,9 @@ def CaIIH_Index(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
             
             if flx_err_nan:
-                
-                print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
-                print('----------------------------------------------------------------------------------------------------------------')
+                if print_stat:
+                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
+                    print('----------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
@@ -2016,8 +2015,9 @@ def CaIIH_Index(file_path,
                 flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
-                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    if print_stat:
+                        print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('----------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -2183,7 +2183,6 @@ def CaIIH_Index(file_path,
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree))
                 
                 if print_stat:
-                    
                     print('Polynomial fit coefficients:')
                     print(g_fit)
                     print('----------------------------------------------------------------------------------------------------------------')
@@ -2314,7 +2313,6 @@ def CaIIH_Index(file_path,
     if save_results:
         
         if print_stat:
-            
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('----------------------------------------------------------------------------------------------------------------')
             
