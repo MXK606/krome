@@ -9,7 +9,7 @@ index_calc.py: This python module contains the CaIIH, NaI, and Hα (CaI within i
 __author__ = "Mukul Kumar"
 __email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
 __date__ = "24-02-2022"
-__version__ = "1.7"
+__version__ = "1.7.1"
 
 import numpy as np
 import pandas as pd
@@ -308,6 +308,11 @@ def H_alpha_index(file_path,
                 plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
                 plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
                 plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
+                
+                if CaI_index:
+                    plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='black', label='CaI {}±{}nm'.format(CaI_line, CaI_band/2))
+                    plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='black')
+                
                 ax.set_xlim(F1_line-1.1, F2_line+1.1)
                 ax.yaxis.set_ticks_position('both')
                 ax.xaxis.set_ticks_position('both')
@@ -333,6 +338,23 @@ def H_alpha_index(file_path,
                 
                 if save_figs:
                         plt.savefig('{}_H_alpha_line_plot.pdf'.format(HJD), format='pdf')
+                        
+                        
+                if CaI_index:
+                    # Plots the zoomed in regions around the CaI line.
+                    f, ax2  = plt.subplots()
+                    ax2.plot(spec.spectral_axis, spec.flux)
+                    ax2.set_xlabel('$\lambda (nm)$')
+                    ax2.set_ylabel("Normalized Flux")
+                    plt.vlines(CaI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
+                    plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaI band width = {}nm'.format(CaI_band))
+                    plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    ax2.set_xlim(CaI_line-(CaI_band/2)-0.1, CaI_line+(CaI_band/2)+0.1)
+                    plt.tight_layout()
+                    plt.legend()
+                    
+                    if save_figs:
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(HJD), format='pdf')
                 
         # HARPS
         
@@ -478,6 +500,11 @@ def H_alpha_index(file_path,
                 plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
                 plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
                 plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
+                
+                if CaI_index:
+                    plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='black', label='CaI {}±{}nm'.format(CaI_line, CaI_band/2))
+                    plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='black')
+                
                 ax.yaxis.set_ticks_position('both')
                 ax.xaxis.set_ticks_position('both')
                 plt.minorticks_on()
@@ -501,6 +528,22 @@ def H_alpha_index(file_path,
                 
                 if save_figs:
                         plt.savefig('{}_H_alpha_line_plot.pdf'.format(MJD), format='pdf')
+                        
+                if CaI_index:
+                    # Plots the zoomed in regions around the CaI line.
+                    f, ax2  = plt.subplots()
+                    ax2.plot(spec.spectral_axis, spec.flux)
+                    ax2.set_xlabel('$\lambda (nm)$')
+                    ax2.set_ylabel("Normalized Flux")
+                    plt.vlines(CaI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
+                    plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaI band width = {}nm'.format(CaI_band))
+                    plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    ax2.set_xlim(CaI_line-(CaI_band/2)-0.1, CaI_line+(CaI_band/2)+0.1)
+                    plt.tight_layout()
+                    plt.legend()
+                    
+                    if save_figs:
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(HJD), format='pdf')
                 
         elif Instrument=='HARPS-N':
             
@@ -615,6 +658,11 @@ def H_alpha_index(file_path,
                 plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
                 plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
                 plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
+                
+                if CaI_index:
+                    plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='black', label='CaI {}±{}nm'.format(CaI_line, CaI_band/2))
+                    plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='black')
+                
                 ax.yaxis.set_ticks_position('both')
                 ax.xaxis.set_ticks_position('both')
                 plt.minorticks_on()
@@ -638,6 +686,22 @@ def H_alpha_index(file_path,
                 
                 if save_figs:
                         plt.savefig('{}_H_alpha_line_plot.pdf'.format(MJD), format='pdf')
+                        
+                if CaI_index:
+                    # Plots the zoomed in regions around the CaI line.
+                    f, ax2  = plt.subplots()
+                    ax2.plot(spec.spectral_axis, spec.flux)
+                    ax2.set_xlabel('$\lambda (nm)$')
+                    ax2.set_ylabel("Normalized Flux")
+                    plt.vlines(CaI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
+                    plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaI band width = {}nm'.format(CaI_band))
+                    plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    ax2.set_xlim(CaI_line-(CaI_band/2)-0.1, CaI_line+(CaI_band/2)+0.1)
+                    plt.tight_layout()
+                    plt.legend()
+                    
+                    if save_figs:
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(HJD), format='pdf')
                     
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
@@ -723,6 +787,9 @@ def H_alpha_index(file_path,
             sigma_CaI_from_mean = np.round((CaI_from_mean*np.sqrt(np.square(F_CaI_mean_err/F_CaI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 5)
             
             if print_stat:
+                print('CaI region used ranges from {}nm to {}nm:'.format(F_CaI_region.spectral_axis[0].value, 
+                                                                         F_CaI_region.spectral_axis[-1].value))
+                print('----------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in CaI: {}±{}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
                 print('----------------------------------------------------------------------------------------------------------------')
                 print('Index from mean of flux points in each band: {}±{}'.format(CaI_from_mean, sigma_CaI_from_mean))
