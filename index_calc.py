@@ -271,6 +271,9 @@ def H_alpha_index(file_path,
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(HJD), format='pdf')
                     
                     f, ax2 = plt.subplots()  
@@ -441,6 +444,9 @@ def H_alpha_index(file_path,
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -572,6 +578,9 @@ def H_alpha_index(file_path,
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -1013,6 +1022,9 @@ def NaI_index_Rodrigo(file_path,
                     plt.legend()
                     
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_F1_plot.pdf'.format(HJD), format='pdf')
                           
                 # Second order
@@ -1294,6 +1306,9 @@ def NaI_index_Rodrigo(file_path,
                     plt.legend()
                     
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                             
             elif norm_spec=='poly1dfit':
@@ -1517,6 +1532,9 @@ def NaI_index_Rodrigo(file_path,
                     plt.legend()
                     
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
             elif norm_spec=='poly1dfit':
@@ -1904,6 +1922,9 @@ def CaIIH_Index(file_path,
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(HJD), format='pdf')
 
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -2069,6 +2090,9 @@ def CaIIH_Index(file_path,
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
 
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -2201,6 +2225,9 @@ def CaIIH_Index(file_path,
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('----------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
