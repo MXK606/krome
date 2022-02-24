@@ -2,21 +2,21 @@
 # coding: utf-8
 
 """
-plotting.py: This python module contains functions to plot results obtained from the spec_analysis.py module.
+plotting.py: This python module contains functions to plot results obtained from the index_calc.py module.
 
 """
 
 __author__ = "Mukul Kumar"
 __email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "07-02-2021"
-__version__ = "1.0"
+__date__ = "24-02-2022"
+__version__ = "1.1"
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
 
-## Defining a corr. plotting function
+## Defining a function that calculates and plots the Pearson R correlation between two datasets  
 
 def plot_corr(x,
               xerr,
@@ -28,12 +28,62 @@ def plot_corr(x,
               ecolor='red',
               capsize=3, 
               alpha=1.0,
-              title=None,
-              save_plot_name=None, 
-              save_fig=False):
+              title=None, 
+              save_fig=False
+              save_plot_name=None):
     
     """
-    Type Function Docstring Here!
+    Calculates the Pearson R correlation coefficient between two datasets using the scipy.stats.pearsonr function and 
+    plots a best fit line to the two datasets scatter plot.
+    
+    Parameters:
+    -----------
+    x: arr
+    Array containing the first dataset
+    
+    xerr: arr
+    Array containing the error on the first dataset. 
+    NOTE: The errors are used ONLY for plotting and are not used when calculating the correlation coefficient.
+    
+    y: arr
+    Array containing the second dataset
+    
+    yerr: arr
+    Array containing the error on the second dataset
+    
+    xlabel: str
+    Label for the x-axis
+    
+    ylabel: str
+    Label for the y-axis
+    
+    fmt: str, default='ok'
+    Format for plotting the data points. Default is black dots
+    
+    ecolor: str, default='red'
+    Error bar color
+    
+    capsize: int, default=3
+    Error bar capsize
+    
+    alpha: int, default=1.0
+    Plot transparency
+    
+    title: str, default=None
+    Plot title
+    
+    save_fig: bool, default=False
+    Saves the plot as a PDF in the working  directory
+    
+    save_plot_name: str, default=None
+    Name with which to save the plot
+    
+    Returns:
+    --------
+    
+    Pearson’s correlation coefficient, Two-tailed p-value, slope of the best fit line and its intercept.
+    
+    All values are type float()
     
     """
     
@@ -64,8 +114,3 @@ def plot_corr(x,
     print('Intercept: {} '.format(np.round(intercept, 4)))
     
     return p, p_val, slope, intercept
-
-## Defining a function for plotting the activity index against the JD
-
-
-
