@@ -30,13 +30,16 @@ def find_string_idx(out_file_path, string):
     
     Parameters:
     -----------
-    file_path: str
+    out_file_path: str
+    Path of the .out file
     
     string: str
+    String to check for in the .out file
     
     Returns:
     --------
     Line index: int
+    Index of the line in the .out file that contains the given string
     
     
     """
@@ -75,13 +78,13 @@ def obj_params(out_file_path):
     
     Parameters:
     -----------
-    
-    None: This is a Class method.
+    out_file_path: str
+    Path of the .out file
     
     Returns:
     --------
-    
     object parameters: dict
+    Dictionary containing the usefule object parameters
     
     """
     
@@ -549,45 +552,61 @@ def LS_periodogram(x,
                    fig_name=None):
     
     """
-    Type Function Docstring Here!
+    Calculates and plots the astropy.timeseries.LombScargle periodogram showcasing the trial periods in log scale. 
+    See https://docs.astropy.org/en/stable/timeseries/lombscargle.html for more info on default parameters.
     
     Parameters:
     -----------
     
-    x
+    x: array
+    Observation timestamps
     
-    y
+    y: array
+    Observation values
     
-    dy
+    dy: array
+    Error on observation values
     
-    minimum_frequency
+    minimum_frequency: int
+    Minimum frequency to test
     
-    maximum_frequency
+    maximum_frequency: int
+    Minimum frequency to test
     
-    samples_per_peak=10
+    samples_per_peak: int, default=10
+    Number of sample frequencies to test per peak
     
-    nterms=1
+    nterms: int, default=1
+    Number of Fourier terms to use for the LombScargle model
     
-    method='chi2'
+    method: str, default='chi2'
+    LombScargle implementation method. 
     
-    normalization='model'
+    normalization: str, default='model'
+    Periodogram normalization method.
     
-    fap_method='bootstrap'
+    fap_method: str, default='bootstrap'
+    False Alarm Probability (FAP) calculation method.
     
-    probabilities=None
+    probabilities: str, default=None
+    Probabilities to determine the False Alarm Levels (FALs) for.
     
-    sampling_window_func=True
+    sampling_window_func: bool, default=True
+    Calculates and plots the observation sampling windoe function periodogram following https://ui.adsabs.harvard.edu/abs/2018ApJS..236...16V/abstract
     
-    show_plot=True
+    show_plot: bool, default=True
+    Plots the resulting periodogram
     
-    save_fig=False
+    save_fig: bool, default=False
+    Saves the periodogram plot
     
-    fig_name=None
+    fig_name: str, default=None
+    Name with which to save the plot
     
     Returns:
     --------
     
-    frequency grid, periodogram power, array with index of periods with highest powers in decending order & ;False Alarm Level and False Alarm Probabilities
+    frequency grid, periodogram power, array with index of periods with highest powers in decending order & if True; False Alarm Level and False Alarm Probabilities
     
     All of these are numpy.ndarray. 
     
