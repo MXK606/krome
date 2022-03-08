@@ -29,7 +29,7 @@ def plot_corr(x,
               capsize=3, 
               alpha=1.0,
               title=None, 
-              save_fig=False
+              save_fig=False,
               save_plot_name=None):
     
     """
