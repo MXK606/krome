@@ -8,8 +8,8 @@ spec_analysis.py: This python module contains supplementary functions used by th
 
 __author__ = "Mukul Kumar"
 __email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "24-02-2022"
-__version__ = "1.0"
+__date__ = "10-03-2022"
+__version__ = "1.2"
 
 import numpy as np
 import pandas as pd
