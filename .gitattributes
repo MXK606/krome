@@ -1,1 +1,4 @@
-Test_files/* linguist-vendored
+*.fits linguist-detectable=false
+*.meta linguist-detectable=false
+*.out linguist-detectable=false
+*.slinguist-detectable=false
