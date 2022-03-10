@@ -352,7 +352,9 @@ def read_data(file_path,
     
     object parameters: dict
     
-    spectral orders: pandas df (NARVAL) / spectrum: list
+    For NARVAL; spectral orders: pandas df
+    
+    For Others; spectrum: list
     
     """
     
@@ -431,6 +433,8 @@ def read_data(file_path,
         object_parameters = {}
         
         object_parameters['MJD'] = file[0].header['MJD-OBS'] # Modified Julian Date
+        object_parameters['BJD'] = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
+        object_parameters['BERV'] = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
         object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in s
         object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         object_parameters['PROG_ID'] = file[0].header['PROG_ID'] # Program ID
@@ -630,6 +634,9 @@ def LS_periodogram(x,
     # The frequencies are sampled by the autofrequency() method such that the delta_f = 1/n0*T 
     # The length of the freq. array is then given as N_evals = n0*T*f_max ! 
     
+    if np.isnan(np.sum(dy)):
+        raise ValueError('Error array "dy" contains NaN values')
+    
     ls = LombScargle(x, y, dy, nterms=nterms, normalization=normalization)
     
     freq, power = ls.autopower(minimum_frequency=minimum_frequency, maximum_frequency=maximum_frequency, samples_per_peak=samples_per_peak, method=method)
@@ -644,7 +651,7 @@ def LS_periodogram(x,
     
     if nterms==1: # FAL and FAP's are not provided for multiple Fourier term periodograms!
         
-        print('Calculating False Alarm Probabilities/Levels (FAPs/FALs)')
+        print('Calculating False Alarm Probabilities/Levels (FAPs/FALs) using the {} method'.format(fap_method))
         print('----------------------------------------------------------------------------------------------------------------')
         
         if probabilities != None:
@@ -727,7 +734,7 @@ def LS_periodogram(x,
 def period_fit(x,
                y,
                dy,
-               best_frequency,
+               period,
                fit,
                normalization='model',
                ylabel=None,
@@ -741,30 +748,49 @@ def period_fit(x,
     Parameters:
     -----------
     
-    x
+    x: array
+    Observation timestaps
     
-    y
+    y: array
+    Observation values
     
-    dy
+    dy: array
+    Error on observation values
     
-    best_frequency
+    period: int
+    Orbital period of the model to fit
     
-    fit
+    fit: str
+    Fit type; available options are 
+    'BJD' which fits the model over the enitre observation timespan
+    'phase' which phase folds the data before fitting the model form 0 - 1
     
-    normalization='model
+    normalization: str, default='model'
+    Periodogram normalization method. 
+    See https://docs.astropy.org/en/stable/timeseries/lombscargle.html for more info.
     
-    ylabel=None
+    ylabel: str, default=None
+    y-axis label for the period fit figure
     
-    multi_term=False
+    multi_term: bool, default=False
+    Plots additional model fits obtained from periodograms consiting 2 and 3 Fourier terms.
+    See https://docs.astropy.org/en/stable/timeseries/lombscargle.html for more info.
     
-    save_fig=False
+    save_fig: bool, default=False
+    Saves the model fit plot as a PDF in the working directory
     
-    save_name=None
+    save_name: str, default=None
+    Name with which to save the plot PDF.
     
     Returns:
     --------
+    If fit = 'BJD';
+    model fit timestamps, model fit y values (model fit y values of the multi-term models if multi_term is True)
     
-    All of these are numpy.ndarray. 
+    If fit = 'phase':
+    phase folded x values, model fit timestamps, model fit y values (model fit y values of the multi-term models if multi_term is True)
+    
+    All of these are type numpy.ndarray. 
     
     """
     
@@ -775,11 +801,9 @@ def period_fit(x,
         ls_1 = LombScargle(x - 2450000, y, dy, nterms=1, normalization=normalization)
         ls_2 = LombScargle(x - 2450000, y, dy, nterms=2, normalization=normalization)
         ls_3 = LombScargle(x - 2450000, y, dy, nterms=3, normalization=normalization)
-        y_fit_1 = ls_1.model(t_fit, best_frequency)
-        y_fit_2 = ls_2.model(t_fit, best_frequency)
-        y_fit_3 = ls_3.model(t_fit, best_frequency)
-        
-        phase_folded_x = pyasl.foldAt(x, 1/best_frequency)
+        y_fit_1 = ls_1.model(t_fit, 1/period)
+        y_fit_2 = ls_2.model(t_fit, 1/period)
+        y_fit_3 = ls_3.model(t_fit, 1/period)
         
         plt.figure(figsize=(10,4))
         plt.errorbar(x - 2450000, y, yerr=dy, fmt='.k', capsize=5)
@@ -808,25 +832,25 @@ def period_fit(x,
         else:
             return t_fit, y_fit_1
             
-    else:
-    
+    elif fit == 'phase':
+        
         t_fit = np.linspace(0.0, 1/best_frequency, 10000)
         ls_1 = LombScargle(x, y, dy, nterms=1, normalization=normalization)
         ls_2 = LombScargle(x, y, dy, nterms=2, normalization=normalization)
         ls_3 = LombScargle(x, y, dy, nterms=3, normalization=normalization)
-        y_fit_1 = ls_1.model(t_fit, best_frequency)
-        y_fit_2 = ls_2.model(t_fit, best_frequency)
-        y_fit_3 = ls_3.model(t_fit, best_frequency)
+        y_fit_1 = ls_1.model(t_fit, 1/period)
+        y_fit_2 = ls_2.model(t_fit, 1/period)
+        y_fit_3 = ls_3.model(t_fit, 1/period)
         
-        phase_folded_x = pyasl.foldAt(x, 1/best_frequency)
+        phase_folded_x = pyasl.foldAt(x, period)
         
         plt.figure(figsize=(10,4))
         plt.errorbar(phase_folded_x, y, yerr=dy, fmt='ok', capsize=5)
-        plt.plot(t_fit*best_frequency, y_fit_1, '-r', label='Fundamental')
+        plt.plot(t_fit/period, y_fit_1, '-r', label='Fundamental')
         
         if multi_term:
-            plt.plot(t_fit*best_frequency, y_fit_2, '-b', alpha=0.5, label='Fundamental + 1st Harmonic')
-            plt.plot(t_fit*best_frequency, y_fit_3, '-g', alpha=0.5, label='Fundamental + First 2 Harmonics')
+            plt.plot(t_fit/period, y_fit_2, '-b', alpha=0.5, label='Fundamental + 1st Harmonic')
+            plt.plot(t_fit/period, y_fit_3, '-g', alpha=0.5, label='Fundamental + First 2 Harmonics')
             plt.legend()
         
         plt.xlabel('Period Phase')
@@ -924,6 +948,8 @@ def ephemerides(out_file_path,
     --------
     
     HJD, Number of orbits done since T_e, Mean anomaly, Eccentric anomaly, True anomaly, orbital phase, rotational phase
+    
+    All of these are floating points.
     
     """
     

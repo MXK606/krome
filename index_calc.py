@@ -376,6 +376,8 @@ def H_alpha_index(file_path,
             #Extracting useful information from the fits file header
             
             MJD = file[0].header['MJD-OBS'] # Modified Julian Date
+            BJD = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
+            BERV = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
             EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
             OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
             PROG_ID = file[0].header['PROG_ID'] # Program ID
@@ -813,7 +815,7 @@ def H_alpha_index(file_path,
             results.append(res)
         
         elif Instrument=='HARPS':
-            res = [MJD, OBS_DATE, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean, RV, EXPTIME, SNR, RON, PROG_ID]
+            res = [MJD, BJD, BERV, OBS_DATE, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean, RV, EXPTIME, SNR, RON, PROG_ID]
             results.append(res)
             
         elif Instrument=='HARPS-N':
@@ -834,7 +836,7 @@ def H_alpha_index(file_path,
                 
             elif Instrument=='HARPS':
                 
-                header = ['MJD', 'OBS_DATE', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
+                header = ['MJD', 'BJD', 'BERV', 'OBS_DATE', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
                 
             elif Instrument=='HARPS-N':
                 
@@ -915,6 +917,7 @@ def NaI_index_Rodrigo(file_path,
     
     hfv: int, default: 10
     Number of highest flux values (hfv) to use for estimating the continuum flux in each red/blue band.
+    NOTE: If you'd like to use all of the flux points within the bandwidth, set this parameter to None.
     
     Instrument: str, default: 'NARVAL'
     The instrument from which the data has been collected. Input takes arguments 'NARVAL', 'HARPS' or 'HARPS-N'.
@@ -1316,6 +1319,8 @@ def NaI_index_Rodrigo(file_path,
             #Extracting useful information from the fits file header
             
             MJD = file[0].header['MJD-OBS'] # Modified Julian Date
+            BJD = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
+            BERV = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
             EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
             OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
             PROG_ID = file[0].header['PROG_ID'] # Program ID
@@ -1498,21 +1503,38 @@ def NaI_index_Rodrigo(file_path,
     
                 f, ax  = plt.subplots(figsize=(10,4)) 
                 ax.plot(spec.spectral_axis, spec.flux, color='black')
-                ax.axhline(1.0, ls='--', c='gray')
-                ax.plot(x, y, 'og--')
+                ax.plot(x, y, 'og--', label='pseudo-continuum')
                 plt.vlines(NaID1-(NaI_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='black')
                 plt.vlines(NaID1+(NaI_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='black')
                 plt.vlines(NaID2-(NaI_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='black')
                 plt.vlines(NaID2+(NaI_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                plt.vlines(F1_line-(F1_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='blue')
-                plt.vlines(F1_line+(F1_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='blue')
-                plt.vlines(F2_line-(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='red')
-                plt.vlines(F2_line+(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='--', colors='red')
+                plt.vlines(F1_line-(F1_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles=':', colors='blue', label='Blue cont. {}±{}'.format(F1_line, F1_band/2))
+                plt.vlines(F1_line+(F1_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles=':', colors='blue')
+                plt.vlines(F2_line-(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='-.', colors='red', label='Red cont. {}±{}'.format(F2_line, F2_band/2))
+                plt.vlines(F2_line+(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='-.', colors='red')
                 ax.set_xlabel('$\lambda (nm)$')
                 ax.set_ylabel("Normalized Flux")
+                plt.legend()
                 
                 if save_figs:
                         plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                        
+                f, ax1  = plt.subplots(figsize=(10,4))
+                ax1.plot(spec.spectral_axis, spec.flux, color='black')
+                ax1.set_xlabel('$\lambda (nm)$')
+                ax1.set_ylabel("Normalized Flux")
+                plt.vlines(NaID1, ymin=0, ymax=max(spec.flux.value), linestyles=':', colors='red', label='D1')
+                plt.vlines(NaID2, ymin=0, ymax=max(spec.flux.value), linestyles=':', colors='blue', label='D2')
+                plt.vlines(NaID1-(NaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='D1,D2 band width = {}nm'.format(NaI_band))
+                plt.vlines(NaID1+(NaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                plt.vlines(NaID2-(NaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                plt.vlines(NaID2+(NaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                ax1.set_xlim(NaID2-(NaI_band/2)-0.2, NaID1+(NaI_band/2)+0.2)
+                plt.tight_layout()
+                plt.legend()
+                
+                if save_figs:
+                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(MJD), format='pdf')
             
             # Calculating mean flux in the D1,2 lines
             
@@ -1549,7 +1571,7 @@ def NaI_index_Rodrigo(file_path,
                 print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
                 print('----------------------------------------------------------------------------------------------------------------')
             
-            res = [MJD, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, SNR, RON, PROG_ID] # Creating a list containing the results for this file
+            res = [MJD, BJD, BERV, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, SNR, RON, PROG_ID] # Creating a list containing the results for this file
             results.append(res) # Appending the res list into the empty results list created at the start of this function
         
         elif Instrument=='HARPS-N':
@@ -1787,7 +1809,7 @@ def NaI_index_Rodrigo(file_path,
                 
             elif Instrument=='HARPS':
                 
-                header = ['MJD', 'OBS_DATE', 'I_NaI', 'I_NaI_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
+                header = ['MJD', 'BJD', 'BERV', 'OBS_DATE', 'I_NaI', 'I_NaI_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
                 
             elif Instrument=='HARPS-N':
                 
@@ -2094,13 +2116,15 @@ def CaIIH_Index(file_path,
             #Extracting useful information from the fits file header
             
             MJD = file[0].header['MJD-OBS'] # Modified Julian Date
+            BJD = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
+            BERV = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
             EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
             OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
             PROG_ID = file[0].header['PROG_ID'] # Program ID
             SNR = file[0].header['SNR'] # Signal to Noise ratio
             SIGDET = file[0].header['HIERARCH ESO DRS CCD SIGDET']  #CCD Readout Noise [e-]
             CONAD = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
-            RON = SIGDET * CONAD #CCD Readout Noise [ADU]
+            RON = np.round((SIGDET * CONAD), 4) #CCD Readout Noise [ADU]
             
             # Defining each wavelength, flux and flux error arrays from the FITS file!
             
@@ -2436,7 +2460,7 @@ def CaIIH_Index(file_path,
             results.append(res)
         
         elif Instrument=='HARPS':
-            res = [MJD, OBS_DATE, CaIIH_from_mean, sigma_CaIIH_from_mean, RV, EXPTIME, SNR, RON, PROG_ID]
+            res = [MJD, BJD, BERV, OBS_DATE, CaIIH_from_mean, sigma_CaIIH_from_mean, RV, EXPTIME, SNR, RON, PROG_ID]
             results.append(res)
             
         elif Instrument=='HARPS-N':
@@ -2450,17 +2474,17 @@ def CaIIH_Index(file_path,
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('----------------------------------------------------------------------------------------------------------------')
             
-            if Instrument=='NARVAL':
-                
-                header = ['HJD', 'I_CaIIH', 'I_CaIIH_err']
-                
-            elif Instrument=='HARPS':
-                
-                header = ['MJD', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
-                
-            elif Instrument=='HARPS-N':
-                
-                header = ['MJD', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'PROG_ID']
+        if Instrument=='NARVAL':
+            
+            header = ['HJD', 'I_CaIIH', 'I_CaIIH_err']
+            
+        elif Instrument=='HARPS':
+            
+            header = ['MJD', 'BJD', 'BERV', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
+            
+        elif Instrument=='HARPS-N':
+            
+            header = ['MJD', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'PROG_ID']
 
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
