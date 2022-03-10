@@ -502,7 +502,10 @@ def H_alpha_index(file_path,
                 f, ax  = plt.subplots(figsize=(10,4)) 
                 ax.plot(spec.spectral_axis, spec.flux, '-k')  
                 ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
                 plt.vlines(H_alpha_line-(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Hα {}±{}nm'.format(H_alpha_line, H_alpha_band/2))
                 plt.vlines(H_alpha_line+(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
                 plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
@@ -527,7 +530,10 @@ def H_alpha_index(file_path,
                 f, ax1  = plt.subplots(figsize=(10,4)) 
                 ax1.plot(spec.spectral_axis, spec.flux)
                 ax1.set_xlabel('$\lambda (nm)$')
-                ax1.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax1.set_ylabel("Normalized Flux")
+                else:
+                    ax1.set_ylabel("Flux (adu)")
                 plt.vlines(H_alpha_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
                 plt.vlines(H_alpha_line-(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Hα band width = {}nm'.format(H_alpha_band))
                 plt.vlines(H_alpha_line+(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
@@ -543,7 +549,10 @@ def H_alpha_index(file_path,
                     f, ax2  = plt.subplots()
                     ax2.plot(spec.spectral_axis, spec.flux)
                     ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel("Normalized Flux")
+                    if norm_spec:
+                        ax2.set_ylabel("Normalized Flux")
+                    else:
+                        ax2.set_ylabel("Flux (adu)")
                     plt.vlines(CaI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
                     plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaI band width = {}nm'.format(CaI_band))
                     plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
@@ -633,7 +642,7 @@ def H_alpha_index(file_path,
                     ax1.plot(spec1d.spectral_axis, spec1d.flux)  
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
+                    ax1.set_ylabel('Flux (adu)')
                     ax1.set_title("Continuum Fitting")
                     
                     # Saves the plot in a pdf format in the working directory
@@ -668,7 +677,10 @@ def H_alpha_index(file_path,
                 f, ax  = plt.subplots(figsize=(10,4))  
                 ax.plot(spec.spectral_axis, spec.flux, '-k')  
                 ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
                 plt.vlines(H_alpha_line-(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Hα {}±{}nm'.format(H_alpha_line, H_alpha_band/2))
                 plt.vlines(H_alpha_line+(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
                 plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
@@ -693,7 +705,10 @@ def H_alpha_index(file_path,
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux)
                 ax1.set_xlabel('$\lambda (nm)$')
-                ax1.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax1.set_ylabel("Normalized Flux")
+                else:
+                    ax1.set_ylabel("Flux (adu)")
                 plt.vlines(H_alpha_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
                 plt.vlines(H_alpha_line-(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Hα band width = {}nm'.format(H_alpha_band))
                 plt.vlines(H_alpha_line+(H_alpha_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
@@ -709,7 +724,10 @@ def H_alpha_index(file_path,
                     f, ax2  = plt.subplots()
                     ax2.plot(spec.spectral_axis, spec.flux)
                     ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel("Normalized Flux")
+                    if norm_spec:
+                        ax2.set_ylabel("Normalized Flux")
+                    else:
+                        ax2.set_ylabel("Flux (adu)")
                     plt.vlines(CaI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
                     plt.vlines(CaI_line-(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaI band width = {}nm'.format(CaI_band))
                     plt.vlines(CaI_line+(CaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
@@ -1529,7 +1547,10 @@ def NaI_index_Rodrigo(file_path,
                 plt.vlines(F2_line-(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='-.', colors='red', label='Red cont. {}±{}'.format(F2_line, F2_band/2))
                 plt.vlines(F2_line+(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value), linestyles='-.', colors='red')
                 ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
                 plt.legend()
                 
                 if save_figs:
@@ -1538,7 +1559,10 @@ def NaI_index_Rodrigo(file_path,
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux, color='black')
                 ax1.set_xlabel('$\lambda (nm)$')
-                ax1.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax1.set_ylabel("Normalized Flux")
+                else:
+                    ax1.set_ylabel("Flux (adu)")
                 plt.vlines(NaID1, ymin=0, ymax=max(spec.flux.value), linestyles=':', colors='red', label='D1')
                 plt.vlines(NaID2, ymin=0, ymax=max(spec.flux.value), linestyles=':', colors='blue', label='D2')
                 plt.vlines(NaID1-(NaI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='D1,D2 band width = {}nm'.format(NaI_band))
@@ -1734,7 +1758,10 @@ def NaI_index_Rodrigo(file_path,
                 plt.vlines(F2_line-(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value)+10, linestyles='--', colors='red')
                 plt.vlines(F2_line+(F2_band/2), ymin=-0.1, ymax=max(spec.flux.value)+10, linestyles='--', colors='red')
                 ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalized Flux")
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
                 
                 if save_figs:
                         plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
@@ -2232,7 +2259,7 @@ def CaIIH_Index(file_path,
                     ax1.plot(spec1d.spectral_axis, spec1d.flux)  
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalised Flux')
+                    ax1.set_ylabel('Flux (adu)')
                     ax1.set_title("Continuum Fitting") 
                     
                     # Saves the plot in a pdf format in the working directory
@@ -2266,7 +2293,10 @@ def CaIIH_Index(file_path,
                 ax  = plt.subplots()[1]  
                 ax.plot(spec.spectral_axis, spec.flux)  
                 ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalised Flux")
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
                 plt.vlines(CaIIH_line, ymin=0.0, ymax=2.5, linestyles='dotted', colors='green')
                 plt.vlines(CaIIH_line-(CaIIH_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaIIH band width = ({}±{})nm'.format(CaIIH_line, CaIIH_band/2))
                 plt.vlines(CaIIH_line+(CaIIH_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black')
@@ -2281,7 +2311,10 @@ def CaIIH_Index(file_path,
                 ax1  = plt.subplots()[1]  
                 ax1.plot(spec.spectral_axis, spec.flux)
                 ax1.set_xlabel('$\lambda (nm)$')
-                ax1.set_ylabel("Normalised Flux")
+                if norm_spec:
+                    ax1.set_ylabel("Normalized Flux")
+                else:
+                    ax1.set_ylabel("Flux (adu)")
                 plt.vlines(CaIIH_line, ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='dotted', colors='green')
                 plt.vlines(CaIIH_line-(CaIIH_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black', label='CaIIH band width = {}nm'.format(CaIIH_band))
                 plt.vlines(CaIIH_line+(CaIIH_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black')
@@ -2376,7 +2409,7 @@ def CaIIH_Index(file_path,
                     ax1.plot(spec1d.spectral_axis, spec1d.flux)  
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
+                    ax1.set_ylabel('Flux (adu)')
                     ax1.set_title("Continuum Fitting")
                     
                     # Saves the plot in a pdf format in the working directory
@@ -2410,7 +2443,10 @@ def CaIIH_Index(file_path,
                 ax  = plt.subplots()[1]  
                 ax.plot(spec.spectral_axis, spec.flux)  
                 ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalised Flux")
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
                 plt.vlines(CaIIH_line, ymin=0.0, ymax=2.5, linestyles='dotted', colors='green')
                 plt.vlines(CaIIH_line-(CaIIH_band/2), ymin=-1.0, ymax=4, linestyles='--', colors='black', label='CaIIH band width = ({}±{})nm'.format(CaIIH_line, CaIIH_band/2))
                 plt.vlines(CaIIH_line+(CaIIH_band/2), ymin=-1.0, ymax=4, linestyles='--', colors='black')
@@ -2425,7 +2461,10 @@ def CaIIH_Index(file_path,
                 ax1  = plt.subplots()[1]  
                 ax1.plot(spec.spectral_axis, spec.flux)
                 ax1.set_xlabel('$\lambda (nm)$')
-                ax1.set_ylabel("Normalised Flux")
+                if norm_spec:
+                    ax1.set_ylabel("Normalized Flux")
+                else:
+                    ax1.set_ylabel("Flux (adu)")
                 plt.vlines(CaIIH_line, ymin=0.0, ymax=2.5, linestyles='dotted', colors='green')
                 plt.vlines(CaIIH_line-(CaIIH_band/2), ymin=-1, ymax=4, linestyles='--', colors='black', label='CaIIH band width = {}nm'.format(CaIIH_band))
                 plt.vlines(CaIIH_line+(CaIIH_band/2), ymin=-1, ymax=4, linestyles='--', colors='black')
