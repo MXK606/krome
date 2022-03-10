@@ -1,4 +1,4 @@
 *.fits linguist-detectable=false
 *.meta linguist-detectable=false
 *.out linguist-detectable=false
-*.slinguist-detectable=false
+*.s linguist-detectable=false
