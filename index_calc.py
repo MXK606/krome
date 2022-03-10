@@ -14,10 +14,11 @@ __version__ = "1.7.2"
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import csv
+import warnings
 from tqdm.notebook import tqdm as log_progress
 import astropy.units as u
 import astropy as ap
-import csv
 from specutils import Spectrum1D, SpectralRegion
 from specutils.fitting import fit_generic_continuum
 from specutils.manipulation import extract_region
@@ -250,7 +251,10 @@ def H_alpha_index(file_path,
                     print('----------------------------------------------------------------------------------------------------------------')
                 
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -414,7 +418,9 @@ def H_alpha_index(file_path,
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
                 
-                flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
@@ -589,7 +595,9 @@ def H_alpha_index(file_path,
             left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, F2_line+2)
             
-            flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
+            with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
             
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
@@ -1066,8 +1074,10 @@ def NaI_index_Rodrigo(file_path,
                     print('----------------------------------------------------------------------------------------------------------------')
                     
                 # First order
-                      
-                g1_fit = fit_generic_continuum(spec1, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+                     
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g1_fit = fit_generic_continuum(spec1, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -1105,8 +1115,10 @@ def NaI_index_Rodrigo(file_path,
                         plt.savefig('{}_cont_fit_F1_plot.pdf'.format(HJD), format='pdf')
                           
                 # Second order
-                      
-                g2_fit = fit_generic_continuum(spec2, model=Chebyshev1D(degree))
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g2_fit = fit_generic_continuum(spec2, model=Chebyshev1D(degree))
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -1139,8 +1151,10 @@ def NaI_index_Rodrigo(file_path,
                         plt.savefig('{}_cont_fit_F2_plot.pdf'.format(HJD), format='pdf')
                           
                 # Third order
-                      
-                g3_fit = fit_generic_continuum(spec3, model=Chebyshev1D(degree))
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g3_fit = fit_generic_continuum(spec3, model=Chebyshev1D(degree))
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -1358,7 +1372,9 @@ def NaI_index_Rodrigo(file_path,
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
                 
-                flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
@@ -1615,7 +1631,9 @@ def NaI_index_Rodrigo(file_path,
             left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, F2_line+2)
             
-            flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
+            with warnings.catch_warnings(): # Ignore warnings
+                warnings.simplefilter('ignore')
+                flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
             
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
@@ -2021,7 +2039,10 @@ def CaIIH_Index(file_path,
                     print('----------------------------------------------------------------------------------------------------------------')
                     
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+                
+                with warnings.catch_warnings(): # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -2156,7 +2177,9 @@ def CaIIH_Index(file_path,
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
                 
-                flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
+                with warnings.catch_warnings(): # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
@@ -2312,7 +2335,9 @@ def CaIIH_Index(file_path,
             left_idx = find_nearest(wvl, CaIIH_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, cont_R_line+2)
             
-            flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
+            with warnings.catch_warnings(): # Ignore warnings
+                warnings.simplefilter('ignore')
+                flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
             
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
