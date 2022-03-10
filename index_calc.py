@@ -8,8 +8,8 @@ index_calc.py: This python module contains the CaIIH, NaI, and Hα (CaI within i
 
 __author__ = "Mukul Kumar"
 __email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "25-02-2022"
-__version__ = "1.7.2"
+__date__ = "10-03-2022"
+__version__ = "1.8.1"
 
 import numpy as np
 import pandas as pd
