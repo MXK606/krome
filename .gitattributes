@@ -2,3 +2,4 @@
 *.meta linguist-detectable=false
 *.out linguist-detectable=false
 *.s linguist-detectable=false
+*.ipynb linguist-detectable=false
