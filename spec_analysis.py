@@ -14,6 +14,7 @@ __version__ = "1.2"
 import numpy as np
 import pandas as pd
 from astropy.io import fits
+import csv
 import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm as log_progress
 from PyAstronomy import pyasl
@@ -911,7 +912,8 @@ def ephemerides(file_path,
                 P_rot=44.09,
                 phase_start=2457464.49670, 
                 print_stat=True,
-                save_results=False):
+                save_results=False,
+                save_name=None):
     
     """
     
@@ -943,6 +945,15 @@ def ephemerides(file_path,
     phase_start: int, default=2457464.49670
     Starting point for the rotational phase. This ideally should be the first JD of your observation.
     Default value for GJ436b taken for the NARVAL 2016 observations downloaded from Polarbase.
+    
+    print_stat: bool, default=True
+    Prints the status of each action.
+    
+    save_results: bool, default=False
+    Saves the results as a csv file.
+    
+    save_name: str, default=None
+    Name with which to save the results file with.
     
     Returns:
     --------
@@ -1020,7 +1031,7 @@ def ephemerides(file_path,
         
         orb_phase = f/(2*np.pi) # converting f to orbital phase by dividing it with 2pi radians!
         
-        rot_phase = (JD - phase_start)/P_rot 
+        rot_phase = (JD - phase_start)/P_rot - int((JD - phase_start)/P_rot)
         
         if print_stat:
             print('True Anomaly: {}'.format(f))
@@ -1041,12 +1052,12 @@ def ephemerides(file_path,
         
         if print_stat:
             
-            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+            print('Saving results in the working directory in file: {}.csv'.format(save_name))
             print('----------------------------------------------------------------------------------------------------------------')
             
         header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase']
             
-        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+        with open('{}.csv'.format(save_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
             writer.writerow(header)
             for row in results:
