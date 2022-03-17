@@ -904,7 +904,7 @@ def find_nearest(array,
 
 # NOTE: These are all default parameters for the star GJ 436 and should be changed when using for another star
 
-def ephemerides(out_file_path,
+def ephemerides(file_path,
                 P_orb=2.644,
                 T_e=2455959.0039936211,
                 e=0.152,
@@ -921,33 +921,33 @@ def ephemerides(out_file_path,
     Parameters:
     -----------
     
-    out_file_path: str
-    List of paths of the .out file containing the OBS_HJD
+    file_path: str
+    List of paths of the .out/.fits file containing the OBS_HJD/OBS_BJD
     
     P_orb: int, default=2.644
     Planetary orbital period in days. 
-    Default value taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
+    Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
     
     T_e: int, default=2455959.0039936211
-    Epoch of periastron in HJD since the dates in .out files are HJD.
-    Default value taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2014AcA....64..323M
+    Epoch of periastron in HJD since the dates in .out files are HJD. Input in BJD instead if the given file_path is .fits. 
+    Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2014AcA....64..323M
     
     e: int, default=0.152
     Orbital eccentricity. 
-    Default value taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
+    Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
     
     P_rot: int, default=44.09
     Stellar rotation period in days.
-    Default value taken from https://ui.adsabs.harvard.edu/abs/2018Natur.553..477B/abstract
+    Default value for GJ436 taken from https://ui.adsabs.harvard.edu/abs/2018Natur.553..477B/abstract
     
     phase_start: int, default=2457464.49670
     Starting point for the rotational phase. This ideally should be the first JD of your observation.
-    Default value taken for the NARVAL 2016 observations downloaded from Polarbase.
+    Default value for GJ436b taken for the NARVAL 2016 observations downloaded from Polarbase.
     
     Returns:
     --------
     
-    HJD, Number of orbits done since T_e, Mean anomaly, Eccentric anomaly, True anomaly, orbital phase, rotational phase
+    HJD/BJD, Number of orbits done since T_e, Mean anomaly, Eccentric anomaly, True anomaly, orbital phase, rotational phase
     
     All of these are floating points.
     
@@ -960,23 +960,29 @@ def ephemerides(out_file_path,
     # Using the tqdm function 'log_progress' to provide a neat progress bar in Jupyter Notebook which shows the total number of
     # runs, the run time per iteration and the total run time for all files!
     
-    for i in log_progress(range(len(out_file_path)), desc='Calculating System Ephemerides'):
+    for i in log_progress(range(len(file_path)), desc='Calculating System Ephemerides'):
         
-    
-        file = open(out_file_path[i]).readlines() # Opening the .out file and reading each line as a string
-                    
-        string = '   Heliocentric Julian date (UTC) :' # Creating a string variable that matches the string in the .out file
-        
-        idx = find_string_idx(out_file_path[i], string) # Using the 'find_string_idx' function to find the index of the line that contains the above string. 
-        
-        HJD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
+        if file_path[i][-4:] == '.out':
+            
+            file = open(file_path[i]).readlines() # Opening the .out file and reading each line as a string
+                        
+            string = '   Heliocentric Julian date (UTC) :' # Creating a string variable that matches the string in the .out file
+            
+            idx = find_string_idx(file_path[i], string) # Using the 'find_string_idx' function to find the index of the line that contains the above string. 
+            
+            JD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
+            
+        elif file_path[i][-4:] == 'fits':
+            
+            hdu = fits.open(file_path[i])
+            JD = hdu[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
         
         # Calculating the mean anomaly M
         
         n = 2*np.pi/P_orb # mean motion in radians 
         
         # Total orbits done since last periastron of 2455959.0039936211
-        N = int((HJD - T_e)/P_orb)
+        N = int((JD - T_e)/P_orb)
         
         if print_stat:
             print('----------------------------------------------------------------------------------------------------------------')
@@ -985,7 +991,7 @@ def ephemerides(out_file_path,
         
         t = T_e + (N*P_orb) # time of last periastron RIGHT before our HJD!
         
-        mean_an = (HJD - t)*n # mean anomaly; (t - T)*n 
+        mean_an = (JD - t)*n # mean anomaly; (t - T)*n 
         
         if print_stat:
             print('Mean Anomaly: {}'.format(mean_an))
@@ -1014,7 +1020,7 @@ def ephemerides(out_file_path,
         
         orb_phase = f/(2*np.pi) # converting f to orbital phase by dividing it with 2pi radians!
         
-        rot_phase = (HJD - phase_start)/P_rot 
+        rot_phase = (JD - phase_start)/P_rot 
         
         if print_stat:
             print('True Anomaly: {}'.format(f))
@@ -1026,7 +1032,7 @@ def ephemerides(out_file_path,
         
         
         
-        res = HJD, N, M, E, f, orb_phase, rot_phase
+        res = JD, N, M, E, f, orb_phase, rot_phase
         
         results.append(res)
         
@@ -1038,7 +1044,7 @@ def ephemerides(out_file_path,
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('----------------------------------------------------------------------------------------------------------------')
             
-        header = ['HJD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase']
+        header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase']
             
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
