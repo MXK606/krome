@@ -185,9 +185,9 @@ def H_alpha_index(file_path,
             # Reading data using pandas and skipping the first 2 rows
 
             if Stokes_profile==['V']:
-                data_spec = pd.read_fwf(file_path[i], names=col_names_V, skiprows=2) 
+                data_spec = pd.read_csv(file_path[i], names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
             else:
-                data_spec = pd.read_fwf(file_path[i], names=col_names_I, skiprows=2)
+                data_spec = pd.read_csv(file_path[i], names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
                 
             # Extracting indivdidual spectral orders using 'extract_orders'
             # Orders #35 and #34 both contain the H alpha line for GJ 436 data. 
@@ -1028,9 +1028,9 @@ def NaI_index_Rodrigo(file_path,
             # Reading data using pandas and skipping the first 2 rows
             
             if Stokes_profile==['V']:
-                data_spec = pd.read_fwf(file_path[i], names=col_names_V, skiprows=2) 
+                data_spec = pd.read_csv(file_path[i], names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
             else:
-                data_spec = pd.read_fwf(file_path[i], names=col_names_I, skiprows=2)
+                data_spec = pd.read_csv(file_path[i], names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
             
             # Extracting indivdidual spectral orders using 'extract_orders'
             
@@ -2002,9 +2002,9 @@ def CaIIH_Index(file_path,
             # Reading data using pandas and skipping the first 2 rows
 
             if Stokes_profile==['V']:
-                data_spec = pd.read_fwf(file_path[i], names=col_names_V, skiprows=2) 
+                data_spec = pd.read_csv(file_path[i], names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
             else:
-                data_spec = pd.read_fwf(file_path[i], names=col_names_I, skiprows=2)
+                data_spec = pd.read_csv(file_path[i], names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
 
 
             # Extracting indivdidual spectral orders using the 'extract_orders' function
