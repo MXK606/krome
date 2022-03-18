@@ -195,7 +195,7 @@ def overplot(file_path,
     -----------
     
     file_path: str
-    File path of the .out/.fits file
+    File path of the .s/.fits file
     
     Instrument: str
     Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
@@ -212,7 +212,10 @@ def overplot(file_path,
         
         if Instrument=='NARVAL':
             
-            df = pd.read_fwf(file, skiprows=2, header=None) # skipping first 2 rows of .s file and setting header to None to call columns by their index
+            # Skipping first 2 rows of .s file and setting header to None to call columns by their index.
+            # Assigning the sep manually and setting skipinitialspace to True to fix the issue of multiple leading spaces; 2 spaces upto 1000nm then 1 space!
+            
+            df = pd.read_csv(file, header=None, skiprows=2, sep=' ', skipinitialspace=True) 
             spec = [df[0].values, df[1].values]
             spec_all.append(spec)
             
