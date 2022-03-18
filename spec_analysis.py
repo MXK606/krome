@@ -327,6 +327,7 @@ def read_data(file_path,
               Instrument,
               out_file_path=None,
               ccf_file_path=None,
+              print_stat=True,
               show_plots=True):
     
     """
@@ -339,11 +340,17 @@ def read_data(file_path,
     file_path: str
     File path of the .s or .fits file
     
-    out_file_path: str
-    File path of the .out file
-    
     Instrument: str
     Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
+    
+    out_file_path: str, default=None
+    File path of the .out file
+    
+    ccf_file_path: str, default=None
+    File path of the CCF file
+    
+    print_stat: bool, default=True
+    Prints the status of each process within the function.
     
     show_plots: bool, default=True
     Plots all overlapping spectral orders in one plot for NARVAL and plots the whole spectrum for the others.
@@ -351,9 +358,9 @@ def read_data(file_path,
     Returns:
     --------
     
-    object parameters: dict
+    object parameters: dict (Only if out_file_path given for NARVAL)
     
-    For NARVAL; spectral orders: pandas df
+    For NARVAL; spectral orders: list of pandas df
     
     For Others; spectrum: list
     
@@ -361,8 +368,9 @@ def read_data(file_path,
     
     if Instrument=='NARVAL':
         
-        print('Reading the data from the .s file: {}'.format(file_path))
-        print('----------------------------------------------------------------------------------------------------------------')
+        if print_stat:
+            print('Reading the data from the .s file: {}'.format(file_path))
+            print('----------------------------------------------------------------------------------------------------------------')
         
         # Checking if its a Stokes V or I .s file using pandas
     
@@ -374,43 +382,51 @@ def read_data(file_path,
         
         if len(df.columns)==6:
             data_spec = pd.read_fwf(file_path, names=col_names_V, skiprows=2) 
-            print('Stokes Profile: [V]')
-            print('----------------------------------------------------------------------------------------------------------------')
+            if print_stat:
+                print('Stokes Profile: [V]')
+                print('----------------------------------------------------------------------------------------------------------------')
         elif len(df.columns)==3:
             data_spec = pd.read_fwf(file_path, names=col_names_I, skiprows=2)
-            print('Stokes Profile: [I]')
-            print('----------------------------------------------------------------------------------------------------------------')
+            if print_stat:
+                print('Stokes Profile: [I]')
+                print('----------------------------------------------------------------------------------------------------------------')
         else:
             raise InputError('Input .s file contains unrecognisable number of columns. Recognised numbers are 3 (I profile) and 6 (V profile).')
-        
-        
-        print('Extracting useful object parameters from the .out file: {}'.format(out_file_path))
-        print('----------------------------------------------------------------------------------------------------------------')
-        
-        object_parameters = obj_params(out_file_path)
-        
-        keys = [i for i in object_parameters.keys()]
-        vals = [j for j in object_parameters.values()]
-    
-        for i in range(len(keys)):
-            print('{}: {}'.format(keys[i], vals[i]))
             
-        print('----------------------------------------------------------------------------------------------------------------')
-        
-        print('Extracting all overlapping spectral orders')
-        print('----------------------------------------------------------------------------------------------------------------')
+        if print_stat:    
+            print('----------------------------------------------------------------------------------------------------------------')
+            print('Extracting all overlapping spectral orders')
+            print('----------------------------------------------------------------------------------------------------------------')
         
         spec_orders = extract_orders(data_spec['Wavelength'],
                                      data_spec['Intensity'],
                                      data_spec['I_err'],
                                      show_plot=show_plots)
         
-        return object_parameters, spec_orders
+        if out_file_path != None:
+            
+            if print_stat:
+                print('Extracting useful object parameters from the .out file: {}'.format(out_file_path))
+                print('----------------------------------------------------------------------------------------------------------------')
+            
+            object_parameters = obj_params(out_file_path)
+            
+            keys = [i for i in object_parameters.keys()]
+            vals = [j for j in object_parameters.values()]
+            
+            for i in range(len(keys)):
+                print('{}: {}'.format(keys[i], vals[i]))
+        
+            return object_parameters, spec_orders
+        
+        else:
+            return spec_orders
     
     elif Instrument=='HARPS':
         
-        print('Reading the data from the .fits file: {}'.format(file_path))
-        print('----------------------------------------------------------------------------------------------------------------')
+        if print_stat:
+            print('Reading the data from the .fits file: {}'.format(file_path))
+            print('----------------------------------------------------------------------------------------------------------------')
         
         # Opening the FITS file using 'astropy.io.fits'
         # NOTE: The format of this FITS file must be ADP which contains the reduced spectrum with the wav, 
@@ -418,18 +434,11 @@ def read_data(file_path,
         
         file = fits.open(file_path)
         
-        if ccf_file_path:
-            print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
-            print('----------------------------------------------------------------------------------------------------------------')
-            ccf_file = fits.open(ccf_file_path) # Opening the CCF FITS file to extract the RV
-            RV = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
-            
-        else:
-            RV = float('nan')
-        
         #Extracting useful information from the fits file header
-        print('Extracting useful object parameters from the .fits file header')
-        print('----------------------------------------------------------------------------------------------------------------')
+        
+        if print_stat:
+            print('Extracting useful object parameters from the .fits file header')
+            print('----------------------------------------------------------------------------------------------------------------')
         
         object_parameters = {}
         
@@ -444,12 +453,23 @@ def read_data(file_path,
         object_parameters['CONAD'] = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
         object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
         
+        if ccf_file_path:
+            if print_stat:
+                print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
+                print('----------------------------------------------------------------------------------------------------------------')
+            ccf_file = fits.open(ccf_file_path) # Opening the CCF FITS file to extract the RV
+            object_parameters['RV'] = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
+            
+        else:
+            object_parameters['RV'] = float('nan')
+        
         keys = [i for i in object_parameters.keys()]
         vals = [j for j in object_parameters.values()]
     
-        for i in range(len(keys)):
-            print('{}: {}'.format(keys[i], vals[i]))
-        print('----------------------------------------------------------------------------------------------------------------')
+        if print_stat:
+            for i in range(len(keys)):
+                print('{}: {}'.format(keys[i], vals[i]))
+            print('----------------------------------------------------------------------------------------------------------------')
         
         # Defining each wavelength, flux and flux error arrays from the FITS file!
         
@@ -476,8 +496,9 @@ def read_data(file_path,
     
     elif Instrument=='HARPS-N':
         
-        print('Reading the data from the .fits file: {}'.format(file_path))
-        print('----------------------------------------------------------------------------------------------------------------')
+        if print_stat:
+            print('Reading the data from the .fits file: {}'.format(file_path))
+            print('----------------------------------------------------------------------------------------------------------------')
         
         # Opening the FITS file using 'astropy.io.fits'
         # NOTE: The format of this FITS file must be s1d which only contains flux array. 
@@ -486,18 +507,11 @@ def read_data(file_path,
         
         file = fits.open(file_path)
         
-        if ccf_file_path:
-            print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
-            print('----------------------------------------------------------------------------------------------------------------')
-            ccf_file = fits.open(ccf_file_path)  # Opening the CCF FITS file to extract the RV
-            RV = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
-            
-        else:
-            RV = float('nan')
-        
         #Extracting useful information from the fits file header
-        print('Extracting useful object parameters from the .fits file header')
-        print('----------------------------------------------------------------------------------------------------------------')
+        
+        if print_stat:
+            print('Extracting useful object parameters from the .fits file header')
+            print('----------------------------------------------------------------------------------------------------------------')
         
         object_parameters = {}
         
@@ -506,12 +520,23 @@ def read_data(file_path,
         object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         object_parameters['PROG_ID'] = file[0].header['PROGRAM'] # Program ID
         
+        if ccf_file_path:
+            if print_stat:
+                print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
+                print('----------------------------------------------------------------------------------------------------------------')
+            ccf_file = fits.open(ccf_file_path)  # Opening the CCF FITS file to extract the RV
+            object_parameters['RV'] = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
+            
+        else:
+            object_parameters['RV'] = float('nan')
+        
         keys = [i for i in object_parameters.keys()]
         vals = [j for j in object_parameters.values()]
-    
-        for i in range(len(keys)):
-            print('{}: {}'.format(keys[i], vals[i]))
-        print('----------------------------------------------------------------------------------------------------------------')
+        
+        if print_stat:
+            for i in range(len(keys)):
+                print('{}: {}'.format(keys[i], vals[i]))
+            print('----------------------------------------------------------------------------------------------------------------')
         
         # Defining each wavelength and flux arrays from the FITS file!
         # NOTE: No error column provided in the .fits file and no ReadOut noise as well to construct our own 
@@ -947,7 +972,7 @@ def ephemerides(file_path,
     Default value for GJ436b taken for the NARVAL 2016 observations downloaded from Polarbase.
     
     print_stat: bool, default=True
-    Prints the status of each action.
+    Prints the status of each process within the function.
     
     save_results: bool, default=False
     Saves the results as a csv file.
