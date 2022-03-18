@@ -15,10 +15,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
+from spec_analysis import read_data
 
 ## Defining a function that calculates and plots the Pearson R correlation between two datasets  
 
-def plot_corr(x,
+def corr_plot(x,
               xerr,
               y,
               yerr,
@@ -115,12 +116,14 @@ def plot_corr(x,
     
     return p, p_val, slope, intercept
 
-def plot_ephem(ephem_file,
+def ephem_plot(ephem_file,
                index_file,
                index_col_name,
                save_fig=False):
     
     """
+    Plots activity indices against their ephemerides.
+    
     Parameters:
     -----------
     
@@ -182,5 +185,49 @@ def plot_ephem(ephem_file,
         plt.savefig('{}_vs_ephemerides.pdf'.format(index_col_name), format='pdf')
         
     
+def overplot(file_path,
+             Instrument):
     
+    """
+    Overplots multiple spectrums for further analysis.
+    
+    Parameters:
+    -----------
+    
+    file_path: str
+    File path of the .out/.fits file
+    
+    Instrument: str
+    Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
+    
+    Returns:
+    --------
+    None. This is a void function.
+    
+    """
+    
+    spec_all = []
+    
+    for file in file_path:
+        
+        if Instrument=='NARVAL':
+            
+            df = pd.read_fwf(file, skiprows=2, header=None) # skipping first 2 rows of .s file and setting header to None to call columns by their index
+            spec = [df[0].values, df[1].values]
+            spec_all.append(spec)
+            
+        else:
+            op, spec = read_data(file, Instrument, print_stat=False, show_plots=False)
+            spec_all.append(spec)
+            
+    plt.figure(figsize=(10,4))
+    for spec in spec_all:
+        plt.plot(spec[0], spec[1])
+    
+    plt.xlabel(r'$\lambda$(nm)')
+    
+    if Instrument=='NARVAL':
+        plt.ylabel('Normalized Flux')
+    else:
+        plt.ylabel('Flux (adu)')
     
