@@ -381,12 +381,12 @@ def read_data(file_path,
         col_names_I = ['Wavelength', 'Intensity', 'I_err']
         
         if len(df.columns)==6:
-            data_spec = pd.read_fwf(file_path, names=col_names_V, skiprows=2) 
+            data_spec = pd.read_csv(file_path, names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
             if print_stat:
                 print('Stokes Profile: [V]')
                 print('----------------------------------------------------------------------------------------------------------------')
         elif len(df.columns)==3:
-            data_spec = pd.read_fwf(file_path, names=col_names_I, skiprows=2)
+            data_spec = pd.read_csv(file_path, names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True)
             if print_stat:
                 print('Stokes Profile: [I]')
                 print('----------------------------------------------------------------------------------------------------------------')
