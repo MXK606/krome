@@ -186,7 +186,9 @@ def ephem_plot(ephem_file,
         
     
 def overplot(file_path,
-             Instrument):
+             Instrument,
+             save_fig=False,
+             save_name=None):
     
     """
     Overplots multiple spectrums for further analysis.
@@ -199,6 +201,12 @@ def overplot(file_path,
     
     Instrument: str
     Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
+    
+    save_fig: bool, default=False
+    Saves the plot as a PDF in the working directory
+    
+    save_name: str, default=None
+    Name with which to save the plot.
     
     Returns:
     --------
@@ -233,4 +241,7 @@ def overplot(file_path,
         plt.ylabel('Normalized Flux')
     else:
         plt.ylabel('Flux (adu)')
+        
+    if save_fig:
+        plt.savefig('{}.pdf'.format(save_name), format='pdf')
     
