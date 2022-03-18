@@ -174,7 +174,7 @@ def H_alpha_index(file_path,
             else:
                 if print_stat:
                     print('out_file_path not given as an argument. Returning NaN as HJD instead.')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 HJD = float('nan')
         
             # Defining column names for pandas to read the file easily
@@ -195,7 +195,7 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('Extracting spectral orders')
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             orders = extract_orders(data_spec['Wavelength'].values, 
                                     data_spec['Intensity'].values, 
@@ -204,7 +204,7 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('Total {} spectral orders extracted'.format(len(orders)))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
@@ -213,7 +213,7 @@ def H_alpha_index(file_path,
                 print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
                 print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
                 print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
             
             # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of H alpha line; delta_lambda = (v/c)*lambda
@@ -239,16 +239,16 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(radial_velocity, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
                 
@@ -259,7 +259,7 @@ def H_alpha_index(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
                 
@@ -278,7 +278,7 @@ def H_alpha_index(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(HJD), format='pdf')
                     
                     f, ax2 = plt.subplots()  
@@ -413,7 +413,7 @@ def H_alpha_index(file_path,
             if flx_err_nan:
                 if print_stat:
                     print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
@@ -425,7 +425,7 @@ def H_alpha_index(file_path,
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
-                        print('----------------------------------------------------------------------------------------------------------------')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -443,12 +443,12 @@ def H_alpha_index(file_path,
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(radial_velocity, shift))
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
@@ -456,7 +456,7 @@ def H_alpha_index(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
                 spec_normalized = spec1d / y_cont_fitted
@@ -477,7 +477,7 @@ def H_alpha_index(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -617,21 +617,21 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(RV, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree))
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis)
                 spec_normalized = spec1d / y_cont_fitted
@@ -649,7 +649,7 @@ def H_alpha_index(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -776,7 +776,7 @@ def H_alpha_index(file_path,
                                                                  F1_region.spectral_axis[-1].value))
             print('F2 region used ranges from {}nm to {}nm:'.format(F2_region.spectral_axis[0].value, 
                                                                  F2_region.spectral_axis[-1].value))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         # H alpha index is computed using the calculated mean fluxes.
         
@@ -795,9 +795,9 @@ def H_alpha_index(file_path,
             print('Mean of {} flux points in H alpha: {}±{}'.format(len(F_H_alpha_region.flux), F_H_alpha_mean, F_H_alpha_mean_err))
             print('Mean of {} flux points in F1: {}±{}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
             print('Mean of {} flux points in F2: {}±{}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Index from mean of flux points in each band: {}±{}'.format(Hai_from_mean, sigma_Hai_from_mean))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         ## CaI_index calculation here
         
@@ -805,7 +805,7 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('Calculating CaI Index')
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Extracting the CaI region using the given CaI_line and CaI_band arguments 
             F_CaI_region = extract_region(spec, region=SpectralRegion((CaI_line-(CaI_band/2))*u.nm, (CaI_line+(CaI_band/2))*u.nm))
@@ -824,11 +824,11 @@ def H_alpha_index(file_path,
             if print_stat:
                 print('CaI region used ranges from {}nm to {}nm:'.format(F_CaI_region.spectral_axis[0].value, 
                                                                          F_CaI_region.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in CaI: {}±{}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Index from mean of flux points in each band: {}±{}'.format(CaI_from_mean, sigma_CaI_from_mean))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
         else:
             
@@ -854,7 +854,7 @@ def H_alpha_index(file_path,
         
         if print_stat:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             if Instrument=='NARVAL':
                 
@@ -1017,7 +1017,7 @@ def NaI_index_Rodrigo(file_path,
             else:
                 if print_stat:
                     print('out_file_path not given as an argument. Returning HJD as NaN instead.')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 HJD = float('nan')
                 
             # Defining column names for pandas to read the file easily
@@ -1036,7 +1036,7 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('Extracting spectral orders')
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             spectral_orders = extract_orders(data_spec['Wavelength'],
                                              data_spec['Intensity'],
@@ -1048,7 +1048,7 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('Using orders #39, #38 and #37 for Index calculation')
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c
             
@@ -1080,16 +1080,16 @@ def NaI_index_Rodrigo(file_path,
                                                                                                               spec2.spectral_axis[-1].value, 
                                                                                                               spec3.spectral_axis[0].value, 
                                                                                                               spec3.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(radial_velocity, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # Fitting the continuum for each order separately using 'specutils'
         
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectras by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
                 # First order
                      
@@ -1100,7 +1100,7 @@ def NaI_index_Rodrigo(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g1_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted1 = g1_fit(spec1.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
                 
@@ -1129,7 +1129,7 @@ def NaI_index_Rodrigo(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_F1_plot.pdf'.format(HJD), format='pdf')
                           
                 # Second order
@@ -1141,7 +1141,7 @@ def NaI_index_Rodrigo(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g2_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted2 = g2_fit(spec2.spectral_axis)
                 spec_normalized2 = spec2 / y_cont_fitted2
@@ -1177,7 +1177,7 @@ def NaI_index_Rodrigo(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g3_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted3 = g3_fit(spec3.spectral_axis)
                 spec_normalized3 = spec3 / y_cont_fitted3
@@ -1276,7 +1276,7 @@ def NaI_index_Rodrigo(file_path,
                 if save_figs:
                     if print_stat:
                         print('Saving plots as PDFs in the working directory')
-                        print('----------------------------------------------------------------------------------------------------------------')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     plt.savefig('{}_reduced_spec_plot.pdf'.format(HJD), format='pdf')
                         
                 f, ax1  = plt.subplots(figsize=(10,4))
@@ -1319,15 +1319,15 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
                 print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
                 print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
                 print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
                 print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             res = [HJD, NaID_index, sigma_NaID_index, F_cont.value, F_cont_err] # Creating a list containing the results for this file
             results.append(res) # Appending the res list into the empty results list created at the start of this function
@@ -1384,7 +1384,7 @@ def NaI_index_Rodrigo(file_path,
             if flx_err_nan:
                 if print_stat:
                     print('File contains NaN in flux errors array. Calculating flux errors using CCD readout noise: {}'.format(np.round(RON, 4)))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
@@ -1397,7 +1397,7 @@ def NaI_index_Rodrigo(file_path,
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
                         print('The calculated flux array contains a few NaN values due to negative flux encountered in the square root.')
-                        print('----------------------------------------------------------------------------------------------------------------')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -1414,14 +1414,14 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(RV, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             if norm_spec=='scale':
                 if print_stat:
                     print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
                 flux_norm = (spec1d.flux - min(spec1d.flux))/(max(spec1d.flux) - min(spec1d.flux)) # Same normalization as the ACTIN code. See here for more info on ACTIN https://github.com/gomesdasilva/ACTIN 
                 
@@ -1444,20 +1444,20 @@ def NaI_index_Rodrigo(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                             
             elif norm_spec=='poly1dfit':
                 if print_stat:
                     print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(1))
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis)
                 
@@ -1601,15 +1601,15 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
                 print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
                 print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
                 print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
                 print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             res = [MJD, BJD, BERV, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, SNR, RON, PROG_ID] # Creating a list containing the results for this file
             results.append(res) # Appending the res list into the empty results list created at the start of this function
@@ -1668,14 +1668,14 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(RV, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             if norm_spec=='scale':
                 if print_stat:
                     print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 flux_norm = (spec1d.flux - min(spec1d.flux))/(max(spec1d.flux) - min(spec1d.flux)) # Same normalization as the ACTIN code!
                 spec_normalized = Spectrum1D(spectral_axis=spec1d.spectral_axis,
                                              flux=flux_norm*u.Jy,
@@ -1696,20 +1696,20 @@ def NaI_index_Rodrigo(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
             elif norm_spec=='poly1dfit':
                 if print_stat:
                     print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(1))
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis)
                 
@@ -1823,15 +1823,15 @@ def NaI_index_Rodrigo(file_path,
             
             if print_stat:
                 print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
                 print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
                 print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
                 print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
                 print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             res = [MJD, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, PROG_ID] # Creating a list containing the results for this file
             results.append(res) # Appending the res list into the empty results list created at the start of this function
@@ -1846,7 +1846,7 @@ def NaI_index_Rodrigo(file_path,
         
         if print_stat:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             if Instrument=='NARVAL':
                 
@@ -1991,7 +1991,7 @@ def CaIIH_Index(file_path,
             else:
                 if print_stat:
                     print('out_file_path not given as an argument. Returning NaN as HJD instead.')
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 HJD = float('nan')
                 
             # Defining column names for pandas to read the file easily
@@ -2011,7 +2011,7 @@ def CaIIH_Index(file_path,
             
             if print_stat:
                 print('Extracting spectral orders')
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             orders = extract_orders(data_spec['Wavelength'].values, 
                                     data_spec['Intensity'].values, 
@@ -2019,7 +2019,7 @@ def CaIIH_Index(file_path,
             
             if print_stat:
                 print('Total {} spectral orders extracted'.format(len(orders)))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # The CaIIH line is found only within one spectral order, # 57
             
@@ -2029,7 +2029,7 @@ def CaIIH_Index(file_path,
                 print('The #57 order wavelength read from .s file using pandas is: {}'.format(order_57[0]))
                 print('The #57 order intensity read from .s file using pandas is: {}'.format(order_57[1]))
                 print('The #57 order intensity error read from .s file using pandas is: {}'.format(order_57[2]))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of CaIIH line; delta_lambda = (v/c)*lambda
 
@@ -2054,16 +2054,16 @@ def CaIIH_Index(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
 
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
                 
@@ -2074,7 +2074,7 @@ def CaIIH_Index(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
                 
@@ -2093,7 +2093,7 @@ def CaIIH_Index(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(HJD), format='pdf')
 
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -2199,7 +2199,7 @@ def CaIIH_Index(file_path,
             if flx_err_nan:
                 if print_stat:
                     print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
                 # array and so on. But for photometric limited measurements, this noise is generally insignificant.
@@ -2211,7 +2211,7 @@ def CaIIH_Index(file_path,
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
-                        print('----------------------------------------------------------------------------------------------------------------')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -2228,17 +2228,17 @@ def CaIIH_Index(file_path,
 
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(RV, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
                                                                                                                                                               spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
@@ -2246,7 +2246,7 @@ def CaIIH_Index(file_path,
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
                 spec_normalized = spec1d / y_cont_fitted
@@ -2266,7 +2266,7 @@ def CaIIH_Index(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
 
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -2381,24 +2381,24 @@ def CaIIH_Index(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(RV, shift))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
                                                                                                                                                               spec1d.spectral_axis[-1].value))
-                print('----------------------------------------------------------------------------------------------------------------')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
             if norm_spec:
                 if print_stat:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree))
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
                     print(g_fit)
-                    print('----------------------------------------------------------------------------------------------------------------')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 y_cont_fitted = g_fit(spec1d.spectral_axis)
                 spec_normalized = spec1d / y_cont_fitted
@@ -2416,7 +2416,7 @@ def CaIIH_Index(file_path,
                     if save_figs:
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
-                            print('----------------------------------------------------------------------------------------------------------------')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
@@ -2512,12 +2512,12 @@ def CaIIH_Index(file_path,
                                                                  F_CaIIH_region.spectral_axis[-1].value))
             print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
                                                                  cont_R_region.spectral_axis[-1].value))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Mean of {} flux points in CaIIH: {}±{}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
             print('Mean of {} flux points in cont R: {}±{}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Index from mean of flux points in each band: {}±{}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         if Instrument=='NARVAL':
             res = [HJD, CaIIH_from_mean, sigma_CaIIH_from_mean] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
@@ -2536,7 +2536,7 @@ def CaIIH_Index(file_path,
         
         if print_stat:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('----------------------------------------------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         if Instrument=='NARVAL':
             
