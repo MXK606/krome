@@ -900,6 +900,7 @@ def period_fit(x,
         else:
             return phase_folded_x, t_fit, y_fit_1
         
+## Defining a function to find the nearest value to the given value in an array
         
 def find_nearest(array,
                  value):
@@ -926,12 +927,10 @@ def find_nearest(array,
     idx = (np.abs(array - value)).argmin()
     return idx
 
-# Defining a function to calculate the true anomaly, i.e. orbital phase angle from the observation HJD
+## Defining a function to calculate the true anomaly, i.e. orbital phase angle from the observation JD
 
 # T_e = 2455959 JD taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2014AcA....64..323M
 # converting T_e from JD to HJD using https://doncarona.tamu.edu/apps/jd/
-
-# NOTE: These are all default parameters for the star GJ 436 and should be changed when using for another star
 
 def ephemerides(file_path,
                 P_orb=2.644,
