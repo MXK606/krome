@@ -581,7 +581,7 @@ def H_alpha_index(file_path,
             
             #Extracting useful information from the fits file header
             
-            MJD = file[0].header['MJD-OBS'] # Modified Julian Date
+            BJD = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
             EXPTIME = file[0].header['EXPTIME'] # Exposure time in seconds
             OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
             PROG_ID = file[0].header['PROGRAM'] # Program ID
@@ -845,7 +845,7 @@ def H_alpha_index(file_path,
             results.append(res)
             
         elif Instrument=='HARPS-N':
-            res = [MJD, OBS_DATE, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean, RV, EXPTIME, PROG_ID]
+            res = [BJD, OBS_DATE, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean, RV, EXPTIME, PROG_ID]
             results.append(res)
                 
     
@@ -866,7 +866,7 @@ def H_alpha_index(file_path,
                 
             elif Instrument=='HARPS-N':
                 
-                header = ['MJD', 'OBS_DATE', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err', 'RV', 'T_exp', 'PROG_ID']
+                header = ['BJD', 'OBS_DATE', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err', 'RV', 'T_exp', 'PROG_ID']
 
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
@@ -1632,7 +1632,7 @@ def NaI_index_Rodrigo(file_path,
             
             #Extracting useful information from the FITS file header
             
-            MJD = file[0].header['MJD-OBS'] # Modified Julian Date
+            BJD = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
             EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
             OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
             PROG_ID = file[0].header['PROGRAM'] # Program ID
@@ -1833,7 +1833,7 @@ def NaI_index_Rodrigo(file_path,
                 print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            res = [MJD, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, PROG_ID] # Creating a list containing the results for this file
+            res = [BJD, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, PROG_ID] # Creating a list containing the results for this file
             results.append(res) # Appending the res list into the empty results list created at the start of this function
             
         else:
@@ -1858,7 +1858,7 @@ def NaI_index_Rodrigo(file_path,
                 
             elif Instrument=='HARPS-N':
                 
-                header = ['MJD', 'OBS_DATE', 'I_NaI', 'I_NaI_err', 'RV', 'T_exp', 'PROG_ID']
+                header = ['BJD', 'OBS_DATE', 'I_NaI', 'I_NaI_err', 'RV', 'T_exp', 'PROG_ID']
 
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
@@ -2345,7 +2345,7 @@ def CaIIH_Index(file_path,
             
             #Extracting useful information from the fits file header
             
-            MJD = file[0].header['MJD-OBS'] # Modified Julian Date
+            BJD = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
             EXPTIME = file[0].header['EXPTIME'] # Exposure time in seconds
             OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
             PROG_ID = file[0].header['PROGRAM'] # Program ID
@@ -2528,7 +2528,7 @@ def CaIIH_Index(file_path,
             results.append(res)
             
         elif Instrument=='HARPS-N':
-            res = [MJD, OBS_DATE, CaIIH_from_mean, sigma_CaIIH_from_mean, RV, EXPTIME, PROG_ID]
+            res = [BJD, OBS_DATE, CaIIH_from_mean, sigma_CaIIH_from_mean, RV, EXPTIME, PROG_ID]
             results.append(res)
             
     # Saving the results in a csv file format  
@@ -2548,7 +2548,7 @@ def CaIIH_Index(file_path,
             
         elif Instrument=='HARPS-N':
             
-            header = ['MJD', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'PROG_ID']
+            header = ['BJD', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'PROG_ID']
 
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
