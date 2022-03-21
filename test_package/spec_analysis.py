@@ -817,7 +817,7 @@ def period_fit(x,
     model fit timestamps, model fit y values (model fit y values of the multi-term models if multi_term is True)
     
     If fit = 'phase':
-    phase folded x values, model fit timestamps, model fit y values (model fit y values of the multi-term models if multi_term is True)
+    phase folded x values, model fit timestamps, model fit y values, model fit parameters (model fit y values and parameters of the multi-term models if multi_term is True) [See 'The Lomb-Scargle Model' section here, https://docs.astropy.org/en/stable/timeseries/lombscargle.html, for more info on model parameters]
     
     All of these are type numpy.ndarray. 
     
@@ -896,9 +896,11 @@ def period_fit(x,
             plt.savefig('{}.pdf'.format(save_name), format='pdf')
             
         if multi_term:
-            return phase_folded_x, t_fit, y_fit_1, y_fit_2, y_fit_3
+            theta = [ls_1.model_parameters(1/period), ls_2.model_parameters(1/period), ls_3.model_parameters(1/period)]
+            return phase_folded_x, t_fit, y_fit_1, y_fit_2, y_fit_3, theta
         else:
-            return phase_folded_x, t_fit, y_fit_1
+            theta = ls_1.model_parameters(1/period)
+            return phase_folded_x, t_fit, y_fit_1, theta
         
 ## Defining a function to find the nearest value to the given value in an array
         
