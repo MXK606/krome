@@ -150,7 +150,7 @@ def ephem_plot(ephem_file,
     ## Sorting both dataframes (df) by their JDs before plotting
     
     ephem_data = ephem_data.sort_values(by='JD')
-    index_data = index_data.sort_values(by=index_data.columns[0]) ## Using df.columns to get the JD column name, i.e. either HJD or BJD
+    index_data = index_data.sort_values(by=index_data.columns[0]) ## Using df.columns to get the JD column name, i.e. either HJD, MJD or BJD
     
     ## Creating figure with two subplots 
     
