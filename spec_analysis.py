@@ -698,6 +698,7 @@ def LS_periodogram(x,
         
         plt.figure(figsize=(10,4))
         plt.plot(1/freq, power, color='black')
+        plt.vlines(1/freq[sort_idx[0]], ymin=-0.12, ymax=max(power), colors='red', linestyles='-', linewidth=3, label='P={}d'.format(np.round((1/freq[sort_idx[0]]), 3)))
         plt.xlabel('Period (days)')
         plt.ylabel('Power') # Note here that the Lomb-Scargle power is always a unitless quantity, because it is related to the 𝜒2 of the best-fit periodic model at each frequency.
         plt.title('LombScargle Periodogram with x-axis as logarithmic period')
@@ -737,12 +738,14 @@ def LS_periodogram(x,
             
             plt.figure(figsize=(10,4))
             plt.plot(1/freq_samp, power_samp, color='black')
+            plt.vlines(1/freq_samp[np.argmax(power_samp)], ymin=-0.12, ymax=max(power_samp), colors='red', linestyles='-', linewidth=3, label='P={}d'.format(np.round(1/freq_samp[np.argmax(power_samp)], 4)))
             plt.xlabel('Period (days)')
             plt.ylabel('Power') 
             plt.title('Sampling Window Function Periodogram')
             plt.tick_params(axis='both', direction='in', which='both')
             plt.xscale('log')
             plt.xlim(1/maximum_frequency-0.1,1/minimum_frequency+0.5)
+            plt.legend()
             plt.tight_layout()
             plt.show()
             
@@ -788,7 +791,7 @@ def period_fit(x,
     
     fit: str
     Fit type; available options are 
-    'BJD' which fits the model over the enitre observation timespan
+    'JD' which fits the model over the enitre observation timespan
     'phase' which phase folds the data before fitting the model form 0 - 1
     
     normalization: str, default='model'
@@ -810,7 +813,7 @@ def period_fit(x,
     
     Returns:
     --------
-    If fit = 'BJD';
+    If fit = 'JD';
     model fit timestamps, model fit y values (model fit y values of the multi-term models if multi_term is True)
     
     If fit = 'phase':
@@ -821,18 +824,18 @@ def period_fit(x,
     """
     
     
-    if fit == 'BJD':
+    if fit == 'JD':
         
-        t_fit = np.linspace(x.min() - 2450000, x.max() - 2450000, 10000)
-        ls_1 = LombScargle(x - 2450000, y, dy, nterms=1, normalization=normalization)
-        ls_2 = LombScargle(x - 2450000, y, dy, nterms=2, normalization=normalization)
-        ls_3 = LombScargle(x - 2450000, y, dy, nterms=3, normalization=normalization)
+        t_fit = np.linspace(x.min(), x.max(), 10000)
+        ls_1 = LombScargle(x, y, dy, nterms=1, normalization=normalization)
+        ls_2 = LombScargle(x, y, dy, nterms=2, normalization=normalization)
+        ls_3 = LombScargle(x, y, dy, nterms=3, normalization=normalization)
         y_fit_1 = ls_1.model(t_fit, 1/period)
         y_fit_2 = ls_2.model(t_fit, 1/period)
         y_fit_3 = ls_3.model(t_fit, 1/period)
         
         plt.figure(figsize=(10,4))
-        plt.errorbar(x - 2450000, y, yerr=dy, fmt='.k', capsize=5)
+        plt.errorbar(x, y, yerr=dy, fmt='.k', capsize=5)
         plt.plot(t_fit, y_fit_1, '-r', label='Fundamental')
         
         if multi_term:
@@ -840,7 +843,7 @@ def period_fit(x,
             plt.plot(t_fit, y_fit_3, '-g', label='Fundamental + First 2 Harmonics')
             plt.legend()
         
-        plt.xlabel('BJD - 2450000')
+        plt.xlabel('JD')
         if ylabel != None:
             plt.ylabel(ylabel)
         else:
@@ -860,7 +863,7 @@ def period_fit(x,
             
     elif fit == 'phase':
         
-        t_fit = np.linspace(0.0, 1/best_frequency, 10000)
+        t_fit = np.linspace(0.0, period, 10000)
         ls_1 = LombScargle(x, y, dy, nterms=1, normalization=normalization)
         ls_2 = LombScargle(x, y, dy, nterms=2, normalization=normalization)
         ls_3 = LombScargle(x, y, dy, nterms=3, normalization=normalization)
