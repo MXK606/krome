@@ -939,9 +939,9 @@ def ephemerides(file_path,
                 P_orb=2.644,
                 T_e=2455959.0039936211,
                 e=0.152,
-                P_rot,
-                phase_start, 
-                Rot_phase=False
+                P_rot=None,
+                phase_start=None, 
+                Rot_phase=False,
                 print_stat=True,
                 save_results=False,
                 save_name=None):
@@ -1042,10 +1042,6 @@ def ephemerides(file_path,
         
         mean_an = (JD - t)*n # mean anomaly; (t - T)*n 
         
-        if print_stat:
-            print('Mean Anomaly: {}'.format(mean_an))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
         # Solving for eccentric anomaly from the mean anomaly as M = E - e*sin(E) = (t - T)*n using pyasl.MarkleyKESolver()
         
         # Instantiate the solver
@@ -1056,21 +1052,26 @@ def ephemerides(file_path,
         # Uses the algorithm presented by
         # Markley 1995.
         
-        M = mean_an
-        E = ks.getE(M, e)
+        M = np.round(mean_an, 5)
+        
+        if print_stat:
+            print('Mean Anomaly: {}'.format(M))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        E = np.round((ks.getE(M, e)), 5)
         
         if print_stat:
             print("Eccentric Anomaly: {}".format(E))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        f = 2*np.arctan2(1, 1/(np.sqrt((1+e)/(1-e))*np.tan(E/2))) 
+        f = np.round((2*np.arctan2(1, 1/(np.sqrt((1+e)/(1-e))*np.tan(E/2)))), 5)
         # using np.arctan2 instead of np.arctan to retrive values from the positive quadrant of tan(x) values 
         # see https://stackoverflow.com/questions/16613546/using-arctan-arctan2-to-plot-a-from-0-to-2π
         
-        orb_phase = f/(2*np.pi) # converting f to orbital phase by dividing it with 2pi radians!
+        orb_phase = np.round((f/(2*np.pi)), 5) # converting f to orbital phase by dividing it with 2pi radians!
         
         if Rot_phase:
-            rot_phase = (JD - phase_start)/P_rot - int((JD - phase_start)/P_rot)
+            rot_phase = np.round(((JD - phase_start)/P_rot - int((JD - phase_start)/P_rot)), 5)
         
         if print_stat:
             print('True Anomaly: {}'.format(f))
