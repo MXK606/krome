@@ -516,6 +516,7 @@ def read_data(file_path,
         object_parameters = {}
         
         object_parameters['MJD'] = file[0].header['MJD-OBS'] # Modified Julian Date
+        object_parameters['BJD'] = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
         object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in seconds
         object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         object_parameters['PROG_ID'] = file[0].header['PROGRAM'] # Program ID
@@ -938,8 +939,9 @@ def ephemerides(file_path,
                 P_orb=2.644,
                 T_e=2455959.0039936211,
                 e=0.152,
-                P_rot=44.09,
-                phase_start=2457464.49670, 
+                P_rot,
+                phase_start, 
+                Rot_phase=False
                 print_stat=True,
                 save_results=False,
                 save_name=None):
@@ -967,13 +969,16 @@ def ephemerides(file_path,
     Orbital eccentricity. 
     Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
     
-    P_rot: int, default=44.09
+    P_rot: int
     Stellar rotation period in days.
-    Default value for GJ436 taken from https://ui.adsabs.harvard.edu/abs/2018Natur.553..477B/abstract
+    Used if Rot_phase is True
     
-    phase_start: int, default=2457464.49670
+    phase_start: int
     Starting point for the rotational phase. This ideally should be the first JD of your observation.
-    Default value for GJ436b taken for the NARVAL 2016 observations downloaded from Polarbase.
+    Used if Rot_phase is True
+    
+    Rot_phase: bool, default=False
+    Calculates the stellar rotational phases using the given 'P_rot' and 'phase_start' parameters.
     
     print_stat: bool, default=True
     Prints the status of each process within the function.
@@ -1015,13 +1020,17 @@ def ephemerides(file_path,
         elif file_path[i][-4:] == 'fits':
             
             hdu = fits.open(file_path[i])
-            JD = hdu[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
+            
+            try:
+                JD = hdu[0].header['HIERARCH ESO DRS BJD']
+            except:
+                JD = hdu[0].header['HIERARCH TNG DRS BJD']
         
         # Calculating the mean anomaly M
         
         n = 2*np.pi/P_orb # mean motion in radians 
         
-        # Total orbits done since last periastron of 2455959.0039936211
+        # Total orbits done since last periastron
         N = int((JD - T_e)/P_orb)
         
         if print_stat:
@@ -1060,19 +1069,24 @@ def ephemerides(file_path,
         
         orb_phase = f/(2*np.pi) # converting f to orbital phase by dividing it with 2pi radians!
         
-        rot_phase = (JD - phase_start)/P_rot - int((JD - phase_start)/P_rot)
+        if Rot_phase:
+            rot_phase = (JD - phase_start)/P_rot - int((JD - phase_start)/P_rot)
         
         if print_stat:
             print('True Anomaly: {}'.format(f))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Orbital Phase: {}'.format(orb_phase))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Rotational Phase: {}'.format(rot_phase))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            if Rot_phase:
+                print('Rotational Phase: {}'.format(rot_phase))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         
-        
-        res = JD, N, M, E, f, orb_phase, rot_phase
+        if Rot_phase:
+            res = JD, N, M, E, f, orb_phase, rot_phase
+        else:
+            res = JD, N, M, E, f, orb_phase
         
         results.append(res)
         
@@ -1083,8 +1097,11 @@ def ephemerides(file_path,
             
             print('Saving results in the working directory in file: {}.csv'.format(save_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase']
+        
+        if Rot_phase:
+            header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase']
+        else:
+            header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase']
             
         with open('{}.csv'.format(save_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
