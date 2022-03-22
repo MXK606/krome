@@ -878,28 +878,28 @@ def H_alpha_index(file_path,
 
 ## Defining a function to calculate the NaI index following Rodrigo F. Díaz et al. 2007 (2007MNRAS.378.1007D)
 
-def NaI_index_Rodrigo(file_path,
-                      radial_velocity=9609,
-                      degree=4,
-                      NaID2=588.995,
-                      NaID1=589.592,
-                      NaI_band=0.1,
-                      F1_line=580.5,
-                      F1_band=1.0,
-                      F2_line=609.0,
-                      F2_band=2.0,
-                      hfv=10, 
-                      Instrument='NARVAL',
-                      Stokes_profile=['V'],
-                      norm_spec=False,
-                      plot_fit=False,
-                      plot_spec=True,
-                      print_stat=True,
-                      save_results=False,
-                      results_file_name=None,
-                      save_figs=False,
-                      out_file_path=None,
-                      ccf_file_path=None):
+def NaI_index(file_path,
+              radial_velocity=9609,
+              degree=4,
+              NaID2=588.995,
+              NaID1=589.592,
+              NaI_band=0.1,
+              F1_line=580.5,
+              F1_band=1.0,
+              F2_line=609.0,
+              F2_band=2.0,
+              hfv=10, 
+              Instrument='NARVAL',
+              Stokes_profile=['V'],
+              norm_spec=False,
+              plot_fit=False,
+              plot_spec=True,
+              print_stat=True,
+              save_results=False,
+              results_file_name=None,
+              save_figs=False,
+              out_file_path=None,
+              ccf_file_path=None):
     
     """
     
@@ -952,7 +952,8 @@ def NaI_index_Rodrigo(file_path,
     The Stokes profile for the input data. 'V' for per night and 'I' for per sub-exposure per night. Used only when Instrument type is 'NARVAL'
     
     norm_spec: bool, default: False
-    Normalizes ths spectrum.
+    Normalizes ths spectrum. NOTE: This argument also accepts str type of 'scale' and 'poly1dfit' to normalize the spectrum by either scaling it down
+    to maximum flux of 1.0,  or, by fitting the continuum with a line. But these are ONLY used for Instrument types 'HARPS' & 'HARPS-N'
     
     plot_fit: bool, default: False
     Plots the continuum fitting normalization processes.
