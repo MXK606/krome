@@ -391,10 +391,9 @@ def read_data(file_path,
                 print('Stokes Profile: [I]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         else:
-            raise InputError('Input .s file contains unrecognisable number of columns. Recognised numbers are 3 (I profile) and 6 (V profile).')
+            raise ValueError('Input .s file contains unrecognisable number of columns. Recognised numbers are 3 (I profile) and 6 (V profile).')
             
         if print_stat:    
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Extracting all overlapping spectral orders')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
