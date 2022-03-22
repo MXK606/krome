@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
-from test_package.spec_analysis import read_data
+from krome.spec_analysis import read_data
 
 ## Defining a function that calculates and plots the Pearson R correlation between two datasets  
 

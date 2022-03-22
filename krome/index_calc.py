@@ -25,7 +25,7 @@ from specutils.manipulation import extract_region
 from astropy.modeling.polynomial import Chebyshev1D
 from astropy.nddata import StdDevUncertainty
 from astropy.io import fits
-from test_package.spec_analysis import find_string_idx, find_nearest, extract_orders
+from krome.spec_analysis import find_string_idx, find_nearest, extract_orders
     
 ## Defining a function for calculating the H alpha index following Boisse et al. 2009 (2009A&A...495..959B)
 
