@@ -1,4 +1,4 @@
-# UAEU_RA
+# KROME
 Python modules/code created as a Research Associate at UAE University
 
 ## Code Dependencies 
