@@ -23,7 +23,8 @@ from astropy.timeseries import LombScargle
 
 ## Defining a function to find the index of a line containing a certain string
 
-def find_string_idx(out_file_path, string):
+def find_string_idx(out_file_path,
+                    string):
     
     """
     
@@ -41,7 +42,6 @@ def find_string_idx(out_file_path, string):
     --------
     Line index: int
     Index of the line in the .out file that contains the given string
-    
     
     """
     
@@ -114,160 +114,214 @@ def obj_params(file_path,
     
         for string in str_list:
             idx.append(find_string_idx(file_path, string))
-    
-        try:
-            object_parameters['NUM_EXP'] = float(file[idx[0]][-2:-1])
-        except TypeError:
-            print('Object parameter for "{}" not found in the .out file'.format(str_list[0])) 
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['GAIN'] = float(file[idx[1]][-12:-1].split()[0])
+            object_parameters['HJD'] = float(file[idx[5]][-14:-1])
         except TypeError:
-            print('Object parameter for "{}" not found in the .out file'.format(str_list[1])) 
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        try:
-            object_parameters['RON'] = float(file[idx[1]][-12:-1].split()[1])
-        except TypeError:
-            print('Object parameter for "{}" not found in the .out file'.format(str_list[1]))
+            object_parameters['HJD'] = float('nan')
+            print('Object parameter for "{}" not found in the .out file'.format(str_list[5]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
             object_parameters['RA'] = file[idx[2]][-26:-15].replace(' ', '')
         except TypeError:
+            object_parameters['RA'] = float(nan)
             print('Object parameter for "{}" not found in the .out file'.format(str_list[2]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['Dec'] = file[idx[2]][-11:-1]
+            object_parameters['DEC'] = file[idx[2]][-11:-1]
         except TypeError:
+            object_parameters['DEC'] = float(nan)
             print('Object parameter for "{}" not found in the .out file'.format(str_list[2]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
             object_parameters['AIRMASS'] = float(file[idx[3]][-8:-3])
         except TypeError:
+            object_parameters['AIRMASS'] = float(nan)
             print('Object parameter for "{}" not found in the .out file'.format(str_list[3]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
+           
         try:
             object_parameters['T_EXP'] = float(file[idx[4]][25:31])
         except TypeError:
+            object_parameters['T_EXP'] = float(nan)
             print('Object parameter for "{}" not found in the .out file'.format(str_list[4]))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['NUM_EXP'] = float(file[idx[0]][-2:-1])
+        except TypeError:
+            object_parameters['NUM_EXP'] = float(nan)
+            print('Object parameter for "{}" not found in the .out file'.format(str_list[0])) 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['HJD'] = float(file[idx[5]][-14:-1])
+            object_parameters['GAIN'] = float(file[idx[1]][-12:-1].split()[0])
         except TypeError:
-            print('Object parameter for "{}" not found in the .out file'.format(str_list[5]))
+            object_parameters['GAIN'] = float(nan)
+            print('Object parameter for "{}" not found in the .out file'.format(str_list[1])) 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
+        try:
+            object_parameters['RON'] = float(file[idx[1]][-12:-1].split()[1])
+        except TypeError:
+            object_parameters['RON'] = float(nan)
+            print('Object parameter for "{}" not found in the .out file'.format(str_list[1]))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')    
+             
         try:
             object_parameters['V_mag'] = float(file[idx[6]][-11:-1].split()[0])
         except TypeError:
+            object_parameters['V_mag'] = float(nan)
             print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
             object_parameters['T_eff'] = float(file[idx[6]][-11:-1].split()[1])
         except TypeError:
+            object_parameters['T_eff'] = float(nan)
             print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
     elif Instrument=='HARPS':
         
         file = fits.open(file_path)
-
-        try:
-            object_parameters['MJD'] = file[0].header['MJD-OBS'] # Modified Julian Date
-        except KeyError:
-            print('Object parameter for "MJD" not found in the fits file header') 
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['BJD'] = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
         except KeyError:
-            print('Object parameter for "BJD" not found in the fits file header') 
+            object_parameters['BJD'] = float(nan)
+            print('Object parameter for "HIERARCH ESO DRS BJD" not found in the fits file header') 
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['RA'] = file[0].header['RA'] # Barycentric Julian Date
+        except KeyError:
+            object_parameters['RA'] = float(nan)
+            print('Object parameter for "RA" not found in the fits file header') 
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['DEC'] = file[0].header['DEC'] # Barycentric Julian Date
+        except KeyError:
+            object_parameters['DEC'] = float(nan)
+            print('Object parameter for "DEC" not found in the fits file header') 
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Barycentric Julian Date
+        except KeyError:
+            object_parameters['AIRMASS'] = float(nan)
+            print('Object parameter for "AIRMASS" not found in the fits file header') 
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in s
+        except KeyError:
+            object_parameters['EXPTIME'] = float(nan)
+            print('Object parameter for "EXPTIME" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['BERV'] = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s
         except KeyError:
-            print('Object parameter for "BERV" not found in the fits file header') 
+            object_parameters['BERV'] = float(nan)
+            print('Object parameter for "HIERARCH ESO DRS BERV" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        try:
-            object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in s
-        except KeyError:
-            print('Object parameter for "EXPTIME" not found in the fits file header') 
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         except KeyError:
-            print('Object parameter for "OBS_DATE" not found in the fits file header') 
+            object_parameters['OBS_DATE'] = float(nan)
+            print('Object parameter for "DATE-OBS" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['PROG_ID'] = file[0].header['PROG_ID'] # Program ID
         except KeyError:
+            object_parameters['PROG_ID'] = float(nan)
             print('Object parameter for "PROG_ID" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['SNR'] = file[0].header['SNR'] # Signal to Noise ratio
         except KeyError:
+            object_parameters['SNR'] = float(nan)
             print('Object parameter for "SNR" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
             object_parameters['SIGDET'] = np.round(file[0].header['HIERARCH ESO DRS CCD SIGDET'], 3)  #CCD Readout Noise [e-]
         except KeyError:
-            print('Object parameter for "SIGDET" not found in the fits file header') 
+            object_parameters['SIGDET'] = float(nan)
+            print('Object parameter for "HIERARCH ESO DRS CCD SIGDET" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['CONAD'] = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
         except KeyError:
-            print('Object parameter for "CONAD" not found in the fits file header') 
+            object_parameters['CONAD'] = float(nan)
+            print('Object parameter for "HIERARCH ESO DRS CCD CONAD" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
         except KeyError:
+            object_parameters['RON'] = float(nan)
             pass
         
     elif Instrument=='HARPS-N':
         
         try:
-            object_parameters['MJD'] = file[0].header['MJD-OBS'] # Modified Julian Date
+            object_parameters['BJD'] = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
         except KeyError:
-            print('Object parameter for "MJD" not found in the fits file header') 
+            object_parameters['BJD'] = float(nan)
+            print('Object parameter for "HIERARCH TNG DRS BJD" not found in the fits file header') 
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['RA'] = file[0].header['RA'] # Barycentric Julian Date
+        except KeyError:
+            object_parameters['RA'] = float(nan)
+            print('Object parameter for "RA" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
-            object_parameters['BJD'] = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
+            object_parameters['DEC'] = file[0].header['DEC'] # Barycentric Julian Date
         except KeyError:
-            print('Object parameter for "BJD" not found in the fits file header') 
+            object_parameters['DEC'] = float(nan)
+            print('Object parameter for "DEC" not found in the fits file header') 
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Barycentric Julian Date
+        except KeyError:
+            object_parameters['AIRMASS'] = float(nan)
+            print('Object parameter for "AIRMASS" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in seconds
         except KeyError:
+            object_parameters['EXPTIME'] = float(nan)  
             print('Object parameter for "EXPTIME" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         except KeyError:
-            print('Object parameter for "OBS_DATE" not found in the fits file header') 
+            object_parameters['OBS_DATE'] = float(nan)
+            print('Object parameter for "DATE-OBS" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['PROG_ID'] = file[0].header['PROGRAM'] # Program ID
         except KeyError:
-            print('Object parameter for "PROG_ID" not found in the fits file header') 
+            object_parameters['PROG_ID'] = float(nan)
+            print('Object parameter for "PROGRAM" not found in the fits file header') 
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
     else:
@@ -284,6 +338,7 @@ def extract_orders(wav,
                    show_plot=False):
     
     """
+    
     Extracts the overlapping spectral orders from the NARVAL .s files
     
     Parameters:
@@ -302,7 +357,8 @@ def extract_orders(wav,
     
     Returns:
     --------
-    Returns a list containing each extracted order which includes the wav, flx and flx_err.
+    spectral orders: list
+    Returns a list of lists with each containing the extracted order as; [wav, flx and flx_err].
     
     """
     
@@ -380,7 +436,10 @@ def extract_orders(wav,
         
 ## Defining a function to reach check which orders the given lines are found in 
     
-def check_lines(spectral_orders, line_names, lines, bandwidths):
+def check_lines(spectral_orders,
+                line_names,
+                lines,
+                bandwidths):
     
         
     """
@@ -389,9 +448,8 @@ def check_lines(spectral_orders, line_names, lines, bandwidths):
         
     Parameters
     ----------
-    
-    spectral_orders: array
-    Array containing all of the extracted spectral orders
+    spectral_orders: list
+    List containing all of the extracted spectral orders
 
     line_names: list
     List containing the names of each line
@@ -404,7 +462,7 @@ def check_lines(spectral_orders, line_names, lines, bandwidths):
     
     Returns:
     --------
-    
+    Line index: list
     List containing the index of the order(s) which contain the given line regions
     
     """
@@ -439,22 +497,21 @@ def read_data(file_path,
     
     """
     
-    Reads the data contained within the .s file and extract useful information from the .out file.
+    Reads the data contained within the .s/.fits file and extract useful information from the .out/.fits file.
     
     Parameters:
     ----------
-    
     file_path: str
-    File path of the .s or .fits file
+    File path of the .s/.fits file
     
     Instrument: str
     Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
     
     out_file_path: str, default=None
-    File path of the .out file
+    File path of the .out file to extract object parameters from
     
     ccf_file_path: str, default=None
-    File path of the CCF file
+    File path of the CCF file to extract the object radial velocity from
     
     print_stat: bool, default=True
     Prints the status of each process within the function.
@@ -464,7 +521,6 @@ def read_data(file_path,
     
     Returns:
     --------
-    
     object parameters: dict (Only if out_file_path given for NARVAL)
     
     For NARVAL; spectral orders: list of pandas df
@@ -517,11 +573,13 @@ def read_data(file_path,
             
             object_parameters = obj_params(out_file_path, Instrument=Instrument)
             
-            keys = [i for i in object_parameters.keys()]
-            vals = [j for j in object_parameters.values()]
-            
-            for i in range(len(keys)):
-                print('{}: {}'.format(keys[i], vals[i]))
+            if print_stat:
+                keys = [i for i in object_parameters.keys()]
+                vals = [j for j in object_parameters.values()]
+                
+                for i in range(len(keys)):
+                    print('{}: {}'.format(keys[i], vals[i]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
             return object_parameters, spec_orders
         
@@ -553,22 +611,27 @@ def read_data(file_path,
                 print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             ccf_file = fits.open(ccf_file_path) # Opening the CCF FITS file to extract the RV
-            object_parameters['RV'] = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
             
+            try:
+                object_parameters['RV'] = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
+            except KeyError:
+                print('Object parameter for "RV" not found in the CCF fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
         else:
             object_parameters['RV'] = float('nan')
-        
-        keys = [i for i in object_parameters.keys()]
-        vals = [j for j in object_parameters.values()]
     
         if print_stat:
+            keys = [i for i in object_parameters.keys()]
+            vals = [j for j in object_parameters.values()]
+            
             for i in range(len(keys)):
                 print('{}: {}'.format(keys[i], vals[i]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         # Defining each wavelength, flux and flux error arrays from the FITS file!
         
-        wvl = file[1].data[0][0] # Å 
+        wvl = file[1].data[0][0]/10 # nm 
         flx = file[1].data[0][1] # Flux in ADU
         flx_err = file[1].data[0][2]
         
@@ -580,7 +643,7 @@ def read_data(file_path,
             
             f, ax  = plt.subplots(figsize=(10,4)) 
             ax.plot(spectrum[0], spectrum[1], '-k')  
-            ax.set_xlabel('$\lambda$ (Å)')
+            ax.set_xlabel('$\lambda$ (nm)')
             ax.set_ylabel("Flux (adu)")
             plt.minorticks_on()
             ax.tick_params(direction='in', which='both')
@@ -615,15 +678,20 @@ def read_data(file_path,
                 print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             ccf_file = fits.open(ccf_file_path)  # Opening the CCF FITS file to extract the RV
-            object_parameters['RV'] = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
+            
+            try:
+                object_parameters['RV'] = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
+            except KeyError:
+                print('Object parameter for "RV" not found in the CCF fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         else:
             object_parameters['RV'] = float('nan')
         
-        keys = [i for i in object_parameters.keys()]
-        vals = [j for j in object_parameters.values()]
-        
         if print_stat:
+            keys = [i for i in object_parameters.keys()]
+            vals = [j for j in object_parameters.values()]
+            
             for i in range(len(keys)):
                 print('{}: {}'.format(keys[i], vals[i]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -633,7 +701,8 @@ def read_data(file_path,
         # flux_err array!
         
         # constructing the spectral axis using start point, delta and axis length from file header
-        wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1']) # Å
+        wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1'])
+        wvl = wvl/10 # nm
         flx = file[0].data # Flux in ADU
         
         spectrum = [wvl, flx]
@@ -644,7 +713,7 @@ def read_data(file_path,
             
             f, ax  = plt.subplots(figsize=(10,4)) 
             ax.plot(spectrum[0], spectrum[1], '-k')  
-            ax.set_xlabel('$\lambda$ (Å)')
+            ax.set_xlabel('$\lambda$ (nm)')
             ax.set_ylabel("Flux (adu)")
             plt.minorticks_on()
             ax.tick_params(direction='in', which='both')
