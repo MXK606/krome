@@ -1,4 +1,4 @@
-# KROME
+# KROME 1.2
 
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
