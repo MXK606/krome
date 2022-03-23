@@ -25,7 +25,7 @@ from specutils.manipulation import extract_region
 from astropy.modeling.polynomial import Chebyshev1D
 from astropy.nddata import StdDevUncertainty
 from astropy.io import fits
-from krome.spec_analysis import find_string_idx, find_nearest, extract_orders
+from krome.spec_analysis import find_nearest, read_data
     
 ## Defining a function for calculating the H alpha index following Boisse et al. 2009 (2009A&A...495..959B)
 
@@ -41,7 +41,6 @@ def H_alpha_index(file_path,
                   F2_line=658.031, 
                   F2_band=0.875,
                   Instrument='NARVAL',
-                  Stokes_profile=['V'],
                   norm_spec=False,
                   plot_fit=False, 
                   plot_spec=True,
@@ -103,9 +102,6 @@ def H_alpha_index(file_path,
     Instrument: str, default: 'NARVAL'
     The instrument from which the data has been collected. Available options are 'NARVAL', 'HARPS' or 'HARPS-N'.
     
-    Stokes_profile: str, default: ['V']
-    The Stokes profile for the input data. 'V' for per night and 'I' for per sub-exposure per night. Used only when Instrument type is 'NARVAL'
-    
     norm_spec: bool, default: False
     Normalizes the spectrum.
     
@@ -163,45 +159,20 @@ def H_alpha_index(file_path,
             
             if out_file_path != None:
                 
-                file = open(out_file_path[i]).readlines() # Opening the .out file and reading each line as a string
+                # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
                 
-                string = '   Heliocentric Julian date (UTC) :' # Creating a string variable that matches the string in the .out file
-                
-                idx = find_string_idx(out_file_path[i], string) # Using the 'find_string_idx' function to find the index of the line that contains the above string. 
-                
-                HJD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               out_file_path=out_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
                 
             else:
                 if print_stat:
-                    print('out_file_path not given as an argument. Returning NaN as HJD instead.')
+                    print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                HJD = float('nan')
-        
-            # Defining column names for pandas to read the file easily
-            
-            col_names_V = ['Wavelength', 'Intensity', 'Polarized', 'N1', 'N2', 'I_err'] # For Stokes V
-            col_names_I = ['Wavelength', 'Intensity', 'I_err'] # For Stokes I
-            
-            # Reading data using pandas and skipping the first 2 rows
-
-            if Stokes_profile==['V']:
-                data_spec = pd.read_csv(file_path[i], names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
-            else:
-                data_spec = pd.read_csv(file_path[i], names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
                 
-            # Extracting indivdidual spectral orders using 'extract_orders'
-            # Orders #35 and #34 both contain the H alpha line for GJ 436 data. 
-            # The #34th order is used since it has a higher SNR; (see .out file)
-            
-            if print_stat:
-                print('Extracting spectral orders')
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            orders = extract_orders(data_spec['Wavelength'].values, 
-                                    data_spec['Intensity'].values, 
-                                    flx_err=data_spec['I_err'].values, 
-                                    show_plot=False)
-            
+
             if print_stat:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -210,9 +181,9 @@ def H_alpha_index(file_path,
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
             
             if print_stat:
-                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
-                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
-                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
+                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0].values))
+                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1].values))
+                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2].values))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
             
@@ -221,9 +192,9 @@ def H_alpha_index(file_path,
             shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
             
-            wvl = np.round((order_34[0] - shift), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
-            flx = order_34[1] # Indexing flux array from order_34
-            flx_err = order_34[2] # Indexing flux_err array from order_34
+            wvl = np.round((order_34[0].values - shift), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
+            flx = order_34[1].values # Indexing flux array from order_34
+            flx_err = order_34[2].values # Indexing flux_err array from order_34
             
             # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
@@ -279,7 +250,7 @@ def H_alpha_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(obj_params['HJD']), format='pdf')
                     
                     f, ax2 = plt.subplots()  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
@@ -293,7 +264,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(obj_params['HJD']), format='pdf')
                         
                 spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
                 
@@ -327,7 +298,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(obj_params['HJD']), format='pdf')
                 
                 # Plots the zoomed in regions around the H alpha line.
                 f, ax1  = plt.subplots()
@@ -342,7 +313,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(obj_params['HJD']), format='pdf')
                         
                         
                 if CaI_index:
@@ -359,46 +330,37 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(HJD), format='pdf')
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(obj_params['HJD']), format='pdf')
                 
         # HARPS
         
         elif Instrument == 'HARPS':
             
-            # Opening the FITS file using 'astropy.io.fits'
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
             # NOTE: The format of this FITS file must be ADP which contains the reduced spectrum with the wav, flux and flux_err in three columns
             
-            file = fits.open(file_path[i])
-            
-            if ccf_file_path:
-                ccf_file = fits.open(ccf_file_path[i]) # Opening the CCF FITS file to extract the RV
-                RV = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
-                
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
             else:
-                RV = radial_velocity
-            
-            #Extracting useful information from the fits file header
-            
-            MJD = file[0].header['MJD-OBS'] # Modified Julian Date
-            BJD = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
-            BERV = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
-            EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
-            OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
-            PROG_ID = file[0].header['PROG_ID'] # Program ID
-            SNR = file[0].header['SNR'] # Signal to Noise ratio
-            SIGDET = file[0].header['HIERARCH ESO DRS CCD SIGDET']  #CCD Readout Noise [e-]
-            CONAD = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
-            RON = SIGDET * CONAD #CCD Readout Noise [ADU]
-            
-            # Defining each wavelength, flux and flux error arrays from the FITS file!
-            
-            wvl = file[1].data[0][0]/10 # dividing it by 10 to convert the wavelength from Å to nm!
-            flx = file[1].data[0][1] # Flux in ADU
-            flx_err = file[1].data[0][2]
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            flx_err = spec[2]
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
            
-            shift = ((RV/ap.constants.c.value)*H_alpha_line)  
+            shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .fits files!
             
             # Since the HARPS spectra have their individual spectral orders stitched together, we do not have to extract them separately as done for NARVAL. Thus for HARPS, the required region is extracted by slicing the spectrum with the index corresponding to the left and right continuum obtained using the 'find_nearest' function. 
@@ -412,7 +374,7 @@ def H_alpha_index(file_path,
             
             if flx_err_nan:
                 if print_stat:
-                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
+                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
                 # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
@@ -420,7 +382,7 @@ def H_alpha_index(file_path,
                 
                 with warnings.catch_warnings():  # Ignore warnings
                     warnings.simplefilter('ignore')
-                    flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
+                    flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
@@ -441,7 +403,7 @@ def H_alpha_index(file_path,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(radial_velocity, shift))
+                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -478,7 +440,7 @@ def H_alpha_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(obj_params['BJD']), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, label='Re-Normalized')
@@ -491,7 +453,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(obj_params['BJD']), format='pdf')
                 
             else:
                 spec = spec1d
@@ -525,7 +487,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(obj_params['BJD']), format='pdf')
                 
                 f, ax1  = plt.subplots(figsize=(10,4)) 
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -542,7 +504,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
@@ -561,39 +523,36 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(HJD), format='pdf')
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
                 
         elif Instrument=='HARPS-N':
             
-            # Opening the FITS file using 'astropy.io.fits'
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
             # NOTE: The format of this FITS file must be s1d which only contains flux array. 
             # The wavelength array is constructed using the starting point (CRVAL1), length of spectral axis (NAXIS1) 
             # and wavelength step (CDELT1) from the FITS file header.
             
-            file = fits.open(file_path[i])
-            
-            if ccf_file_path:
-                ccf_file = fits.open(ccf_file_path[i])  # Opening the CCF FITS file to extract the RV
-                RV = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
-                
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
             else:
-                RV = radial_velocity
-            
-            #Extracting useful information from the fits file header
-            
-            BJD = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
-            EXPTIME = file[0].header['EXPTIME'] # Exposure time in seconds
-            OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
-            PROG_ID = file[0].header['PROGRAM'] # Program ID
-            
-            
-            flx = file[0].data # Flux in ADU
-            wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1']) # constructing the spectral axis using start point, delta and axis length from file header
-            wvl = wvl/10 # convert wvl from Å to nm!
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
             
-            shift = ((RV/ap.constants.c.value)*H_alpha_line)  
+            shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 3)) 
             
             # Same as the HARPS spectra, the HARPS-N spectra have their individual spectral orders stitched together and 
@@ -616,7 +575,7 @@ def H_alpha_index(file_path,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(RV, shift))
+                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -650,7 +609,7 @@ def H_alpha_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(obj_params['BJD']), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
@@ -664,7 +623,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(obj_params['BJD']), format='pdf')
                     
                 spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
                 
@@ -700,7 +659,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(obj_params['BJD']), format='pdf')
                 
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -717,7 +676,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
@@ -736,7 +695,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(HJD), format='pdf')
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
                     
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
@@ -837,15 +796,23 @@ def H_alpha_index(file_path,
             
 
         if Instrument=='NARVAL':
-            res = [HJD, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
-            results.append(res)
+            if out_file_path != None:
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                results.append(res)
+            else:
+                header = ['I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                res = [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
+                results.append(res)
         
         elif Instrument=='HARPS':
-            res = [MJD, BJD, BERV, OBS_DATE, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean, RV, EXPTIME, SNR, RON, PROG_ID]
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
             results.append(res)
             
         elif Instrument=='HARPS-N':
-            res = [BJD, OBS_DATE, Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean, RV, EXPTIME, PROG_ID]
+            head = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
             results.append(res)
                 
     
@@ -855,18 +822,6 @@ def H_alpha_index(file_path,
         if print_stat:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            if Instrument=='NARVAL':
-                
-                header = ['HJD', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                
-            elif Instrument=='HARPS':
-                
-                header = ['MJD', 'BJD', 'BERV', 'OBS_DATE', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
-                
-            elif Instrument=='HARPS-N':
-                
-                header = ['BJD', 'OBS_DATE', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err', 'RV', 'T_exp', 'PROG_ID']
 
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
