@@ -1,4 +1,4 @@
-# KROME 1.2
+# KROME 1.2.1
 
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
