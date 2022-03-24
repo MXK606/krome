@@ -25,7 +25,7 @@ from specutils.manipulation import extract_region
 from astropy.modeling.polynomial import Chebyshev1D
 from astropy.nddata import StdDevUncertainty
 from astropy.io import fits
-from krome.spec_analysis import find_nearest, read_data
+from krome.spec_analysis import find_nearest, read_data, calc_ind
     
 ## Defining a function for calculating the H alpha index following Boisse et al. 2009 (2009A&A...495..959B)
 
@@ -311,7 +311,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 # Plots the zoomed in regions around the H alpha line.
                 f, ax1  = plt.subplots()
@@ -326,7 +326,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
                         
                         
                 if CaI_index:
@@ -343,7 +343,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
+                        plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
                 
         # HARPS
         
@@ -500,7 +500,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 f, ax1  = plt.subplots(figsize=(10,4)) 
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -517,7 +517,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
@@ -536,7 +536,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
+                        plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
                 
         elif Instrument=='HARPS-N':
             
@@ -672,7 +672,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -689,7 +689,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
@@ -708,7 +708,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
+                        plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
                     
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
@@ -718,114 +718,43 @@ def H_alpha_index(file_path,
         # The three regions required for H alpha index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
         # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
         # Note: These values must have the same units as the spec wavelength axis.
-            
+        
         F_H_alpha_region = extract_region(spec, region=SpectralRegion((H_alpha_line-(H_alpha_band/2))*u.nm, (H_alpha_line+(H_alpha_band/2))*u.nm))
-        
-        # Mean of the flux within this region is calculated using np.mean and rounded off to 5 decimal places
-        F_H_alpha_mean = np.round(np.mean(F_H_alpha_region.flux.value), 5)
-        
-        # The error on the mean flux is calculated as the standard error of the mean
-        F_H_alpha_sum_err = [i**2 for i in F_H_alpha_region.uncertainty.array]
-        F_H_alpha_mean_err = np.round((np.sqrt(np.sum(F_H_alpha_sum_err))/len(F_H_alpha_sum_err)), 5)
-        
-        # Same thing repeated for the F1 and F2 regions
         F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-        F1_mean = np.round(np.mean(F1_region.flux.value), 5)
-        F1_sum_err = [i**2 for i in F1_region.uncertainty.array]
-        F1_mean_err = np.round((np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)), 5)
-        
         F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
-        F2_mean = np.round(np.mean(F2_region.flux.value), 5)
-        F2_sum_err = [i**2 for i in F2_region.uncertainty.array]
-        F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 5)
-        
-        
-                   
-        if print_stat:
-            print('H alpha region used ranges from {}nm to {}nm'.format(F_H_alpha_region.spectral_axis[0].value, 
-                                                                 F_H_alpha_region.spectral_axis[-1].value))
-            print('F1 region used ranges from {}nm to {}nm'.format(F1_region.spectral_axis[0].value, 
-                                                                 F1_region.spectral_axis[-1].value))
-            print('F2 region used ranges from {}nm to {}nm'.format(F2_region.spectral_axis[0].value, 
-                                                                 F2_region.spectral_axis[-1].value))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        # H alpha index is computed using the calculated mean fluxes.
-        
-        Hai_from_mean = np.round((F_H_alpha_mean/(F1_mean + F2_mean)), 5)
-        
-        # Continuum flux error is calculated as explained at the start of the tutorial Jupyter Notebook!
-        
-        sigma_F12_from_mean = np.sqrt((np.square(F1_mean_err) + np.square(F2_mean_err)))
-        
-        # Error on this index is calculated as explained at the start of the tutorial Jupyter notebook!
-        
-        sigma_Hai_from_mean = np.round((Hai_from_mean*np.sqrt(np.square(F_H_alpha_mean_err/F_H_alpha_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 5)
-        
-        if print_stat:
-    
-            print('Mean of {} flux points in H alpha: {}±{}'.format(len(F_H_alpha_region.flux), F_H_alpha_mean, F_H_alpha_mean_err))
-            print('Mean of {} flux points in F1: {}±{}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
-            print('Mean of {} flux points in F2: {}±{}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Index from mean of flux points in each band: {}±{}'.format(Hai_from_mean, sigma_Hai_from_mean))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        ## CaI_index calculation here
         
         if CaI_index:
-            
-            if print_stat:
-                print('Calculating CaI Index')
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            # Extracting the CaI region using the given CaI_line and CaI_band arguments 
             F_CaI_region = extract_region(spec, region=SpectralRegion((CaI_line-(CaI_band/2))*u.nm, (CaI_line+(CaI_band/2))*u.nm))
-            F_CaI_mean = np.round(np.mean(F_CaI_region.flux.value), 5) # Calculating mean of the flux within this region
-            
-            # The error on the mean flux is calculated as the standard error of the mean
-            F_CaI_sum_err = [i**2 for i in F_CaI_region.uncertainty.array]
-            F_CaI_mean_err = np.round((np.sqrt(np.sum(F_CaI_sum_err))/len(F_CaI_sum_err)), 5)
-            
-            # Calculating the CaI index using the mean fluxes calculated above
-            CaI_from_mean = np.round((F_CaI_mean/(F1_mean + F2_mean)), 5)
-            
-            # Index error calculated in the same way as that for H alpha index above
-            sigma_CaI_from_mean = np.round((CaI_from_mean*np.sqrt(np.square(F_CaI_mean_err/F_CaI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 5)
-            
-            if print_stat:
-                print('CaI region used ranges from {}nm to {}nm'.format(F_CaI_region.spectral_axis[0].value, 
-                                                                         F_CaI_region.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Mean of {} flux points in CaI: {}±{}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Index from mean of flux points in each band: {}±{}'.format(CaI_from_mean, sigma_CaI_from_mean))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
+            regions = [F_H_alpha_region, F1_region, F2_region, F_CaI_region]
         else:
+            regions = [F_H_alpha_region, F1_region, F2_region]
             
-            CaI_from_mean = float('nan')
-            sigma_CaI_from_mean = float('nan')
+        # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown
+        
+        I_Ha, I_Ha_err, I_CaI, I_CaI_err = calc_ind(regions=regions,
+                                                    index_name='HaI',
+                                                    print_stat=print_stat,
+                                                    CaI_index=CaI_index)
             
 
         if Instrument=='NARVAL':
             if out_file_path != None:
                 header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
                 results.append(res)
             else:
                 header = ['I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                res = [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
+                res = [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
                 results.append(res)
         
         elif Instrument=='HARPS':
             header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-            res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
+            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
             results.append(res)
             
         elif Instrument=='HARPS-N':
-            head = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-            res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
             results.append(res)
                 
     
@@ -865,7 +794,7 @@ def NaI_index(file_path,
               save_results=False,
               results_file_name=None,
               save_figs=False,
-              save_figs_name=None
+              save_figs_name=None,
               out_file_path=None,
               ccf_file_path=None):
     
@@ -1166,7 +1095,7 @@ def NaI_index(file_path,
                 spec1 = spec_normalized1
                 spec2 = spec_normalized2
                 spec3 = spec_normalized3
-                
+            
             # Extracting the regions required for index calculation from each spectrum using 'extract_region' and the given bandwidths
             
             NaID1_region = extract_region(spec2, region=SpectralRegion((NaID1-(NaI_band/2))*u.nm, 
@@ -1183,33 +1112,14 @@ def NaI_index(file_path,
             F2_region = extract_region(spec3, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, 
                                                                        (F2_line+(F2_band/2))*u.nm))
             
-            # Definig the pseudo-continuum
+            regions = [NaID1_region, NaID2_region, F1_region, F2_region]
             
-            # Sorting the flux in F1 region from lowest to highest and using only the given number of highest flux values, (hfv), for the mean.
+            # Calculating the index using 'calc_ind' from krome.spec_analysis
             
-            F1_sorted_flux = F1_region.flux[np.argsort(-F1_region.flux)[:hfv]] 
-            F1_mean = np.round(np.mean(F1_sorted_flux), 5)
-            F1_err = F1_region.uncertainty.array[np.argsort(-F1_region.flux)[:hfv]]
-            
-            # The error on this mean is calculated using error propagation
-            
-            F1_sum_err = [i**2 for i in F1_err]
-            F1_err = np.round((np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)), 5)
-            
-            # Same process for F2 region
-            
-            F2_sorted_flux = F2_region.flux[np.argsort(-F2_region.flux)[:hfv]]
-            F2_mean = np.round(np.mean(F2_sorted_flux), 5)
-            F2_err = F2_region.uncertainty.array[np.argsort(-F2_region.flux)[:hfv]]
-            
-            F2_sum_err = [i**2 for i in F2_err]
-            F2_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 5)
-            
-            # The pseudo-continuum is taken as the mean of the fluxes calculated abvove in F1 and F2 regions
-            
-            F_cont = np.round(((F1_mean+F2_mean)/2), 5) # This value is used for the index calculation
-            F_cont_err = np.round((np.sqrt(F1_err**2 + F2_err**2)/2), 5) # Error calculated using error propagation
-            
+            I_NaI, I_NaI_err, F1_mean, F2_mean = calc_ind(regions=regions,
+                                                          index_name='NaI',
+                                                          print_stat=print_stat,
+                                                          hfv=hfv)
             # Plotting the pseudo-continuum as the linear interpolation of the values in each red and blue cont. window!
             
             if plot_spec:
@@ -1253,83 +1163,47 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
                 
-            # Calculating the mean flux in the D1 D2 lines
             
-            NaID1_mean = np.round(np.mean(NaID1_region.flux.value), 5)
-            
-            # Error calculated using error propagation
-            NaID1_sum_err = [i**2 for i in NaID1_region.uncertainty.array]
-            NaID1_err = np.round((np.sqrt(np.sum(NaID1_sum_err))/len(NaID1_sum_err)), 5)
-            
-            NaID2_mean = np.round(np.mean(NaID2_region.flux.value), 5)
-            NaID2_sum_err = [i**2 for i in NaID2_region.uncertainty.array]
-            NaID2_err = np.round((np.sqrt(np.sum(NaID2_sum_err))/len(NaID2_sum_err)), 5)
-            
-            # Error on the sum of mean fluxes in D1 and D2
-            sigma_D12 = np.sqrt(np.square(NaID1_err) + np.square(NaID2_err))
-            
-            # Calculating the index and rounding it up to 5 decimal places
-            NaID_index = np.round(((NaID1_mean + NaID2_mean)/F_cont.value), 5)
-            
-            # Error calculated using error propagation and rounding it up to 5 decimal places
-            sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + np.square(F_cont_err/F_cont.value))), 5)
-            
-            if print_stat:
-                print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
-                print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
-                print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
-                print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
-                print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            res = [HJD, NaID_index, sigma_NaID_index, F_cont.value, F_cont_err] # Creating a list containing the results for this file
-            results.append(res) # Appending the res list into the empty results list created at the start of this function
+            if out_file_path != None:
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_NaI', 'I_NaI_err']
+                res = list(obj_params.values()) + [I_NaI, I_NaI_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                results.append(res)
+            else:
+                header = ['I_NaI', 'I_NaI_err']
+                res = [I_NaI, I_NaI_err]
+                results.append(res)
                 
         ## HARPS
                 
         elif Instrument=='HARPS':
             
-            # Opening the FITS file using 'astropy.io.fits'
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
             # NOTE: The format of this FITS file must be ADP which contains the reduced spectrum with the wav, flux and flux_err in three columns
             
-            file = fits.open(file_path[i]) 
-            
-            if ccf_file_path:
-                ccf_file = fits.open(ccf_file_path[i]) # Opening the CCF FITS file to extract the RV
-                RV = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted to m/s
-                
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
             else:
-                RV = radial_velocity
-            
-            #Extracting useful information from the fits file header
-            
-            MJD = file[0].header['MJD-OBS'] # Modified Julian Date
-            BJD = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
-            BERV = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
-            EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
-            OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
-            PROG_ID = file[0].header['PROG_ID'] # Program ID
-            SNR = file[0].header['SNR'] # Signal to Noise ratio
-            SIGDET = file[0].header['HIERARCH ESO DRS CCD SIGDET'] #CCD Readout Noise [e-]
-            CONAD = file[0].header['HIERARCH ESO DRS CCD CONAD']  #CCD conversion factor [e-/ADU]; from e- to ADU
-            RON = SIGDET * CONAD #CCD Readout Noise [ADU]
-            
-            
-            # Defining each wavelength, flux and flux error arrays from the FITS file!
-            
-            wvl = file[1].data[0][0]/10 # dividing it by 10 to convert the wavelength from Å to nm!
-            flx = file[1].data[0][1] # ADU
-            flx_err = file[1].data[0][2]
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            flx_err = spec[2]
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
             
-            shift = ((RV/ap.constants.c.value)*NaID1)  
+            shift = ((obj_params['RV']/ap.constants.c.value)*NaID1)  
             shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .FITS files!
             
             # Since the HARPS spectra have their individual spectral orders stitched together, we do not have to extract them separately as done for NARVAL. Thus for HARPS, the required region is extracted by slicing the spectrum with the index corresponding to the left and right continuum obtained using the 'find_nearest' function. 
@@ -1372,7 +1246,7 @@ def NaI_index(file_path,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(RV, shift))
+                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -1470,24 +1344,15 @@ def NaI_index(file_path,
             F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, 
                                                                    (F2_line+(F2_band/2))*u.nm))
     
-             # Definig the pseudo-continuum; same process as that for NARVAL above
+            regions = [NaID1_region, NaID2_region, F1_region, F2_region]
             
-            F1_sorted_flux = F1_region.flux[np.argsort(-F1_region.flux)[:hfv]] 
-            F1_mean = np.round(np.mean(F1_sorted_flux), 5)
-            F1_err = F1_region.uncertainty.array[np.argsort(-F1_region.flux)[:hfv]]
-                        
-            F1_sum_err = [i**2 for i in F1_err]
-            F1_err = np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)
+            # Calculating the index using 'calc_ind' from krome.spec_analysis
             
-            F2_sorted_flux = F2_region.flux[np.argsort(-F2_region.flux)[:hfv]]
-            F2_mean = np.round(np.mean(F2_sorted_flux), 5)
-            F2_err = F2_region.uncertainty.array[np.argsort(-F2_region.flux)[:hfv]]
-            
-            F2_sum_err = [i**2 for i in F2_err]
-            F2_err = np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)
-            
-            F_cont = np.round(((F1_mean+F2_mean)/2), 5) # This value is used for the index calc.
-            F_cont_err = np.round((np.sqrt(F1_err**2 + F2_err**2)/2), 5)
+            I_NaI, I_NaI_err, F1_mean, F2_mean = calc_ind(regions=regions,
+                                                          index_name='NaI',
+                                                          print_stat=print_stat,
+                                                          hfv=hfv)
+            # Plotting the pseudo-continuum as the linear interpolation of the values in each red and blue cont. window!
             
             if plot_spec:
                 
@@ -1513,7 +1378,10 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    if print_stat:
+                        print('Saving plots as PDFs in the working directory')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux, color='black')
@@ -1533,76 +1401,40 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
             
-            # Calculating mean flux in the D1,2 lines
-            
-            NaID1_mean = np.round(np.mean(NaID1_region.flux.value), 5)
-            
-            # Error calculated using error propagation
-            
-            NaID1_sum_err = [i**2 for i in NaID1_region.uncertainty.array]
-            NaID1_err = np.round((np.sqrt(np.sum(NaID1_sum_err))/len(NaID1_sum_err)), 5)
-            
-            NaID2_mean = np.round(np.mean(NaID2_region.flux.value), 5)
-            NaID2_sum_err = [i**2 for i in NaID2_region.uncertainty.array]
-            NaID2_err = np.round((np.sqrt(np.sum(NaID2_sum_err))/len(NaID2_sum_err)), 5)
-            
-            sigma_D12 = np.sqrt(np.square(NaID1_err) + np.square(NaID2_err)) # Error on the sum of the mean fluxes in D1 and D2
-            
-            # Calculating the NaI index
-            
-            NaID_index = np.round(((NaID1_mean + NaID2_mean)/F_cont.value), 5)
-            
-            # Error on NaI index calculated using error propagation
-            
-            sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + np.square(F_cont_err/F_cont.value))), 5)
-            
-            if print_stat:
-                print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
-                print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
-                print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
-                print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
-                print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            res = [MJD, BJD, BERV, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, SNR, RON, PROG_ID] # Creating a list containing the results for this file
-            results.append(res) # Appending the res list into the empty results list created at the start of this function
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_NaI', 'I_NaI_err']
+            res = list(obj_params.values()) + [I_NaI, I_NaI_err]
+            results.append(res)
         
         elif Instrument=='HARPS-N':
             
-            # Opening the FITS file using 'astropy.io.fits'
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
             # NOTE: The format of this FITS file must be s1d which only contains flux array. 
             # The wavelength array is constructed using the starting point (CRVAL1), length of spectral axis (NAXIS1) 
             # and wavelength step (CDELT1) from the FITS file header.
             
-            file = fits.open(file_path[i])
-            
-            if ccf_file_path:
-                ccf_file = fits.open(ccf_file_path[i]) # Opening the CCF FITS file to extract the RV
-                RV = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity in m/s
-                
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
             else:
-                RV = radial_velocity
-            
-            #Extracting useful information from the FITS file header
-            
-            BJD = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
-            EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
-            OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
-            PROG_ID = file[0].header['PROGRAM'] # Program ID
-            
-            flx = file[0].data # ADU
-            wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1']) 
-            wvl = wvl/10 # convert wvl from Å to nm!
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
             
-            shift = ((RV/ap.constants.c.value)*NaID1)  
+            shift = ((obj_params['RV']/ap.constants.c.value)*NaID1)  
             shift = (round(shift, 3)) 
             
              # Same as the HARPS spectra, the HARPS-N spectra have their individual spectral orders stitched together and 
@@ -1626,7 +1458,7 @@ def NaI_index(file_path,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(RV, shift))
+                print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -1723,7 +1555,7 @@ def NaI_index(file_path,
                     ax.set_ylabel("Flux (adu)")
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 
             # Extracting the regions required for the index calculation using 'extract_region'
@@ -1740,60 +1572,20 @@ def NaI_index(file_path,
             F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, 
                                                                    (F2_line+(F2_band/2))*u.nm))
             
-            # Defining the pseudo-continuum; same process as that for NARVAL above
+            regions = [NaID1_region, NaID2_region, F1_region, F2_region]
             
-            F1_sorted_flux = F1_region.flux[np.argsort(-F1_region.flux)[:hfv]] 
-            F1_mean = np.round(np.mean(F1_sorted_flux), 5)
-            F1_err = F1_region.uncertainty.array[np.argsort(-F1_region.flux)[:hfv]]
-                        
-            F1_sum_err = [i**2 for i in F1_err]
-            F1_err = np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)
+            # Calculating the index using 'calc_ind' from krome.spec_analysis
             
-            F2_sorted_flux = F2_region.flux[np.argsort(-F2_region.flux)[:hfv]]
-            F2_mean = np.round(np.mean(F2_sorted_flux), 5)
-            F2_err = F2_region.uncertainty.array[np.argsort(-F2_region.flux)[:hfv]]
+            I_NaI, I_NaI_err, F1_mean, F2_mean = calc_ind(regions=regions,
+                                                          index_name='NaI',
+                                                          print_stat=print_stat,
+                                                          hfv=hfv)
             
-            F2_sum_err = [i**2 for i in F2_err]
-            F2_err = np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)
+            # Plotting the pseudo-continuum as the linear interpolation of the values in each red and blue cont. window!
             
-            F_cont = np.round(((F1_mean+F2_mean)/2), 5) # This value is used for the index calc.
-            F_cont_err = np.round((np.sqrt(F1_err**2 + F2_err**2)/2), 5)
-            
-            # Calculating mean flux in the D1,2 lines
-            
-            NaID1_mean = np.round(np.mean(NaID1_region.flux.value), 5)
-            NaID1_sum_err = [i**2 for i in NaID1_region.uncertainty.array]
-            NaID1_err = np.sqrt(np.sum(NaID1_sum_err))/len(NaID1_sum_err)
-            
-            NaID2_mean = np.round(np.mean(NaID2_region.flux.value), 5)
-            NaID2_sum_err = [i**2 for i in NaID2_region.uncertainty.array]
-            NaID2_err = np.sqrt(np.sum(NaID2_sum_err))/len(NaID2_sum_err)
-            
-            sigma_D12 = np.sqrt(np.square(NaID1_err) + np.square(NaID2_err))
-            
-            # Calculating the NaI index 
-            
-            NaID_index = np.round(((NaID1_mean + NaID2_mean)/F_cont.value), 5)
-            
-            # Error on NaI index is calculated using error propagation
-            
-            sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + 
-                                                  np.square(F_cont_err/F_cont.value))), 5)
-            
-            if print_stat:
-                print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
-                print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
-                print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
-                print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
-                print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            res = [BJD, OBS_DATE, NaID_index, sigma_NaID_index, RV, EXPTIME, PROG_ID] # Creating a list containing the results for this file
-            results.append(res) # Appending the res list into the empty results list created at the start of this function
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_NaI', 'I_NaI_err']
+            res = list(obj_params.values()) + [I_NaI, I_NaI_err]
+            results.append(res)
             
         else:
             
@@ -1806,18 +1598,6 @@ def NaI_index(file_path,
         if print_stat:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            if Instrument=='NARVAL':
-                
-                header = ['HJD', 'I_NaI', 'I_NaI_err']
-                
-            elif Instrument=='HARPS':
-                
-                header = ['MJD', 'BJD', 'BERV', 'OBS_DATE', 'I_NaI', 'I_NaI_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
-                
-            elif Instrument=='HARPS-N':
-                
-                header = ['BJD', 'OBS_DATE', 'I_NaI', 'I_NaI_err', 'RV', 'T_exp', 'PROG_ID']
 
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
@@ -1837,7 +1617,6 @@ def CaIIH_Index(file_path,
                 cont_R_line=400.107,
                 cont_R_band=2.0,
                 Instrument='NARVAL',
-                Stokes_profile=['V'], 
                 norm_spec=False,
                 plot_fit=False,
                 plot_spec=True,
@@ -1845,6 +1624,7 @@ def CaIIH_Index(file_path,
                 save_results=False,
                 results_file_name=None,
                 save_figs=False,
+                save_figs_name=None,
                 out_file_path=None,
                 ccf_file_path=None):
     
@@ -1906,6 +1686,9 @@ def CaIIH_Index(file_path,
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
     
+    save_figs_name: str, default=None
+    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
+    
     out_file_path: list, .out format (NARVAL), default: None
     List containing the paths of the .out files to extract the OBS_HJD. If None, HJD is returned as NaN. Used only when Instrument type is 'NARVAL'
     
@@ -1938,44 +1721,30 @@ def CaIIH_Index(file_path,
         if Instrument == 'NARVAL':
 
             if out_file_path != None:
-
-                file = open(out_file_path[i]).readlines() # Opening the .out file and reading each line as a string
                 
-                string = '   Heliocentric Julian date (UTC) :' # Creating a string variable that matches the string in the .out file
+                # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
                 
-                idx = find_string_idx(out_file_path[i], string) # Using the 'find_string_idx' function to find the index of the line that contains the above string. 
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               out_file_path=out_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
                 
-                HJD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
-
+                obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
+                
             else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   out_file_path=None,
+                                   show_plots=False)
+                
                 if print_stat:
-                    print('out_file_path not given as an argument. Returning NaN as HJD instead.')
+                    print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                HJD = float('nan')
                 
-            # Defining column names for pandas to read the file easily
-            
-            col_names_V = ['Wavelength', 'Intensity', 'Polarized', 'N1', 'N2', 'I_err'] # For Stokes V
-            col_names_I = ['Wavelength', 'Intensity', 'I_err'] # For Stokes I
-            
-            # Reading data using pandas and skipping the first 2 rows
 
-            if Stokes_profile==['V']:
-                data_spec = pd.read_csv(file_path[i], names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
-            else:
-                data_spec = pd.read_csv(file_path[i], names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
-
-
-            # Extracting indivdidual spectral orders using the 'extract_orders' function
-            
-            if print_stat:
-                print('Extracting spectral orders')
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-            orders = extract_orders(data_spec['Wavelength'].values, 
-                                    data_spec['Intensity'].values, 
-                                    flx_err=data_spec['I_err'].values)
-            
             if print_stat:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -1985,9 +1754,9 @@ def CaIIH_Index(file_path,
             order_57 = orders[61-57] # The orders begin from # 61 so to get # 57, we index as 61-57.
             
             if print_stat:
-                print('The #57 order wavelength read from .s file using pandas is: {}'.format(order_57[0]))
-                print('The #57 order intensity read from .s file using pandas is: {}'.format(order_57[1]))
-                print('The #57 order intensity error read from .s file using pandas is: {}'.format(order_57[2]))
+                print('The #57 order wavelength read from .s file using pandas is: {}'.format(order_57[0].values))
+                print('The #57 order intensity read from .s file using pandas is: {}'.format(order_57[1].values))
+                print('The #57 order intensity error read from .s file using pandas is: {}'.format(order_57[2].values))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of CaIIH line; delta_lambda = (v/c)*lambda
@@ -1995,9 +1764,9 @@ def CaIIH_Index(file_path,
             shift = ((radial_velocity/ap.constants.c.value)*CaIIH_line)
             shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
 
-            wvl = np.round((order_57[0] - shift), 4)
-            flx = order_57[1]
-            flx_err = order_57[2]
+            wvl = np.round((order_57[0].values - shift), 4)
+            flx = order_57[1].values
+            flx_err = order_57[2].values
             
             # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
@@ -2053,7 +1822,7 @@ def CaIIH_Index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
 
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-normalised', alpha=0.6)
@@ -2065,7 +1834,7 @@ def CaIIH_Index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
 
                 spec = spec_normalized 
 
@@ -2087,7 +1856,7 @@ def CaIIH_Index(file_path,
                 ax.set_ylim(-0.35, 3.0)
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(HJD), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
 
                 f, ax1 = plt.subplots(figsize=(10,4)) 
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -2102,46 +1871,37 @@ def CaIIH_Index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_CaIIH_line_plot.pdf'.format(HJD), format='pdf')
+                    plt.savefig('{}_CaIIH_line_plot.pdf'.format(save_figs_name), format='pdf')
 
         ## HARPS 
 
         elif Instrument == 'HARPS':
 
-            # Opening the FITS file using 'astropy.io.fits'
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
             # NOTE: The format of this FITS file must be ADP which contains the reduced spectrum with the wav, flux and flux_err in three columns
             
-            file = fits.open(file_path[i])
-            
-            if ccf_file_path:
-                ccf_file = fits.open(ccf_file_path[i]) # Opening the CCF FITS file to extract the RV
-                RV = ccf_file[0].header['HIERARCH ESO DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
-                
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
             else:
-                RV = radial_velocity
-            
-            #Extracting useful information from the fits file header
-            
-            MJD = file[0].header['MJD-OBS'] # Modified Julian Date
-            BJD = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
-            BERV = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s 
-            EXPTIME = file[0].header['EXPTIME'] # Exposure time in s
-            OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
-            PROG_ID = file[0].header['PROG_ID'] # Program ID
-            SNR = file[0].header['SNR'] # Signal to Noise ratio
-            SIGDET = file[0].header['HIERARCH ESO DRS CCD SIGDET']  #CCD Readout Noise [e-]
-            CONAD = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
-            RON = np.round((SIGDET * CONAD), 4) #CCD Readout Noise [ADU]
-            
-            # Defining each wavelength, flux and flux error arrays from the FITS file!
-            
-            wvl = file[1].data[0][0]/10 # dividing it by 10 to convert the wavelength from Å to nm!
-            flx = file[1].data[0][1] # Flux in ADU
-            flx_err = file[1].data[0][2]
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            flx_err = spec[2]
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
            
-            shift = ((RV/ap.constants.c.value)*CaIIH_line)  
+            shift = ((obj_params['RV']/ap.constants.c.value)*CaIIH_line)  
             shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .fits files!
             
             # Since the HARPS spectra have their individual spectral orders stitched together, 
@@ -2186,7 +1946,7 @@ def CaIIH_Index(file_path,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
 
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(RV, shift))
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
                                                                                                                                                               spec1d.spectral_axis[-1].value))
@@ -2226,7 +1986,7 @@ def CaIIH_Index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
 
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, label='Re-Normalized')
@@ -2239,7 +1999,7 @@ def CaIIH_Index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
 
                 spec = spec_normalized # Note the continuum normalised spectrum also has new uncertainty values!
 
@@ -2265,7 +2025,7 @@ def CaIIH_Index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
 
                 ax1  = plt.subplots()[1]  
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -2282,41 +2042,38 @@ def CaIIH_Index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_CaIIH_line_plot.pdf'.format(MJD), format='pdf')
+                    plt.savefig('{}_CaIIH_line_plot.pdf'.format(save_figs_name), format='pdf')
                 
         ## HARPS-N
                 
         elif Instrument=='HARPS-N':
             
-            # Opening the FITS file using 'astropy.io.fits'
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
             # NOTE: The format of this FITS file must be s1d which only contains flux array. 
             # The wavelength array is constructed using the starting point (CRVAL1), length of spectral axis (NAXIS1) 
             # and wavelength step (CDELT1) from the FITS file header.
             
-            file = fits.open(file_path[i])
-            
-            if ccf_file_path:
-                ccf_file = fits.open(ccf_file_path[i])  # Opening the CCF FITS file to extract the RV
-                RV = ccf_file[0].header['HIERARCH TNG DRS CCF RV']*1000 # Radial velocity converted from km/s to m/s
-                
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
             else:
-                RV = radial_velocity
-            
-            #Extracting useful information from the fits file header
-            
-            BJD = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
-            EXPTIME = file[0].header['EXPTIME'] # Exposure time in seconds
-            OBS_DATE = file[0].header['DATE-OBS'] # Observation Date
-            PROG_ID = file[0].header['PROGRAM'] # Program ID
-            
-            
-            flx = file[0].data # Flux in ADU
-            wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1']) # constructing the spectral axis using start point, delta and axis length from file header
-            wvl = wvl/10 # convert wvl from Å to nm!
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
             
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
             
-            shift = ((RV/ap.constants.c.value)*CaIIH_line)  
+            shift = ((obj_params['RV']/ap.constants.c.value)*CaIIH_line)  
             shift = (round(shift, 3)) 
             
             # Same as the HARPS spectra, the HARPS-N spectra have their individual spectral orders stitched together and 
@@ -2339,7 +2096,7 @@ def CaIIH_Index(file_path,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(RV, shift))
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
                                                                                                                                                               spec1d.spectral_axis[-1].value))
@@ -2376,7 +2133,7 @@ def CaIIH_Index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
@@ -2389,7 +2146,7 @@ def CaIIH_Index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
                     
                 spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
                 
@@ -2415,7 +2172,7 @@ def CaIIH_Index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
 
                 ax1  = plt.subplots()[1]  
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -2432,7 +2189,7 @@ def CaIIH_Index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_CaIIH_line_plot.pdf'.format(MJD), format='pdf')
+                    plt.savefig('{}_CaIIH_line_plot.pdf'.format(save_figs_name), format='pdf')
 
         else:
             raise ValueError('Instrument type not recognisable. Available options are "NARVAL", "HARPS" and "HARPS-N"')
@@ -2446,48 +2203,36 @@ def CaIIH_Index(file_path,
 
         # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
         F_CaIIH_region = extract_region(spec, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
-        F_CaIIH_mean = np.round(np.mean(F_CaIIH_region.flux.value), 5) # Calculating mean of the flux within this bandwidth
-        
-        # Calculating the standard error on the mean flux calculated above.
-        F_CaIIH_sum_err = [i**2 for i in F_CaIIH_region.uncertainty.array]
-        F_CaIIH_mean_err = np.round((np.sqrt(np.sum(F_CaIIH_sum_err))/len(F_CaIIH_sum_err)), 5)
-
         
         # Doing the same for the cont R region!
         cont_R_region = extract_region(spec, region=SpectralRegion((cont_R_line-(cont_R_band/2))*u.nm, (cont_R_line+(cont_R_band/2))*u.nm))
-        cont_R_mean = np.round(np.mean(cont_R_region.flux.value), 5)
-        cont_R_sum_err = [i**2 for i in cont_R_region.uncertainty.array]
-        cont_R_mean_err = np.round((np.sqrt(np.sum(cont_R_sum_err))/len(cont_R_sum_err)), 5)
-
-
-        # Calculating the index from the mean fluxes calculated above
-        CaIIH_from_mean = np.round((F_CaIIH_mean/cont_R_mean), 5)
         
-        # Error on this index is calculated using error propagation!
-        sigma_CaIIH_from_mean = np.round((CaIIH_from_mean*np.sqrt(np.square(F_CaIIH_mean_err/F_CaIIH_mean) + np.square(cont_R_mean_err/cont_R_mean))), 5)
+        regions = [F_CaIIH_region, cont_R_region]
         
-        if print_stat:
-            print('CaIIH region used ranges from {}nm to {}nm:'.format(F_CaIIH_region.spectral_axis[0].value, 
-                                                                 F_CaIIH_region.spectral_axis[-1].value))
-            print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
-                                                                 cont_R_region.spectral_axis[-1].value))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Mean of {} flux points in CaIIH: {}±{}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
-            print('Mean of {} flux points in cont R: {}±{}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Index from mean of flux points in each band: {}±{}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        # Calculating the index using 'calc_inc' from krome.spec_analysis
+        
+        I_CaIIH, I_CaIIH_err = calc_ind(regions=regions,
+                                        index_name='CaIIH',
+                                        print_stat=print_stat)
             
         if Instrument=='NARVAL':
-            res = [HJD, CaIIH_from_mean, sigma_CaIIH_from_mean] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
-            results.append(res)
+            if out_file_path != None:
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_CaIIH', 'I_CaIIH_err']
+                res = list(obj_params.values()) + [I_CaIIH, I_CaIIH_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                results.append(res)
+            else:
+                header = ['I_CaIIH', 'I_CaIIH_err']
+                res = [I_CaIIH, I_CaIIH_err]
+                results.append(res)
         
         elif Instrument=='HARPS':
-            res = [MJD, BJD, BERV, OBS_DATE, CaIIH_from_mean, sigma_CaIIH_from_mean, RV, EXPTIME, SNR, RON, PROG_ID]
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_CaIIH', 'I_CaIIH_err']
+            res = list(obj_params.values()) + [I_CaIIH, I_CaIIH_err]
             results.append(res)
             
         elif Instrument=='HARPS-N':
-            res = [BJD, OBS_DATE, CaIIH_from_mean, sigma_CaIIH_from_mean, RV, EXPTIME, PROG_ID]
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_CaIIH', 'I_CaIIH_err']
+            res = list(obj_params.values()) + [I_CaIIH, I_CaIIH_err]
             results.append(res)
             
     # Saving the results in a csv file format  
@@ -2497,18 +2242,6 @@ def CaIIH_Index(file_path,
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-        if Instrument=='NARVAL':
-            
-            header = ['HJD', 'I_CaIIH', 'I_CaIIH_err']
-            
-        elif Instrument=='HARPS':
-            
-            header = ['MJD', 'BJD', 'BERV', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'SNR', 'RON', 'PROG_ID']
-            
-        elif Instrument=='HARPS-N':
-            
-            header = ['BJD', 'OBS_DATE', 'I_CaIIH', 'I_CaIIH_err', 'RV', 'T_exp', 'PROG_ID']
-
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
             writer.writerow(header)
