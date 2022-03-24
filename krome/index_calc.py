@@ -48,6 +48,7 @@ def H_alpha_index(file_path,
                   save_results=False, 
                   results_file_name=None,
                   save_figs=False,
+                  save_figs_name=None,
                   out_file_path=None,
                   ccf_file_path=None,
                   CaI_index=True):
@@ -123,6 +124,9 @@ def H_alpha_index(file_path,
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
     
+    save_figs_name: str, default=None
+    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
+    
     out_file_path: list, .out format (NARVAL), default: None
     List containing the paths of the .out files to extract the OBS_HJD. If None, HJD is returned as NaN. Used only when Instrument type is 'NARVAL'
     
@@ -167,7 +171,16 @@ def H_alpha_index(file_path,
                                                print_stat=print_stat,
                                                show_plots=False)
                 
+                obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
+                
             else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   out_file_path=None,
+                                   show_plots=False)
+                
                 if print_stat:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -250,7 +263,7 @@ def H_alpha_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(obj_params['HJD']), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
                     f, ax2 = plt.subplots()  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
@@ -264,7 +277,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(obj_params['HJD']), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
                 
@@ -298,7 +311,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(obj_params['HJD']), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 # Plots the zoomed in regions around the H alpha line.
                 f, ax1  = plt.subplots()
@@ -313,7 +326,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(obj_params['HJD']), format='pdf')
+                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
                         
                         
                 if CaI_index:
@@ -330,7 +343,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(obj_params['HJD']), format='pdf')
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
                 
         # HARPS
         
@@ -440,7 +453,7 @@ def H_alpha_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, label='Re-Normalized')
@@ -453,7 +466,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
                 
             else:
                 spec = spec1d
@@ -487,7 +500,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 f, ax1  = plt.subplots(figsize=(10,4)) 
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -504,7 +517,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
@@ -523,7 +536,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
                 
         elif Instrument=='HARPS-N':
             
@@ -609,7 +622,7 @@ def H_alpha_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
@@ -623,7 +636,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
                     
                 spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
                 
@@ -659,7 +672,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux)
@@ -676,7 +689,7 @@ def H_alpha_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                        plt.savefig('{}_H_alpha_line_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
@@ -695,7 +708,7 @@ def H_alpha_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                            plt.savefig('{}_CaI_line_plot.pdf'.format(obj_params['BJD']), format='pdf')
+                            plt.savefig('{}_CaI_line_plot.pdf'.format(save_figs_name), format='pdf')
                     
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
@@ -729,11 +742,11 @@ def H_alpha_index(file_path,
         
                    
         if print_stat:
-            print('H alpha region used ranges from {}nm to {}nm:'.format(F_H_alpha_region.spectral_axis[0].value, 
+            print('H alpha region used ranges from {}nm to {}nm'.format(F_H_alpha_region.spectral_axis[0].value, 
                                                                  F_H_alpha_region.spectral_axis[-1].value))
-            print('F1 region used ranges from {}nm to {}nm:'.format(F1_region.spectral_axis[0].value, 
+            print('F1 region used ranges from {}nm to {}nm'.format(F1_region.spectral_axis[0].value, 
                                                                  F1_region.spectral_axis[-1].value))
-            print('F2 region used ranges from {}nm to {}nm:'.format(F2_region.spectral_axis[0].value, 
+            print('F2 region used ranges from {}nm to {}nm'.format(F2_region.spectral_axis[0].value, 
                                                                  F2_region.spectral_axis[-1].value))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -781,7 +794,7 @@ def H_alpha_index(file_path,
             sigma_CaI_from_mean = np.round((CaI_from_mean*np.sqrt(np.square(F_CaI_mean_err/F_CaI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 5)
             
             if print_stat:
-                print('CaI region used ranges from {}nm to {}nm:'.format(F_CaI_region.spectral_axis[0].value, 
+                print('CaI region used ranges from {}nm to {}nm'.format(F_CaI_region.spectral_axis[0].value, 
                                                                          F_CaI_region.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in CaI: {}±{}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
@@ -797,7 +810,7 @@ def H_alpha_index(file_path,
 
         if Instrument=='NARVAL':
             if out_file_path != None:
-                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
                 res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
                 results.append(res)
             else:
@@ -806,12 +819,12 @@ def H_alpha_index(file_path,
                 results.append(res)
         
         elif Instrument=='HARPS':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
             res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
             results.append(res)
             
         elif Instrument=='HARPS-N':
-            head = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            head = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
             res = list(obj_params.values()) + [Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean]
             results.append(res)
                 
@@ -845,7 +858,6 @@ def NaI_index(file_path,
               F2_band=2.0,
               hfv=10, 
               Instrument='NARVAL',
-              Stokes_profile=['V'],
               norm_spec=False,
               plot_fit=False,
               plot_spec=True,
@@ -853,6 +865,7 @@ def NaI_index(file_path,
               save_results=False,
               results_file_name=None,
               save_figs=False,
+              save_figs_name=None
               out_file_path=None,
               ccf_file_path=None):
     
@@ -903,9 +916,6 @@ def NaI_index(file_path,
     Instrument: str, default: 'NARVAL'
     The instrument from which the data has been collected. Input takes arguments 'NARVAL', 'HARPS' or 'HARPS-N'.
     
-    Stokes_profile: str, default: ['V']
-    The Stokes profile for the input data. 'V' for per night and 'I' for per sub-exposure per night. Used only when Instrument type is 'NARVAL'
-    
     norm_spec: bool, default: False
     Normalizes ths spectrum. NOTE: This argument also accepts str type of 'scale' and 'poly1dfit' to normalize the spectrum by either scaling it down
     to maximum flux of 1.0,  or, by fitting the continuum with a line. But these are ONLY used for Instrument types 'HARPS' & 'HARPS-N'
@@ -927,6 +937,9 @@ def NaI_index(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
+    
+    save_figs_name: str, default=None
+    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     out_file_path: list, .out format (NARVAL), default: None
     List containing paths of the .out files used to extract OBS_HJD.
@@ -962,45 +975,35 @@ def NaI_index(file_path,
             
             if out_file_path != None:
                 
-                file = open(out_file_path[i]).readlines() # Opening the .out file and reading each line as a string
+                # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
                 
-                string = '   Heliocentric Julian date (UTC) :' # Creating a string variable that matches the string in the .out file
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               out_file_path=out_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
                 
-                idx = find_string_idx(out_file_path[i], string) # Using the 'find_string_idx' function to find the index of the line that contains the above string. 
-                
-                HJD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
+                obj_params['RV'] = radial_velocity
                 
             else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   out_file_path=None,
+                                   show_plots=False)
+                
                 if print_stat:
-                    print('out_file_path not given as an argument. Returning HJD as NaN instead.')
+                    print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                HJD = float('nan')
                 
-            # Defining column names for pandas to read the file easily
-    
-            col_names_V = ['Wavelength', 'Intensity', 'Polarized', 'N1', 'N2', 'I_err'] # For Stokes V 
-            col_names_I = ['Wavelength', 'Intensity', 'I_err'] # For Stokes I 
-            
-            # Reading data using pandas and skipping the first 2 rows
-            
-            if Stokes_profile==['V']:
-                data_spec = pd.read_csv(file_path[i], names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
-            else:
-                data_spec = pd.read_csv(file_path[i], names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
-            
-            # Extracting indivdidual spectral orders using 'extract_orders'
-            
             if print_stat:
-                print('Extracting spectral orders')
+                print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            spectral_orders = extract_orders(data_spec['Wavelength'],
-                                             data_spec['Intensity'],
-                                             data_spec['I_err'])
-            
-            ord_39 = spectral_orders[61-39] # order 39 contains the F1 line
-            ord_38 = spectral_orders[61-38] # Both order 39 and 38 contain the D1 and D2 lines but only order 38 is used since it has a higher SNR; (see .out file)
-            ord_37 = spectral_orders[61-37] # order 37 contains the F2 line
+            ord_39 = orders[61-39] # order 39 contains the F1 line
+            ord_38 = orders[61-38] # Both order 39 and 38 contain the D1 and D2 lines but only order 38 is used since it has a higher SNR; (see .out file)
+            ord_37 = orders[61-37] # order 37 contains the F2 line
             
             if print_stat:
                 print('Using orders #39, #38 and #37 for Index calculation')
@@ -1086,7 +1089,7 @@ def NaI_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_F1_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_fit_F1_plot.pdf'.format(save_figs_name), format='pdf')
                           
                 # Second order
                 
@@ -1122,7 +1125,7 @@ def NaI_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_fit_F2_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_fit_F2_plot.pdf'.format(save_figs_name), format='pdf')
                           
                 # Third order
                 
@@ -1158,7 +1161,7 @@ def NaI_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_fit_F3_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_cont_fit_F3_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 spec1 = spec_normalized1
                 spec2 = spec_normalized2
@@ -1233,7 +1236,7 @@ def NaI_index(file_path,
                     if print_stat:
                         print('Saving plots as PDFs in the working directory')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(HJD), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec2.spectral_axis, spec2.flux, color='blue', label='#38')
@@ -1250,7 +1253,7 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(HJD), format='pdf')
+                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
                 
             # Calculating the mean flux in the D1 D2 lines
             
@@ -1401,7 +1404,7 @@ def NaI_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                             
             elif norm_spec=='poly1dfit':
                 if print_stat:
@@ -1435,7 +1438,7 @@ def NaI_index(file_path,
                     ax1.set_title("Continuum Fitting") 
                     
                     if save_figs:
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec.spectral_axis, spec.flux, label='Normalized')
@@ -1446,7 +1449,7 @@ def NaI_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
                 
                     
             else:
@@ -1510,7 +1513,7 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                         
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux, color='black')
@@ -1530,7 +1533,7 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
             
             # Calculating mean flux in the D1,2 lines
             
@@ -1653,7 +1656,7 @@ def NaI_index(file_path,
                         if print_stat:
                             print('Saving plots as PDFs in the working directory')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
             elif norm_spec=='poly1dfit':
                 if print_stat:
@@ -1695,7 +1698,7 @@ def NaI_index(file_path,
                     plt.legend()
                     
                     if save_figs:
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                 
                     
             else:
@@ -1720,7 +1723,7 @@ def NaI_index(file_path,
                     ax.set_ylabel("Flux (adu)")
                 
                 if save_figs:
-                        plt.savefig('{}_reduced_spec_plot.pdf'.format(MJD), format='pdf')
+                        plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 
             # Extracting the regions required for the index calculation using 'extract_region'
