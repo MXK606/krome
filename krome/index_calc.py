@@ -30,7 +30,7 @@ from krome.spec_analysis import find_nearest, read_data, calc_ind
 ## Defining a function for calculating the H alpha index following Boisse et al. 2009 (2009A&A...495..959B)
 
 def H_alpha_index(file_path,
-                  radial_velocity=9609,
+                  radial_velocity,
                   degree=4,
                   H_alpha_line=656.2808,
                   H_alpha_band=0.16,
@@ -66,9 +66,8 @@ def H_alpha_index(file_path,
     file_path: list, .s format (NARVAL), ADP..._.fits format (HARPS) or s1d_A.fits format (HARPS-N)
     List containng the paths of the spectrum files 
     
-    radial_velocity: int, default: 9609 m/s
-    Stellar radial velocity along the line-of-sight taken from GAIA DR2 for GJ 436.
-    This value is used for doppler shifting the spectra to its rest frame.
+    radial_velocity: int
+    Stellar radial velocity along the line-of-sight. This value is used for doppler shifting the spectra to its rest frame.
     
     degree: int, default: 4
     The degree of the Chebyshev1D polynomial to fit to the continuum for normalisation.
@@ -426,7 +425,10 @@ def H_alpha_index(file_path,
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -598,7 +600,11 @@ def H_alpha_index(file_path,
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree))
+                # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
                 if print_stat:
                     print('Polynomial fit coefficients:')
@@ -776,7 +782,7 @@ def H_alpha_index(file_path,
 ## Defining a function to calculate the NaI index following Rodrigo F. Díaz et al. 2007 (2007MNRAS.378.1007D)
 
 def NaI_index(file_path,
-              radial_velocity=9609,
+              radial_velocity,
               degree=4,
               NaID2=588.995,
               NaID1=589.592,
@@ -808,9 +814,8 @@ def NaI_index(file_path,
     file_path: list, .s format (NARVAL), ADP..._.fits format (HARPS) or s1d_A.fits format (HARPS-N)
     List containing paths of the spectrum files
     
-    radial_velocity: int, default: 9609 m/s
-    Stellar radial velocity along the line-of-sight taken from GAIA DR2 for GJ 436.
-    This value is used for doppler shifting the spectra to its rest frame.
+    radial_velocity: int
+    Stellar radial velocity along the line-of-sight. This value is used for doppler shifting the spectra to its rest frame.
     
     degree: int, default: 4
     The degree of the Chebyshev1D polynomial to fit to the continuum for normalisation.
@@ -1610,7 +1615,7 @@ def NaI_index(file_path,
 ## Defining a function to calculate the CaIIH index following Morgenthaler et al. 2012 (2012A&A...540A.138M)
 
 def CaIIH_Index(file_path,
-                radial_velocity=9609, 
+                radial_velocity, 
                 degree=4, 
                 CaIIH_line=396.847, 
                 CaIIH_band=0.04, 
@@ -1637,9 +1642,8 @@ def CaIIH_Index(file_path,
     file_path: list, .s format (NARVAL), ADP..._.fits format (HARPS) or s1d_A.fits format (HARPS-N)
     List containng the paths of the spectrum files 
     
-    radial_velocity: int, default: 9609 m/s
-    Stellar radial velocity along the line-of-sight taken from GAIA DR2 for GJ 436.
-    This value is used for doppler shifting the spectra to its rest frame.
+    radial_velocity: int
+    Stellar radial velocity along the line-of-sight. This value is used for doppler shifting the spectra to its rest frame.
     
     degree: int, default: 4
     The degree of the Chebyshev1D polynomial to fit to the continuum for normalisation.
