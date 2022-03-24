@@ -137,11 +137,11 @@ def H_alpha_index(file_path,
     
     Returns:
     -----------
-    NARVAL: HJD of observation, H alpha index, error on H alpha index, CaI index and error on CaI index.
-    HARPS: MJD of observation, Observation date, H alpha index, error on H alpha index, CaI index, error on CaI index, radial velocity, exposure time (s), SNR, ReadOut noise and Program ID
-    HARPS-N: MJD of observation, Observation date, H alpha index, error on H alpha index, CaI index, error on CaI index, radial velocity, exposure time (s) and Program ID
+    NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], H alpha index, error on H alpha index, CaI index and error on CaI index.
+    HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], H alpha index, error on H alpha index, CaI index, error on CaI index
+    HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], H alpha index, error on H alpha index, CaI index and error on CaI index
     
-    All values are type float().
+    All values are type float() given inside a list.
     
     """
     
