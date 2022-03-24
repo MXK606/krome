@@ -250,12 +250,13 @@ def H_alpha_index(file_path,
                 
                 # Plots the polynomial fits
                 if plot_fit:
-                    f, ax1 = plt.subplots()  
+                    f, ax1 = plt.subplots(figsize=(10,4))  
                     ax1.plot(spec1d.spectral_axis, spec1d.flux)  
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Normalized Flux')
                     ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
@@ -264,7 +265,7 @@ def H_alpha_index(file_path,
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
                     
-                    f, ax2 = plt.subplots()  
+                    f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
                     ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Pipeline Normalized', alpha=0.6)
                     plt.axhline(1.0, ls='--', c='gray')
@@ -272,7 +273,8 @@ def H_alpha_index(file_path,
                     plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")  
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -286,7 +288,7 @@ def H_alpha_index(file_path,
                 
             # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
             if plot_spec:
-                f, ax  = plt.subplots()
+                f, ax  = plt.subplots(figsize=(10,4))
                 ax.plot(spec.spectral_axis, spec.flux, '-k')  
                 ax.set_xlabel('$\lambda (nm)$')
                 ax.set_ylabel("Normalized Flux")
@@ -313,7 +315,7 @@ def H_alpha_index(file_path,
                     plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
                 
                 # Plots the zoomed in regions around the H alpha line.
-                f, ax1  = plt.subplots()
+                f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux)
                 ax1.set_xlabel('$\lambda (nm)$')
                 ax1.set_ylabel("Normalized Flux")
@@ -330,7 +332,7 @@ def H_alpha_index(file_path,
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
-                    f, ax2  = plt.subplots()
+                    f, ax2  = plt.subplots(figsize=(10,4))
                     ax2.plot(spec.spectral_axis, spec.flux)
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel("Normalized Flux")
@@ -416,6 +418,7 @@ def H_alpha_index(file_path,
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -449,6 +452,7 @@ def H_alpha_index(file_path,
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Flux (adu)')
                     ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
@@ -464,7 +468,8 @@ def H_alpha_index(file_path,
                     plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")  
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -523,7 +528,7 @@ def H_alpha_index(file_path,
                         
                 if CaI_index:
                     # Plots the zoomed in regions around the CaI line.
-                    f, ax2  = plt.subplots()
+                    f, ax2  = plt.subplots(figsize=(10,4))
                     ax2.plot(spec.spectral_axis, spec.flux)
                     ax2.set_xlabel('$\lambda (nm)$')
                     if norm_spec:
@@ -622,6 +627,7 @@ def H_alpha_index(file_path,
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Flux (adu)')
                     ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
@@ -638,7 +644,8 @@ def H_alpha_index(file_path,
                     plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")  
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -1145,6 +1152,7 @@ def NaI_index(file_path,
                 plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}'.format(F2_line, F2_band/2))
                 plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1.flux.value), linestyles='dashdot', colors='red')
                 plt.axhline(1.0, ls='--', c='gray')
+                plt.tight_layout()
                 plt.legend()
                 
                 if save_figs:
@@ -1314,7 +1322,8 @@ def NaI_index(file_path,
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Flux (adu)')
-                    ax1.set_title("Continuum Fitting") 
+                    ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     if save_figs:
                         plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
@@ -1324,7 +1333,8 @@ def NaI_index(file_path,
                     ax2.axhline(1.0, ls='--', c='gray')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized")  
+                    ax2.set_title("Continuum Normalized")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -1380,6 +1390,7 @@ def NaI_index(file_path,
                     ax.set_ylabel("Normalized Flux")
                 else:
                     ax.set_ylabel("Flux (adu)")
+                plt.tight_layout()
                 plt.legend()
                 
                 if save_figs:
@@ -1819,7 +1830,8 @@ def CaIIH_Index(file_path,
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Normalised Flux')
-                    ax1.set_title("Continuum Fitting") 
+                    ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
@@ -1834,7 +1846,8 @@ def CaIIH_Index(file_path,
                     plt.axhline(1.0, ls='--', c='gray')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalised Flux')
-                    ax2.set_title("Continuum Normalized ")  
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -1858,6 +1871,7 @@ def CaIIH_Index(file_path,
                 plt.vlines(cont_R_line+(cont_R_band/2), ymin=0.0, ymax=3.0, linestyles='--', colors='red')
                 ax.set_xlim(CaIIH_line-(CaIIH_band/2)-0.05, cont_R_line+(cont_R_band/2)+0.05)
                 ax.set_ylim(-0.35, 3.0)
+                plt.tight_layout()
                 
                 if save_figs:
                     plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
@@ -1983,7 +1997,8 @@ def CaIIH_Index(file_path,
                     ax1.plot(spec1d.spectral_axis, y_cont_fitted)
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Flux (adu)')
-                    ax1.set_title("Continuum Fitting") 
+                    ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
@@ -1999,7 +2014,8 @@ def CaIIH_Index(file_path,
                     plt.vlines(cont_R_line+(cont_R_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")  
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -2026,6 +2042,7 @@ def CaIIH_Index(file_path,
                 plt.vlines(cont_R_line-(cont_R_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='red', label='Right ref. band width = ({}±{})nm'.format(cont_R_line, cont_R_band/2))
                 plt.vlines(cont_R_line+(cont_R_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='red')
                 plt.xlim(CaIIH_line-(CaIIH_band/2)-0.05, cont_R_line+(cont_R_band/2)+0.05)
+                plt.tight_layout()
                 plt.legend()
                 
                 if save_figs:
@@ -2131,6 +2148,7 @@ def CaIIH_Index(file_path,
                     ax1.set_xlabel('$\lambda (nm)$')
                     ax1.set_ylabel('Flux (adu)')
                     ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
                     
                     # Saves the plot in a pdf format in the working directory
                     if save_figs:
@@ -2146,7 +2164,8 @@ def CaIIH_Index(file_path,
                     plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")  
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
                     plt.legend()
                     
                     if save_figs:
@@ -2173,6 +2192,7 @@ def CaIIH_Index(file_path,
                 plt.vlines(cont_R_line-(cont_R_band/2), ymin=-1.0, ymax=4, linestyles='--', colors='red', label='Right ref. band width = ({}±{})nm'.format(cont_R_line, cont_R_band/2))
                 plt.vlines(cont_R_line+(cont_R_band/2), ymin=-1.0, ymax=4, linestyles='--', colors='red')
                 plt.xlim(CaIIH_line-(CaIIH_band/2)-0.05, cont_R_line+(cont_R_band/2)+0.05)
+                plt.tight_layout()
                 plt.legend()
                 
                 if save_figs:
