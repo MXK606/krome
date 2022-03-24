@@ -720,6 +720,247 @@ def read_data(file_path,
             
         return object_parameters, spectrum
     
+## Defining a function to do the calculation part for each index function given the regions!
+
+def calc_ind(regions,
+             index_name,
+             print_stat,
+             CaI_index=False,
+             hfv=None):
+    
+    """
+    
+    Calculates the indices for the index_calc functions given the regions.
+    
+    Parameters:
+    -----------
+    regions: list
+    List containing the appropriate regions required for the calculation
+    
+    index_name: str
+    Name of the index to calculate. Available options are; ['HaI', 'NaI', 'CaIIH']
+    
+    print_stat: bool
+    print_stat argument from within the index_calc function
+    
+    CaI_index: bool, default=False
+    CaI index calculation condition. Used when index_name='HaI'
+    
+    hfv: int, default=None
+    hfv parameter from NaI_index function from index_calc. Used when index_name='NaI'
+    
+    
+    Returns:
+    --------
+    For 'HaI'; I_HaI, I_HaI_err, I_CaI, I_CaI_err (NOTE: CaI index values will be returned as NaN if CaI_index=False)
+    For 'NaI'; I_NaI, I_NaI_err, F1_mean, F2_mean
+    For 'CaIIH'; I_CaIIH, I_CaIIH_err 
+    
+    All returned values are type float()
+    
+    """
+    
+    ## HaI
+    
+    if index_name=='HaI':
+    
+        F_H_alpha_region = regions[0]
+        F1_region = regions[1]
+        F2_region = regions[2]
+            
+        # Mean of the flux within this region is calculated using np.mean and rounded off to 5 decimal places
+        F_H_alpha_mean = np.round(np.mean(F_H_alpha_region.flux.value), 5)
+        
+        # The error on the mean flux is calculated as the standard error of the mean
+        F_H_alpha_sum_err = [i**2 for i in F_H_alpha_region.uncertainty.array]
+        F_H_alpha_mean_err = np.round((np.sqrt(np.sum(F_H_alpha_sum_err))/len(F_H_alpha_sum_err)), 5)
+        
+        # Same thing repeated for the F1 and F2 regions
+        F1_mean = np.round(np.mean(F1_region.flux.value), 5)
+        F1_sum_err = [i**2 for i in F1_region.uncertainty.array]
+        F1_mean_err = np.round((np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)), 5)
+        
+        F2_mean = np.round(np.mean(F2_region.flux.value), 5)
+        F2_sum_err = [i**2 for i in F2_region.uncertainty.array]
+        F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 5)
+                   
+        if print_stat:
+            print('H alpha region used ranges from {}nm to {}nm'.format(F_H_alpha_region.spectral_axis[0].value, 
+                                                                 F_H_alpha_region.spectral_axis[-1].value))
+            print('F1 region used ranges from {}nm to {}nm'.format(F1_region.spectral_axis[0].value, 
+                                                                 F1_region.spectral_axis[-1].value))
+            print('F2 region used ranges from {}nm to {}nm'.format(F2_region.spectral_axis[0].value, 
+                                                                 F2_region.spectral_axis[-1].value))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # H alpha index is computed using the calculated mean fluxes.
+        
+        Hai_from_mean = np.round((F_H_alpha_mean/(F1_mean + F2_mean)), 5)
+        
+        # Continuum flux error is calculated as explained at the start of the tutorial Jupyter Notebook!
+        
+        sigma_F12_from_mean = np.sqrt((np.square(F1_mean_err) + np.square(F2_mean_err)))
+        
+        # Error on this index is calculated as explained at the start of the tutorial Jupyter notebook!
+        
+        sigma_Hai_from_mean = np.round((Hai_from_mean*np.sqrt(np.square(F_H_alpha_mean_err/F_H_alpha_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 5)
+        
+        if print_stat:
+    
+            print('Mean of {} flux points in H alpha: {}±{}'.format(len(F_H_alpha_region.flux), F_H_alpha_mean, F_H_alpha_mean_err))
+            print('Mean of {} flux points in F1: {}±{}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
+            print('Mean of {} flux points in F2: {}±{}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Index from mean of flux points in each band: {}±{}'.format(Hai_from_mean, sigma_Hai_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        ## CaI_index 
+        
+        if CaI_index:
+            
+            if print_stat:
+                print('Calculating CaI Index')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            F_CaI_region = regions[3]
+            F_CaI_mean = np.round(np.mean(F_CaI_region.flux.value), 5) # Calculating mean of the flux within this region
+            
+            # The error on the mean flux is calculated as the standard error of the mean
+            F_CaI_sum_err = [i**2 for i in F_CaI_region.uncertainty.array]
+            F_CaI_mean_err = np.round((np.sqrt(np.sum(F_CaI_sum_err))/len(F_CaI_sum_err)), 5)
+            
+            # Calculating the CaI index using the mean fluxes calculated above
+            CaI_from_mean = np.round((F_CaI_mean/(F1_mean + F2_mean)), 5)
+            
+            # Index error calculated in the same way as that for H alpha index above
+            sigma_CaI_from_mean = np.round((CaI_from_mean*np.sqrt(np.square(F_CaI_mean_err/F_CaI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 5)
+            
+            if print_stat:
+                print('CaI region used ranges from {}nm to {}nm'.format(F_CaI_region.spectral_axis[0].value, 
+                                                                         F_CaI_region.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('Mean of {} flux points in CaI: {}±{}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('Index from mean of flux points in each band: {}±{}'.format(CaI_from_mean, sigma_CaI_from_mean))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        else:
+            
+            CaI_from_mean = float('nan')
+            sigma_CaI_from_mean = float('nan')
+        
+        return Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean
+    
+    ## NaI
+    
+    elif index_name=='NaI':
+            
+        NaID1_region = regions[0]
+        NaID2_region = regions[1]
+        F1_region = regions[2]
+        F2_region = regions[3]
+        
+        # Definig the pseudo-continuum
+        
+        # Sorting the flux in F1 region from lowest to highest and using only the given number of highest flux values, (hfv), for the mean.
+        
+        F1_sorted_flux = F1_region.flux[np.argsort(-F1_region.flux)[:hfv]] 
+        F1_mean = np.round(np.mean(F1_sorted_flux), 5)
+        F1_err = F1_region.uncertainty.array[np.argsort(-F1_region.flux)[:hfv]]
+        
+        # The error on this mean is calculated using error propagation
+        
+        F1_sum_err = [i**2 for i in F1_err]
+        F1_err = np.round((np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)), 5)
+        
+        # Same process for F2 region
+        
+        F2_sorted_flux = F2_region.flux[np.argsort(-F2_region.flux)[:hfv]]
+        F2_mean = np.round(np.mean(F2_sorted_flux), 5)
+        F2_err = F2_region.uncertainty.array[np.argsort(-F2_region.flux)[:hfv]]
+        
+        F2_sum_err = [i**2 for i in F2_err]
+        F2_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 5)
+        
+        # The pseudo-continuum is taken as the mean of the fluxes calculated abvove in F1 and F2 regions
+        
+        F_cont = np.round(((F1_mean+F2_mean)/2), 5) # This value is used for the index calculation
+        F_cont_err = np.round((np.sqrt(F1_err**2 + F2_err**2)/2), 5) # Error calculated using error propagation
+        
+        # Calculating the mean flux in the D1 D2 lines
+            
+        NaID1_mean = np.round(np.mean(NaID1_region.flux.value), 5)
+        
+        # Error calculated using error propagation
+        NaID1_sum_err = [i**2 for i in NaID1_region.uncertainty.array]
+        NaID1_err = np.round((np.sqrt(np.sum(NaID1_sum_err))/len(NaID1_sum_err)), 5)
+        
+        NaID2_mean = np.round(np.mean(NaID2_region.flux.value), 5)
+        NaID2_sum_err = [i**2 for i in NaID2_region.uncertainty.array]
+        NaID2_err = np.round((np.sqrt(np.sum(NaID2_sum_err))/len(NaID2_sum_err)), 5)
+        
+        # Error on the sum of mean fluxes in D1 and D2
+        sigma_D12 = np.sqrt(np.square(NaID1_err) + np.square(NaID2_err))
+        
+        # Calculating the index and rounding it up to 5 decimal places
+        NaID_index = np.round(((NaID1_mean + NaID2_mean)/F_cont.value), 5)
+        
+        # Error calculated using error propagation and rounding it up to 5 decimal places
+        sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + np.square(F_cont_err/F_cont.value))), 5)
+        
+        if print_stat:
+            print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
+            print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
+            print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
+            print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
+            print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        return NaID_index, sigma_NaID_index, F1_mean, F2_mean
+    
+    ## CaIIH
+    
+    elif index_name=='CaIIH':
+        
+        F_CaIIH_region = regions[0]
+        cont_R_region = regions[1]
+        
+        F_CaIIH_mean = np.round(np.mean(F_CaIIH_region.flux.value), 5) # Calculating mean of the flux within this bandwidth
+        
+        # Calculating the standard error on the mean flux calculated above.
+        F_CaIIH_sum_err = [i**2 for i in F_CaIIH_region.uncertainty.array]
+        F_CaIIH_mean_err = np.round((np.sqrt(np.sum(F_CaIIH_sum_err))/len(F_CaIIH_sum_err)), 5)
+        
+        # Doing the same for the cont R region!
+        
+        cont_R_mean = np.round(np.mean(cont_R_region.flux.value), 5)
+        cont_R_sum_err = [i**2 for i in cont_R_region.uncertainty.array]
+        cont_R_mean_err = np.round((np.sqrt(np.sum(cont_R_sum_err))/len(cont_R_sum_err)), 5)
+
+        # Calculating the index from the mean fluxes calculated above
+        CaIIH_from_mean = np.round((F_CaIIH_mean/cont_R_mean), 5)
+        
+        # Error on this index is calculated using error propagation!
+        sigma_CaIIH_from_mean = np.round((CaIIH_from_mean*np.sqrt(np.square(F_CaIIH_mean_err/F_CaIIH_mean) + np.square(cont_R_mean_err/cont_R_mean))), 5)
+        
+        if print_stat:
+            print('CaIIH region used ranges from {}nm to {}nm:'.format(F_CaIIH_region.spectral_axis[0].value, 
+                                                                 F_CaIIH_region.spectral_axis[-1].value))
+            print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
+                                                                 cont_R_region.spectral_axis[-1].value))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Mean of {} flux points in CaIIH: {}±{}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
+            print('Mean of {} flux points in cont R: {}±{}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Index from mean of flux points in each band: {}±{}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        return CaIIH_from_mean, sigma_CaIIH_from_mean
+    
 ## Defining a function to calculate the LombScargle periodogram!
         
 def LS_periodogram(x,
