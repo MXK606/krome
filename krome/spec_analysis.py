@@ -426,6 +426,7 @@ def extract_orders(wav,
                 plt.title('{} spectral orders overplotted'.format(len(spec_orders)))
                 plt.minorticks_on()
                 plt.tick_params(direction='in', axis='both', which='both')
+                plt.tight_layout()
                 
             return spec_orders
                 
@@ -785,12 +786,12 @@ def calc_ind(regions,
         F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 5)
                    
         if print_stat:
-            print('H alpha region used ranges from {}nm to {}nm'.format(F_H_alpha_region.spectral_axis[0].value, 
-                                                                 F_H_alpha_region.spectral_axis[-1].value))
-            print('F1 region used ranges from {}nm to {}nm'.format(F1_region.spectral_axis[0].value, 
-                                                                 F1_region.spectral_axis[-1].value))
-            print('F2 region used ranges from {}nm to {}nm'.format(F2_region.spectral_axis[0].value, 
-                                                                 F2_region.spectral_axis[-1].value))
+            print('H alpha region used ranges from {}nm to {}nm'.format(np.round(F_H_alpha_region.spectral_axis[0].value, 3),
+                                                                        np.round(F_H_alpha_region.spectral_axis[-1].value, 3)))
+            print('F1 region used ranges from {}nm to {}nm'.format(np.round(F1_region.spectral_axis[0].value, 3),
+                                                                   np.round(F1_region.spectral_axis[-1].value, 3)))
+            print('F2 region used ranges from {}nm to {}nm'.format(np.round(F2_region.spectral_axis[0].value, 3),
+                                                                   np.round(F2_region.spectral_axis[-1].value, 3)))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         # H alpha index is computed using the calculated mean fluxes.
