@@ -243,6 +243,7 @@ def overplot(file_path,
         plt.ylabel('Flux (adu)')
     
     plt.title('Overplot of {} Individual spectrums'.format(len(file_path)))
+    plt.tight_layout()
         
     if save_fig:
         plt.savefig('{}.pdf'.format(save_name), format='pdf')
