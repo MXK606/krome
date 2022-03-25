@@ -890,11 +890,11 @@ def NaI_index(file_path,
     
     Returns:
     -----------
-    NARVAL: HJD of observation, NaI index, error on index, pseudo-continuum estimation and error on the pseudo-continuum.
-    HARPS: MJD of observation, Observation date, NaI index, error on index, radial velocity, exposure time (s), SNR, ReadOut noise and Program ID
-    HARPS-N: MJD of observation, Observation date, NaI index, error on index, radial velocity, exposure time (s) and Program ID
+    NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], NaI index and error on NaI index
+    HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], NaI index and error on NaI index
+    HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], NaI index and error on NaI index
     
-    All values are type float().
+    All values are type float() given inside a list.
     
     """
     
@@ -1712,11 +1712,11 @@ def CaIIH_Index(file_path,
     
     Returns:
     -----------
-    NARVAL: HJD of observation, CaIIH index and error on index. 
-    HARPS: MJD of observation, Observation date, CaIIH index, error on index, radial velocity, exposure time (s), SNR, ReadOut noise and Program ID
-    HARPS-N: MJD of observation, Observation date, CaIIH index, error on index, radial velocity, exposure time (s) and Program ID
+    NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], CaIIH index and error on CaIIH index
+    HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], CaIIH index and error on CaIIH index
+    HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], CaIIH index and error on CaIIH index
     
-    All values are type float().
+    All values are type float() given inside a list.
     
     """
 
@@ -2223,7 +2223,6 @@ def CaIIH_Index(file_path,
         # The two regions required for CaIIH index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
         # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
         # Note: These values must have the same units as the spec wavelength axis.
-
 
         # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
         F_CaIIH_region = extract_region(spec, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
