@@ -375,13 +375,23 @@ def extract_orders(wav,
         # For ex. wav = [1,2,3,4,5,2,3,4,5,6]
         # order_1 = [1,2,3,4,5]
         # order_2 = [2,3,4,5,6]
+        # 
+        # OR, in some cases;
+        #
+        # wav = [1,2,3,4,7,8,9,10]
+        # order_1 = [1,2,3,4]
+        # order_2 = [7,8,9,10]
+        
+        wav_res = np.mean(np.diff(wav)) # Mean spectral axis resolution
         
         for i in range(len(wav)-1):
             if wav[i+1] < wav[i]:
                 jump_index.append(i)
+            elif wav[i+1] - wav[i] > 100*wav_res: # Using 100*wav_res since the spectral resolution isn't constant throughout
+                jump_index.append(i)
                 
-        
-        # Creating a loop for cases where wavelength axis does not contain individual spectral orders        
+                
+        # Creating a condition for cases where wavelength axis does not contain individual spectral orders        
         if len(jump_index) > 1:
         
             spec_orders = []
@@ -391,13 +401,20 @@ def extract_orders(wav,
                 
                 print('Flux errors array contains NaN values. Returning orders without errors for all!')
                 
+                # Creating the first spectral order which ends at jump_index[0]
                 order_0 = [wav[:jump_index[0]], flx[:jump_index[0]]]
                 spec_orders.append(order_0)
                 
+                # The loop below creates each spectral order form the jump_index list above and appends them to the spec_orders
+                # list
                 for i in range(len(jump_index)-1):
                     
                     order = [wav[jump_index[i]+1:jump_index[i+1]], flx[jump_index[i]+1:jump_index[i+1]]]
                     spec_orders.append(order)
+                    
+                # Creating the last spectral order
+                order_last = [wav[jump_index[-1]:], flx[jump_index[-1]:], flx_err[jump_index[-1]:]]
+                spec_orders.append(order_last)
                     
             else:
                 
@@ -413,6 +430,10 @@ def extract_orders(wav,
                              flx[jump_index[i]+1:jump_index[i+1]], 
                              flx_err[jump_index[i]+1:jump_index[i+1]]]
                     spec_orders.append(order)
+                    
+                # Creating the last spectral order
+                order_last = [wav[jump_index[-1]:], flx[jump_index[-1]:], flx_err[jump_index[-1]:]]
+                spec_orders.append(order_last)
                 
             if show_plot:
                 
@@ -431,7 +452,7 @@ def extract_orders(wav,
             return spec_orders
                 
         else:
-            print('No individual spectral orders found. The wavelength is linear.')
+            print('No individual spectral orders found. The wavelength axis is linear.')
             
     else:
         raise ValueError("Input arrays must have the same shape.")
