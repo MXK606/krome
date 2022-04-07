@@ -3,7 +3,7 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 - Python package created as a Research Associate at UAE University. The package contains modules that calculate magnetic activity indices from spectroscopic data of M dwarfs. 
-- It accepts file types of .s taken from the spectropolarimeter __NARVAL__ and .fits from __HARPS__ and __HARPS-N__. 
+- It accepts file types of .s taken from the spectropolarimeter __NARVAL__ and .fits from the spectrographs __HARPS__ and __HARPS-N__. 
 
 ## Usage
 - Follow the [Tutorial](https://github.com/MXK606/krome/blob/main/Tutorial.ipynb) which explains each activity index method in detail.
