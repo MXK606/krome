@@ -1228,29 +1228,52 @@ def NaI_index(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns True if there is one NaN value or all are NaN values!
             
             if flx_err_nan:
-                if print_stat:
-                    print('File contains NaN in flux errors array. Calculating flux errors using CCD readout noise: {}'.format(np.round(RON, 4)))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # Flux error calculated as photon noise plus CCD readout noise 
-                # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
-                # array and so on. But for photometric limited measurements, this noise is generally insignificant.
-                
-                with warnings.catch_warnings():  # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
-                
-                if np.isnan(np.sum(flx_err_ron)):
+                if np.isnan(obj_params['RON']):
                     if print_stat:
-                        print('The calculated flux array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('File contains NaN in flux errors array. Calculating flux errors using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # Slicing the data to contain only the region required for the index calculation as explained above and 
-                # creating a spectrum class for it.
-                
-                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                    flux=flx[left_idx:right_idx]*u.Jy,
-                                    uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
+
+                    # Flux error calculated as photon noise plus CCD readout noise 
+                    # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
+                    # array and so on. But for photometric limited measurements, this noise is generally insignificant.
+
+                    with warnings.catch_warnings():  # Ignore warnings
+                        warnings.simplefilter('ignore')
+                        flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
+
+                    if np.isnan(np.sum(flx_err_ron)):
+                        if print_stat:
+                            print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+                    # Slicing the data to contain only the region required for the index calculation as explained above and 
+                    # creating a spectrum class for it.
+
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
+                else:
+                    if print_stat:
+                        print('File contains NaN in flux errors array and could not extract the ReadOut Noise (RON) from FITS file header.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        print('Approximating flux errors as the photon noise instead.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+                    with warnings.catch_warnings():  # Ignore warnings
+                        warnings.simplefilter('ignore')
+                        flx_err_pn = [np.sqrt(flux) for flux in flx]
+
+                    if np.isnan(np.sum(flx_err_pn)):
+                        if print_stat:
+                            print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+                    # Slicing the data to contain only the region required for the index calculation as explained above and 
+                    # creating a spectrum class for it.
+
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_pn[left_idx:right_idx], unit=u.Jy))
                 
             else:
                 
@@ -1934,28 +1957,52 @@ def CaIIH_Index(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
             
             if flx_err_nan:
-                if print_stat:
-                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(RON, 4)))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                # Flux error calculated as photon noise plus CCD readout noise 
-                # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
-                # array and so on. But for photometric limited measurements, this noise is generally insignificant.
-                
-                with warnings.catch_warnings(): # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    flx_err_ron = [np.sqrt(flux + np.square(RON)) for flux in flx]
-                
-                if np.isnan(np.sum(flx_err_ron)):
+                if np.isnan(obj_params['RON']):
                     if print_stat:
-                        print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    # Flux error calculated as photon noise plus CCD readout noise 
+                    # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
+                    # array and so on. But for photometric limited measurements, this noise is generally insignificant.
+
+                    with warnings.catch_warnings(): # Ignore warnings
+                        warnings.simplefilter('ignore')
+                        flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
+
+                    if np.isnan(np.sum(flx_err_ron)):
+                        if print_stat:
+                            print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+                    # Slicing the data to contain only the region required for the index calculation as explained above and 
+                    # creating a spectrum class for it.
+
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
                 
-                # Slicing the data to contain only the region required for the index calculation as explained above and 
-                # creating a spectrum class for it.
-                
-                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                    flux=flx[left_idx:right_idx]*u.Jy,
-                                    uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
+                else:
+                    if print_stat:
+                        print('File contains NaN in flux errors array and could not extract the ReadOut Noise (RON) from FITS file header.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        print('Approximating flux errors as the photon noise instead.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+                    with warnings.catch_warnings():  # Ignore warnings
+                        warnings.simplefilter('ignore')
+                        flx_err_pn = [np.sqrt(flux) for flux in flx]
+
+                    if np.isnan(np.sum(flx_err_pn)):
+                        if print_stat:
+                            print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+                    # Slicing the data to contain only the region required for the index calculation as explained above and 
+                    # creating a spectrum class for it.
+
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_pn[left_idx:right_idx], unit=u.Jy))
                 
             else:
                 
@@ -2160,8 +2207,8 @@ def CaIIH_Index(file_path,
                     f, ax2 = plt.subplots(figsize=(10,4))  
                     ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
                     plt.axhline(1.0, ls='--', c='gray')
-                    plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    plt.vlines(CaIIH_line-(CaIIH_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
+                    plt.vlines(cont_R_line+(cont_R_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black')
                     ax2.set_xlabel('$\lambda (nm)$')
                     ax2.set_ylabel('Normalized Flux')
                     ax2.set_title("Continuum Normalized ")
