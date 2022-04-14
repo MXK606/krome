@@ -197,7 +197,7 @@ def overplot(file_path,
     -----------
     
     file_path: str
-    File path of the .s/.fits file
+    List containing file paths of the .s/.fits files
     
     Instrument: str
     Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']

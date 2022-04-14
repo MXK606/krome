@@ -748,8 +748,7 @@ def H_alpha_index(file_path,
                                                     index_name='HaI',
                                                     print_stat=print_stat,
                                                     CaI_index=CaI_index)
-            
-
+        
         if Instrument=='NARVAL':
             if out_file_path != None:
                 header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
