@@ -1429,7 +1429,7 @@ def ephemerides(file_path,
     Used if Rot_phase is True
     
     Rot_phase: bool, default=False
-    Calculates the stellar rotational phases using the given 'P_rot' and 'phase_start' parameters.
+    Calculates the stellar rotational phases and cycle using the given 'P_rot' and 'phase_start' parameters.
     
     print_stat: bool, default=True
     Prints the status of each process within the function.
@@ -1522,7 +1522,8 @@ def ephemerides(file_path,
         orb_phase = np.round((f/(2*np.pi)), 5) # converting f to orbital phase by dividing it with 2pi radians!
         
         if Rot_phase:
-            rot_phase = np.round(((JD - phase_start)/P_rot - int((JD - phase_start)/P_rot)), 5)
+            rot_cycle = np.round(((JD - phase_start)/P_rot), 5)
+            rot_phase = np.round((rot_cycle - int(rot_cycle)), 5)
         
         if print_stat:
             print('True Anomaly: {}'.format(f))
@@ -1536,7 +1537,7 @@ def ephemerides(file_path,
         
         
         if Rot_phase:
-            res = JD, N, M, E, f, orb_phase, rot_phase
+            res = JD, N, M, E, f, orb_phase, rot_phase, rot_cycle
         else:
             res = JD, N, M, E, f, orb_phase
         
@@ -1551,7 +1552,7 @@ def ephemerides(file_path,
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         if Rot_phase:
-            header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase']
+            header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase', 'Rotational_Phase', 'Rotational_Cycle']
         else:
             header = ['JD', 'Number_of_orbits_since_T_e', 'Mean_Anomaly', 'Eccentric_Anomaly', 'True_Anomaly', 'Orbital_Phase']
             
