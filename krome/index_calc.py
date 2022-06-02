@@ -61,8 +61,8 @@ def H_alpha_index(file_path,
     control against the significance of H alpha index variations!
     
     Parameters:
-    
     -----------
+    
     file_path: list, .s format (NARVAL), ADP..._.fits format (HARPS) or s1d_A.fits format (HARPS-N)
     List containng the paths of the spectrum files 
     
@@ -1672,6 +1672,7 @@ def CaIIH_Index(file_path,
     
     Parameters:
     -----------
+    
     file_path: list, .s format (NARVAL), ADP..._.fits format (HARPS) or s1d_A.fits format (HARPS-N)
     List containng the paths of the spectrum files 
     
