@@ -1046,9 +1046,6 @@ def LS_periodogram(x,
     y: array
     Observation values
     
-    dy: array
-    Error on observation values
-    
     minimum_frequency: int
     Minimum frequency to test
     
@@ -1069,6 +1066,9 @@ def LS_periodogram(x,
     
     fap_method: str, default='bootstrap'
     False Alarm Probability (FAP) calculation method.
+    
+    dy: array, default=None
+    Error on observation values
     
     probabilities: str, default=None
     Probabilities to determine the False Alarm Levels (FALs) for.
@@ -1218,10 +1218,10 @@ def LS_periodogram(x,
     
 def period_fit(x,
                y,
-               dy,
                period,
                fit,
                normalization='model',
+               dy=None,
                ylabel=None,
                multi_term=False,
                save_fig=False,
@@ -1239,9 +1239,6 @@ def period_fit(x,
     y: array
     Observation values
     
-    dy: array
-    Error on observation values
-    
     period: int
     Orbital period of the model to fit
     
@@ -1253,6 +1250,9 @@ def period_fit(x,
     normalization: str, default='model'
     Periodogram normalization method. 
     See https://docs.astropy.org/en/stable/timeseries/lombscargle.html for more info.
+    
+    dy: array, default=None
+    Error on observation values
     
     ylabel: str, default=None
     y-axis label for the period fit figure
@@ -1279,19 +1279,32 @@ def period_fit(x,
     
     """
     
+    if dy !=None:
+        
+        ls_1 = LombScargle(x, y, dy, nterms=1, normalization=normalization)
+        ls_2 = LombScargle(x, y, dy, nterms=2, normalization=normalization)
+        ls_3 = LombScargle(x, y, dy, nterms=3, normalization=normalization)
+        
+    else:
+        ls_1 = LombScargle(x, y, nterms=1, normalization=normalization)
+        ls_2 = LombScargle(x, y, nterms=2, normalization=normalization)
+        ls_3 = LombScargle(x, y, nterms=3, normalization=normalization)
+    
     
     if fit == 'JD':
         
         t_fit = np.linspace(x.min(), x.max(), 10000)
-        ls_1 = LombScargle(x, y, dy, nterms=1, normalization=normalization)
-        ls_2 = LombScargle(x, y, dy, nterms=2, normalization=normalization)
-        ls_3 = LombScargle(x, y, dy, nterms=3, normalization=normalization)
         y_fit_1 = ls_1.model(t_fit, 1/period)
         y_fit_2 = ls_2.model(t_fit, 1/period)
         y_fit_3 = ls_3.model(t_fit, 1/period)
         
         plt.figure(figsize=(10,4))
-        plt.errorbar(x, y, yerr=dy, fmt='.k', capsize=5)
+        
+        if dy !=None:
+            plt.errorbar(x, y, yerr=dy, fmt='.k', capsize=5)
+        else:
+            plt.plot(x, y, '.k')
+            
         plt.plot(t_fit, y_fit_1, '-r', label='Fundamental')
         
         if multi_term:
@@ -1321,9 +1334,6 @@ def period_fit(x,
     elif fit == 'phase':
         
         t_fit = np.linspace(0.0, period, 10000)
-        ls_1 = LombScargle(x, y, dy, nterms=1, normalization=normalization)
-        ls_2 = LombScargle(x, y, dy, nterms=2, normalization=normalization)
-        ls_3 = LombScargle(x, y, dy, nterms=3, normalization=normalization)
         y_fit_1 = ls_1.model(t_fit, 1/period)
         y_fit_2 = ls_2.model(t_fit, 1/period)
         y_fit_3 = ls_3.model(t_fit, 1/period)
@@ -1331,7 +1341,12 @@ def period_fit(x,
         phase_folded_x = pyasl.foldAt(x, period)
         
         plt.figure(figsize=(10,4))
-        plt.errorbar(phase_folded_x, y, yerr=dy, fmt='ok', capsize=5)
+        
+        if dy != None:
+            plt.errorbar(phase_folded_x, y, yerr=dy, fmt='ok', capsize=5)
+        else:
+            plt.plot(phase_folded_x, y, 'ok')
+            
         plt.plot(t_fit/period, y_fit_1, '-r', label='Fundamental')
         
         if multi_term:
