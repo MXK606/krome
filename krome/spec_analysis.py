@@ -8,7 +8,7 @@ spec_analysis.py: This python module contains supplementary functions used by th
 
 __author__ = "Mukul Kumar"
 __email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "10-03-2022"
+__date__ = "26-05-2022"
 __version__ = "1.2"
 
 import numpy as np
@@ -1019,7 +1019,6 @@ def calc_ind(regions,
         
 def LS_periodogram(x,
                    y,
-                   dy,
                    minimum_frequency,
                    maximum_frequency,
                    samples_per_peak=10,
@@ -1027,6 +1026,7 @@ def LS_periodogram(x,
                    method='chi2',
                    normalization='model',
                    fap_method='bootstrap',
+                   dy=None,
                    probabilities=None,
                    sampling_window_func=True,
                    show_plot=True,
@@ -1112,10 +1112,14 @@ def LS_periodogram(x,
     # The frequencies are sampled by the autofrequency() method such that the delta_f = 1/n0*T 
     # The length of the freq. array is then given as N_evals = n0*T*f_max ! 
     
-    if np.isnan(np.sum(dy)):
-        raise ValueError('Error array "dy" contains NaN values')
-    
-    ls = LombScargle(x, y, dy, nterms=nterms, normalization=normalization)
+    if dy != None:
+        if np.isnan(np.sum(dy)):
+            raise ValueError('Error array "dy" contains NaN values')
+        
+        ls = LombScargle(x, y, dy, nterms=nterms, normalization=normalization)
+        
+    else:
+        ls = LombScargle(x, y, nterms=nterms, normalization=normalization)
     
     freq, power = ls.autopower(minimum_frequency=minimum_frequency, maximum_frequency=maximum_frequency, samples_per_peak=samples_per_peak, method=method)
     
@@ -1311,7 +1315,8 @@ def period_fit(x,
         if multi_term:
             return t_fit, y_fit_1, y_fit_2, y_fit_3
         else:
-            return t_fit, y_fit_1
+            theta = ls_1.model_parameters(1/period)
+            return t_fit, y_fit_1, theta
             
     elif fit == 'phase':
         
@@ -1485,7 +1490,6 @@ def ephemerides(file_path,
         N = int((JD - T_e)/P_orb)
         
         if print_stat:
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Total number of orbits since the given periastron {}: {}'.format(T_e, N))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
