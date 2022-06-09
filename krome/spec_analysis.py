@@ -24,7 +24,8 @@ from astropy.timeseries import LombScargle
 ## Defining a function to find the index of a line containing a certain string
 
 def find_string_idx(out_file_path,
-                    string):
+                    string,
+                    print_stat=True):
     
     """
     
@@ -37,6 +38,9 @@ def find_string_idx(out_file_path,
     
     string: str
     String to check for in the .out file
+    
+    print_stat: bool, default: True
+    Prints the string name not found in the given file
     
     Returns:
     --------
@@ -59,8 +63,9 @@ def find_string_idx(out_file_path,
             break
     
     if flag == 0:
-        print('String', string , 'not found in .out file')
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        if print_stat:
+            print('String', string , 'not found in .out file')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         return float('nan')
     else:
@@ -117,7 +122,7 @@ def obj_params(file_path,
         idx = []
     
         for string in str_list:
-            idx.append(find_string_idx(file_path, string))
+            idx.append(find_string_idx(file_path, string, print_stat=print_stat))
             
         try:
             object_parameters['HJD'] = float(file[idx[5]][-14:-1])
@@ -1070,7 +1075,7 @@ def LS_periodogram(x,
     dy: array, default=None
     Error on observation values
     
-    probabilities: str, default=None
+    probabilities: list, default=None
     Probabilities to determine the False Alarm Levels (FALs) for.
     
     sampling_window_func: bool, default=True
