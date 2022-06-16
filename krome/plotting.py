@@ -20,16 +20,17 @@ from krome.spec_analysis import read_data
 ## Defining a function that calculates and plots the Pearson R correlation between two datasets  
 
 def corr_plot(x,
-              xerr,
               y,
-              yerr,
               xlabel,
               ylabel, 
               fmt='ok',
               ecolor='red',
               capsize=3, 
               alpha=1.0,
-              title=None, 
+              xerr=None,
+              yerr=None,
+              title=None,
+              print_stat=True,
               save_fig=False,
               save_plot_name=None):
     
@@ -42,15 +43,8 @@ def corr_plot(x,
     x: arr
     Array containing the first dataset
     
-    xerr: arr
-    Array containing the error on the first dataset. 
-    NOTE: The errors are used ONLY for plotting and are not used when calculating the correlation coefficient.
-    
     y: arr
     Array containing the second dataset
-    
-    yerr: arr
-    Array containing the error on the second dataset
     
     xlabel: str
     Label for the x-axis
@@ -69,6 +63,13 @@ def corr_plot(x,
     
     alpha: int, default=1.0
     Plot transparency
+    
+    xerr: list, default=None
+    Array containing the error on the first dataset. 
+    NOTE: The errors are used ONLY for plotting and are not used when calculating the correlation coefficient.
+    
+    yerr: list, defaulr=None
+    Array containing the error on the second dataset
     
     title: str, default=None
     Plot title
@@ -89,11 +90,16 @@ def corr_plot(x,
     """
     
     p, p_val = stats.pearsonr(x,y)
+    p = np.round(p, 4)
     
     f, ax = plt.subplots()
-    ax.errorbar(x, y, xerr=xerr, yerr=yerr, 
-                fmt=fmt, ecolor=ecolor, capsize=capsize,
-                alpha=alpha)
+    
+    if xerr != None:
+        ax.errorbar(x, y, xerr=xerr, yerr=yerr, 
+                    fmt=fmt, ecolor=ecolor, capsize=capsize,
+                    alpha=alpha)
+    else:
+        plt.plot(x, y, fmt, alpha=alpha)
     
     ax.plot(np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x)), '-.k') # fitting a best fit line to the scatter plot
     plt.annotate(r'$\rho$ = {}'.format(np.round(p, 2)), xy=(0.05, 0.92), xycoords='axes fraction', size='large')
@@ -106,13 +112,24 @@ def corr_plot(x,
     plt.minorticks_on()
     ax.tick_params(direction='in', which='both')
     plt.tight_layout()
-    slope, intercept = np.polyfit(x,y,1)
+    slope, intercept = np.round(np.polyfit(x,y,1), 4)
     if save_fig:
         plt.savefig('{}.pdf'.format(save_plot_name), format='pdf')
-    print('R: {}'.format(np.round(p, 4)))
-    print('p-value: {:.4e}'.format(p_val))
-    print('Slope: {} '.format(np.round(slope, 4)))
-    print('Intercept: {} '.format(np.round(intercept, 4)))
+        
+        # Also saves the correlation results in a {save_plot_name}.meta text file as well.
+        
+        with open('{}.meta'.format(save_plot_name), 'w') as f:
+            f.write('R:' + '\t' + str(p) + '\n')
+            f.write('p-value:' + '\t' + str(p_val) + '\n')
+            f.write('Slope:' + '\t' + str(slope) + '\n')
+            f.write('Intercept:' + '\t' + str(intercept) + '\n')
+        
+        
+    if print_stat:
+        print('R: {}'.format(p))
+        print('p-value: {:.4e}'.format(p_val))
+        print('Slope: {} '.format(slope))
+        print('Intercept: {} '.format(intercept))
     
     return p, p_val, slope, intercept
 
