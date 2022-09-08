@@ -26,6 +26,7 @@ def corr_plot(x,
               fmt='ok',
               ecolor='red',
               capsize=3, 
+              fontsize=18,
               alpha=1.0,
               xerr=None,
               yerr=None,
@@ -60,6 +61,9 @@ def corr_plot(x,
     
     capsize: int, default=3
     Error bar capsize
+    
+    fontsize: int, default=18
+    Font size of the axis labels
     
     alpha: int, default=1.0
     Plot transparency
@@ -103,12 +107,14 @@ def corr_plot(x,
     
     ax.plot(np.unique(x), np.poly1d(np.polyfit(x, y, 1))(np.unique(x)), '-.k') # fitting a best fit line to the scatter plot
     plt.annotate(r'$\rho$ = {}'.format(np.round(p, 2)), xy=(0.05, 0.92), xycoords='axes fraction', size='large')
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+    plt.annotate('p-value = {:.2e}'.format(p_val), xy=(0.05, 0.85), xycoords='axes fraction', size='large')
+    ax.set_xlabel(xlabel, fontsize=fontsize)
+    ax.set_ylabel(ylabel, fontsize=fontsize)
     if title:
         ax.set_title(title)
     ax.yaxis.set_ticks_position('both')
     ax.xaxis.set_ticks_position('both')
+    # ax.set_ylim(min(y)-(min(y)*0.1), max(y)+(max(y)*0.12))
     plt.minorticks_on()
     ax.tick_params(direction='in', which='both')
     plt.tight_layout()
@@ -145,10 +151,13 @@ def ephem_plot(ephem_file,
     -----------
     
     ephem_file:
+    csv file containing the system ephemerides
     
     index_file:
+    csv file containing the activity indices 
     
     index_col_name:
+    Column name of the index to plot the ephemerides for
     
     save_fig: bool, default=False
     Saves the figures as a pdf in the working directory
