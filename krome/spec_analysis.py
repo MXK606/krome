@@ -797,7 +797,7 @@ def calc_ind(regions,
     List containing the appropriate regions required for the calculation
     
     index_name: str
-    Name of the index to calculate. Available options are; ['HaI', 'NaI', 'CaIIH']
+    Name of the index to calculate. Available options are; ['HaI', 'NaI', 'CaIIH', 'HeI', 'CaII_IRT']
     
     print_stat: bool
     print_stat argument from within the index_calc function
@@ -910,6 +910,62 @@ def calc_ind(regions,
         
         return Hai_from_mean, sigma_Hai_from_mean, CaI_from_mean, sigma_CaI_from_mean
     
+    ## HeI
+    
+    elif index_name=='HeI':
+
+        F_HeI_region = regions[0]
+        F1_region = regions[1]
+        F2_region = regions[2]
+            
+        # Mean of the flux within this region is calculated using np.mean and rounded off to 4 decimal places
+        F_HeI_mean = np.round(np.mean(F_HeI_region.flux.value), 4)
+        
+        # The error on the mean flux is calculated as the standard error of the mean
+        F_HeI_sum_err = [i**2 for i in F_HeI_region.uncertainty.array]
+        F_HeI_mean_err = np.round((np.sqrt(np.sum(F_HeI_sum_err))/len(F_HeI_sum_err)), 4)
+        
+        # Same thing repeated for the F1 and F2 regions
+        F1_mean = np.round(np.mean(F1_region.flux.value), 4)
+        F1_sum_err = [i**2 for i in F1_region.uncertainty.array]
+        F1_mean_err = np.round((np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)), 4)
+        
+        F2_mean = np.round(np.mean(F2_region.flux.value), 4)
+        F2_sum_err = [i**2 for i in F2_region.uncertainty.array]
+        F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 4)
+                   
+        if print_stat:
+            print('HeI D3 region used ranges from {}nm to {}nm'.format(np.round(F_HeI_region.spectral_axis[0].value, 3),
+                                                                        np.round(F_HeI_region.spectral_axis[-1].value, 3)))
+            print('F1 region used ranges from {}nm to {}nm'.format(np.round(F1_region.spectral_axis[0].value, 3),
+                                                                   np.round(F1_region.spectral_axis[-1].value, 3)))
+            print('F2 region used ranges from {}nm to {}nm'.format(np.round(F2_region.spectral_axis[0].value, 3),
+                                                                   np.round(F2_region.spectral_axis[-1].value, 3)))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # H alpha index is computed using the calculated mean fluxes.
+        
+        Hei_from_mean = np.round((F_HeI_mean/(F1_mean + F2_mean)), 4)
+        
+        # Continuum flux error is calculated as explained at the start of the tutorial Jupyter Notebook!
+        
+        sigma_F12_from_mean = np.sqrt((np.square(F1_mean_err) + np.square(F2_mean_err)))
+        
+        # Error on this index is calculated as explained at the start of the tutorial Jupyter notebook!
+        
+        sigma_Hei_from_mean = np.round((Hei_from_mean*np.sqrt(np.square(F_HeI_mean_err/F_HeI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
+        
+        if print_stat:
+    
+            print('Mean of {} flux points in HeID3: {}±{}'.format(len(F_HeI_region.flux), F_HeI_mean, F_HeI_mean_err))
+            print('Mean of {} flux points in F1: {}±{}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
+            print('Mean of {} flux points in F2: {}±{}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Index from mean of flux points in each band: {}±{}'.format(Hei_from_mean, sigma_Hei_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        return Hei_from_mean, sigma_Hei_from_mean
+    
     ## NaI
     
     elif index_name=='NaI':
@@ -1020,6 +1076,163 @@ def calc_ind(regions,
         
         return CaIIH_from_mean, sigma_CaIIH_from_mean
     
+    ## CaII IRT
+    
+    elif index_name=='CaII_IRT':
+        
+        ### IRT 1
+        
+        irt1_region = regions[0]
+        irt1_F1_region = regions[1]
+        irt1_F2_region = regions[2]
+            
+        # Mean of the flux within this region is calculated using np.mean and rounded off to 4 decimal places
+        F_irt1_mean = np.round(np.mean(irt1_region.flux.value), 4)
+        
+        # The error on the mean flux is calculated as the standard error of the mean
+        F_irt1_sum_err = [i**2 for i in irt1_region.uncertainty.array]
+        F_irt1_mean_err = np.round((np.sqrt(np.sum(F_irt1_sum_err))/len(F_irt1_sum_err)), 4)
+        
+        # Same thing repeated for the F1 and F2 regions
+        irt1_F1_mean = np.round(np.mean(irt1_F1_region.flux.value), 4)
+        irt1_F1_sum_err = [i**2 for i in irt1_F1_region.uncertainty.array]
+        irt1_F1_mean_err = np.round((np.sqrt(np.sum(irt1_F1_sum_err))/len(irt1_F1_sum_err)), 4)
+        
+        irt1_F2_mean = np.round(np.mean(irt1_F2_region.flux.value), 4)
+        irt1_F2_sum_err = [i**2 for i in irt1_F2_region.uncertainty.array]
+        irt1_F2_mean_err = np.round((np.sqrt(np.sum(irt1_F2_sum_err))/len(irt1_F2_sum_err)), 4)
+                   
+        if print_stat:
+            print('---------------------------------------------------------***CaII IRT line 849.8nm***-------------------------------------------------------------------------')
+            print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt1_region.spectral_axis[0].value, 3),
+                                                                        np.round(irt1_region.spectral_axis[-1].value, 3)))
+            print('F1 region used ranges from {}nm to {}nm'.format(np.round(irt1_F1_region.spectral_axis[0].value, 3),
+                                                                   np.round(irt1_F1_region.spectral_axis[-1].value, 3)))
+            print('F2 region used ranges from {}nm to {}nm'.format(np.round(irt1_F2_region.spectral_axis[0].value, 3),
+                                                                   np.round(irt1_F2_region.spectral_axis[-1].value, 3)))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # IRT index is computed using the calculated mean fluxes.
+        
+        I_IRT_1_from_mean = np.round((F_irt1_mean/(irt1_F1_mean + irt1_F2_mean)), 4)
+        
+        sigma_I_IRT_1_F12_from_mean = np.sqrt((np.square(irt1_F1_mean_err) + np.square(irt1_F2_mean_err)))
+        
+        sigma_I_IRT_1_from_mean = np.round((I_IRT_1_from_mean*np.sqrt(np.square(F_irt1_mean_err/F_irt1_mean) + np.square(sigma_I_IRT_1_F12_from_mean/(irt1_F1_mean+irt1_F2_mean)))), 4)
+        
+        if print_stat:
+    
+            print('Mean of {} flux points in IRT line: {}±{}'.format(len(irt1_region.flux), F_irt1_mean, F_irt1_mean_err))
+            print('Mean of {} flux points in F1: {}±{}'.format(len(irt1_F1_region.flux), irt1_F1_mean, irt1_F1_mean_err))
+            print('Mean of {} flux points in F2: {}±{}'.format(len(irt1_F2_region.flux), irt1_F2_mean, irt1_F2_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('IRT Index from mean of flux points in each band: {}±{}'.format(I_IRT_1_from_mean, sigma_I_IRT_1_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        ### IRT 2
+        
+        irt2_region = regions[3]
+        irt2_F1_region = regions[4]
+        irt2_F2_region = regions[5]
+            
+        # Mean of the flux within this region is calculated using np.mean and rounded off to 4 decimal places
+        F_irt2_mean = np.round(np.mean(irt2_region.flux.value), 4)
+        
+        # The error on the mean flux is calculated as the standard error of the mean
+        F_irt2_sum_err = [i**2 for i in irt2_region.uncertainty.array]
+        F_irt2_mean_err = np.round((np.sqrt(np.sum(F_irt2_sum_err))/len(F_irt2_sum_err)), 4)
+        
+        # Same thing repeated for the F1 and F2 regions
+        irt2_F1_mean = np.round(np.mean(irt2_F1_region.flux.value), 4)
+        irt2_F1_sum_err = [i**2 for i in irt2_F1_region.uncertainty.array]
+        irt2_F1_mean_err = np.round((np.sqrt(np.sum(irt2_F1_sum_err))/len(irt2_F1_sum_err)), 4)
+        
+        irt2_F2_mean = np.round(np.mean(irt2_F2_region.flux.value), 4)
+        irt2_F2_sum_err = [i**2 for i in irt2_F2_region.uncertainty.array]
+        irt2_F2_mean_err = np.round((np.sqrt(np.sum(irt2_F2_sum_err))/len(irt2_F2_sum_err)), 4)
+                   
+        if print_stat:
+            print('---------------------------------------------------------***CaII IRT line 854.2nm***-------------------------------------------------------------------------')
+            print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt2_region.spectral_axis[0].value, 3),
+                                                                        np.round(irt2_region.spectral_axis[-1].value, 3)))
+            print('F1 region used ranges from {}nm to {}nm'.format(np.round(irt2_F1_region.spectral_axis[0].value, 3),
+                                                                   np.round(irt2_F1_region.spectral_axis[-1].value, 3)))
+            print('F2 region used ranges from {}nm to {}nm'.format(np.round(irt2_F2_region.spectral_axis[0].value, 3),
+                                                                   np.round(irt2_F2_region.spectral_axis[-1].value, 3)))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # IRT index is computed using the calculated mean fluxes.
+        
+        I_IRT_2_from_mean = np.round((F_irt2_mean/(irt2_F1_mean + irt2_F2_mean)), 4)
+        
+        sigma_I_IRT_2_F12_from_mean = np.sqrt((np.square(irt2_F1_mean_err) + np.square(irt2_F2_mean_err)))
+        
+        sigma_I_IRT_2_from_mean = np.round((I_IRT_2_from_mean*np.sqrt(np.square(F_irt2_mean_err/F_irt2_mean) + np.square(sigma_I_IRT_2_F12_from_mean/(irt2_F1_mean+irt2_F2_mean)))), 4)
+        
+        if print_stat:
+        
+            print('Mean of {} flux points in IRT line: {}±{}'.format(len(irt2_region.flux), F_irt2_mean, F_irt2_mean_err))
+            print('Mean of {} flux points in F1: {}±{}'.format(len(irt2_F1_region.flux), irt2_F1_mean, irt2_F1_mean_err))
+            print('Mean of {} flux points in F2: {}±{}'.format(len(irt2_F2_region.flux), irt2_F2_mean, irt2_F2_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('IRT Index from mean of flux points in each band: {}±{}'.format(I_IRT_2_from_mean, sigma_I_IRT_2_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        ### IRT 3
+        
+        irt3_region = regions[6]
+        irt3_F1_region = regions[7]
+        irt3_F2_region = regions[8]
+            
+        # Mean of the flux within this region is calculated using np.mean and rounded off to 4 decimal places
+        F_irt3_mean = np.round(np.mean(irt3_region.flux.value), 4)
+        
+        # The error on the mean flux is calculated as the standard error of the mean
+        F_irt3_sum_err = [i**2 for i in irt3_region.uncertainty.array]
+        F_irt3_mean_err = np.round((np.sqrt(np.sum(F_irt3_sum_err))/len(F_irt3_sum_err)), 4)
+        
+        # Same thing repeated for the F1 and F2 regions
+        irt3_F1_mean = np.round(np.mean(irt3_F1_region.flux.value), 4)
+        irt3_F1_sum_err = [i**2 for i in irt3_F1_region.uncertainty.array]
+        irt3_F1_mean_err = np.round((np.sqrt(np.sum(irt3_F1_sum_err))/len(irt3_F1_sum_err)), 4)
+        
+        irt3_F2_mean = np.round(np.mean(irt3_F2_region.flux.value), 4)
+        irt3_F2_sum_err = [i**2 for i in irt3_F2_region.uncertainty.array]
+        irt3_F2_mean_err = np.round((np.sqrt(np.sum(irt3_F2_sum_err))/len(irt3_F2_sum_err)), 4)
+                   
+        if print_stat:
+            print('---------------------------------------------------------***CaII IRT line 866.2nm***-------------------------------------------------------------------------')
+            print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt3_region.spectral_axis[0].value, 3),
+                                                                        np.round(irt3_region.spectral_axis[-1].value, 3)))
+            print('F1 region used ranges from {}nm to {}nm'.format(np.round(irt3_F1_region.spectral_axis[0].value, 3),
+                                                                   np.round(irt3_F1_region.spectral_axis[-1].value, 3)))
+            print('F2 region used ranges from {}nm to {}nm'.format(np.round(irt3_F2_region.spectral_axis[0].value, 3),
+                                                                   np.round(irt3_F2_region.spectral_axis[-1].value, 3)))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # IRT index is computed using the calculated mean fluxes.
+        
+        I_IRT_3_from_mean = np.round((F_irt3_mean/(irt3_F1_mean + irt3_F2_mean)), 4)
+        
+        sigma_I_IRT_3_F12_from_mean = np.sqrt((np.square(irt3_F1_mean_err) + np.square(irt3_F2_mean_err)))
+        
+        sigma_I_IRT_3_from_mean = np.round((I_IRT_3_from_mean*np.sqrt(np.square(F_irt3_mean_err/F_irt3_mean) + np.square(sigma_I_IRT_3_F12_from_mean/(irt3_F1_mean+irt3_F2_mean)))), 4)
+        
+        if print_stat:
+        
+            print('Mean of {} flux points in IRT line: {}±{}'.format(len(irt3_region.flux), F_irt3_mean, F_irt3_mean_err))
+            print('Mean of {} flux points in F1: {}±{}'.format(len(irt3_F1_region.flux), irt3_F1_mean, irt3_F1_mean_err))
+            print('Mean of {} flux points in F2: {}±{}'.format(len(irt3_F2_region.flux), irt3_F2_mean, irt3_F2_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('IRT Index from mean of flux points in each band: {}±{}'.format(I_IRT_3_from_mean, sigma_I_IRT_3_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        return I_IRT_1_from_mean, sigma_I_IRT_1_from_mean, I_IRT_2_from_mean, sigma_I_IRT_2_from_mean, I_IRT_3_from_mean, sigma_I_IRT_3_from_mean
+    
+    else:
+        raise TypeError("Keyword argument 'index_name' not recognised. Available options are; ['HaI', 'HeI', 'NaI', 'CaIIH', 'CaII_IRT']")
+        
+    
 ## Defining a function to calculate the LombScargle periodogram!
         
 def LS_periodogram(x,
@@ -1075,8 +1288,8 @@ def LS_periodogram(x,
     dy: array, default=None
     Error on observation values
     
-    probabilities: list, default=None
-    Probabilities to determine the False Alarm Levels (FALs) for.
+    probabilities: list, default=[0.5, 0.2, 0.1]
+    Probabilities to determine the False Alarm Levels (FALs) for. Default are 50, 20 and 10%.
     
     sampling_window_func: bool, default=True
     Calculates and plots the observation sampling windoe function periodogram following https://ui.adsabs.harvard.edu/abs/2018ApJS..236...16V/abstract
@@ -1093,7 +1306,8 @@ def LS_periodogram(x,
     Returns:
     --------
     
-    frequency grid, periodogram power, array with index of periods with highest powers in decending order & if True; False Alarm Level and False Alarm Probabilities
+    frequency grid, periodogram power, array with index of periods with highest powers in decending order, sampling frequency grid 
+    and sampling periodogram power. (if nterms=1 then False Alarm Level and False Alarm Probabilities as well)
     
     All of these are numpy.ndarray. 
     
@@ -1141,11 +1355,6 @@ def LS_periodogram(x,
         print('Calculating False Alarm Probabilities/Levels (FAPs/FALs) using the {} method'.format(fap_method))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        if probabilities != None:
-            probabilities = probabilities 
-        else:
-            probabilities = [0.5, 0.2, 0.1]
-        
         fal = ls.false_alarm_level(probabilities, method=fap_method, minimum_frequency=minimum_frequency, 
                                    maximum_frequency=maximum_frequency, samples_per_peak=samples_per_peak) 
         
@@ -1159,7 +1368,7 @@ def LS_periodogram(x,
         
         plt.figure(figsize=(10,4))
         plt.plot(1/freq, power, color='black')
-        plt.vlines(1/freq[sort_idx[0]], ymin=-0.12, ymax=max(power), colors='red', linestyles='-', linewidth=3, label='P={}d'.format(np.round((1/freq[sort_idx[0]]), 3)))
+        plt.vlines(1/freq[sort_idx[0]], ymin=-0.01, ymax=max(power), colors='red', linestyles='-', linewidth=3, label='P={}d'.format(np.round((1/freq[sort_idx[0]]), 3)))
         plt.xlabel('Period (days)')
         plt.ylabel('Power') # Note here that the Lomb-Scargle power is always a unitless quantity, because it is related to the 𝜒2 of the best-fit periodic model at each frequency.
         plt.title('LombScargle Periodogram with x-axis as logarithmic period')
@@ -1275,10 +1484,11 @@ def period_fit(x,
     Returns:
     --------
     If fit = 'JD';
-    model fit timestamps, model fit y values (model fit y values of the multi-term models if multi_term is True)
+    model fit timestamps, model fit y values and model fit parameters (model fit y values of the multi-term models if multi_term is True)
+    [See 'The Lomb-Scargle Model' section here, https://docs.astropy.org/en/stable/timeseries/lombscargle.html, for more info on model parameters]
     
     If fit = 'phase':
-    phase folded x values, model fit timestamps, model fit y values, model fit parameters (model fit y values and parameters of the multi-term models if multi_term is True) [See 'The Lomb-Scargle Model' section here, https://docs.astropy.org/en/stable/timeseries/lombscargle.html, for more info on model parameters]
+    phase folded x values, model fit timestamps, model fit y values, model fit parameters (model fit y values and parameters of the multi-term models if multi_term is True) 
     
     All of these are type numpy.ndarray. 
     
