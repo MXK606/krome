@@ -221,7 +221,7 @@ def H_alpha_index(file_path,
             # Printing info
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(radial_velocity, shift))
+                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -406,18 +406,18 @@ def H_alpha_index(file_path,
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
                 
-                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                    flux=flx[left_idx:right_idx]*u.Jy,
-                                    uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
                 
             else:
                 
-                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                    flux=flx[left_idx:right_idx]*u.Jy,
-                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
+                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -590,12 +590,12 @@ def H_alpha_index(file_path,
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
             
-            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                              flux=flx[left_idx:right_idx]*u.Jy,
-                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                              flux=flx[left_idx:right_idx+1]*u.Jy,
+                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the H alpha line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
+                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -1248,9 +1248,9 @@ def NaI_index(file_path,
                     # Slicing the data to contain only the region required for the index calculation as explained above and 
                     # creating a spectrum class for it.
 
-                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                        flux=flx[left_idx:right_idx]*u.Jy,
-                                        uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx+1]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
                 else:
                     if print_stat:
                         print('File contains NaN in flux errors array and could not extract the ReadOut Noise (RON) from FITS file header.')
@@ -1270,15 +1270,15 @@ def NaI_index(file_path,
                     # Slicing the data to contain only the region required for the index calculation as explained above and 
                     # creating a spectrum class for it.
 
-                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                        flux=flx[left_idx:right_idx]*u.Jy,
-                                        uncertainty=StdDevUncertainty(flx_err_pn[left_idx:right_idx], unit=u.Jy))
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx+1]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_pn[left_idx:right_idx+1], unit=u.Jy))
                 
             else:
                 
-                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                    flux=flx[left_idx:right_idx]*u.Jy,
-                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(obj_params['RV'], shift))
@@ -1491,9 +1491,9 @@ def NaI_index(file_path,
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
             
-            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                              flux=flx[left_idx:right_idx]*u.Jy,
-                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                              flux=flx[left_idx:right_idx+1]*u.Jy,
+                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(obj_params['RV'], shift))
@@ -1977,9 +1977,9 @@ def CaIIH_Index(file_path,
                     # Slicing the data to contain only the region required for the index calculation as explained above and 
                     # creating a spectrum class for it.
 
-                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                        flux=flx[left_idx:right_idx]*u.Jy,
-                                        uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx+1]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
                 
                 else:
                     if print_stat:
@@ -2000,15 +2000,15 @@ def CaIIH_Index(file_path,
                     # Slicing the data to contain only the region required for the index calculation as explained above and 
                     # creating a spectrum class for it.
 
-                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                        flux=flx[left_idx:right_idx]*u.Jy,
-                                        uncertainty=StdDevUncertainty(flx_err_pn[left_idx:right_idx], unit=u.Jy))
+                    spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                        flux=flx[left_idx:right_idx+1]*u.Jy,
+                                        uncertainty=StdDevUncertainty(flx_err_pn[left_idx:right_idx+1], unit=u.Jy))
                 
             else:
                 
-                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                                    flux=flx[left_idx:right_idx]*u.Jy,
-                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
 
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(obj_params['RV'], shift))
@@ -2159,9 +2159,9 @@ def CaIIH_Index(file_path,
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
             
-            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx] - shift)*u.nm, 
-                              flux=flx[left_idx:right_idx]*u.Jy,
-                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx], unit=u.Jy))
+            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                              flux=flx[left_idx:right_idx+1]*u.Jy,
+                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(obj_params['RV'], shift))
@@ -2312,6 +2312,1216 @@ def CaIIH_Index(file_path,
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
+        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+            writer = csv.writer(csvfile, dialect='excel')
+            writer.writerow(header)
+            for row in results:
+                writer.writerow(row)  
+            
+    return results
+
+## Defining a function for calculating the HeI D3 index following Gomes da Silva et al. 2011 (2011A&A...534A..30G)
+
+def HeI_index(file_path,
+              radial_velocity,
+              degree=4,
+              HeI_line=587.562,
+              HeI_band=0.04,
+              F1_line=586.9,
+              F1_band=0.5,
+              F2_line=588.1, 
+              F2_band=0.5,
+              Instrument='NARVAL',
+              norm_spec=False,
+              plot_fit=False, 
+              plot_spec=True,
+              print_stat=True,
+              save_results=False, 
+              results_file_name=None,
+              save_figs=False,
+              save_figs_name=None,
+              out_file_path=None,
+              ccf_file_path=None):
+    
+    """
+    Calculates the HeI index following Gomes da Silva et al. 2011 (2011A&A...534A..30G).  
+    NOTE: This paper uses the HeI index method described by Boisse et al. 2009 for a K dwarf 
+    but, with different reference continuum lines and bands.
+    
+    Parameters:
+    -----------
+    
+    file_path: list, .s format (NARVAL), ADP..._.fits format (HARPS) or s1d_A.fits format (HARPS-N)
+    List containng the paths of the spectrum files 
+    
+    radial_velocity: int
+    Stellar radial velocity along the line-of-sight. This value is used for doppler shifting the spectra to its rest frame.
+    
+    degree: int, default: 4
+    The degree of the Chebyshev1D polynomial to fit to the continuum for normalisation.
+    Normalisation done using Specutils. 
+    For more info, 
+    see https://specutils.readthedocs.io/en/stable/api/specutils.fitting.fit_generic_continuum.html#specutils.fitting.fit_generic_continuum
+    
+    HeI_line: int, default: 587.562 nm
+    HeI line centre in nm.
+    
+    HeI_band: int, default: 0.04 nm
+    Band width (nm) in which to calculate the mean flux.
+    
+    F1_line: int, default: 586.9 nm
+    Line centre of the blue reference continuum.
+    
+    F1_band: int, default: 0.5 nm
+    Band width (nm) in which to calculate the mean continuum flux.
+    
+    F2_line: int, default: 588.1 nm
+    Line centre of the red reference continuum.
+    
+    F2_band: int, default: 0.5 nm
+    Band width (nm) in which to calculate the mean continuum flux.
+    
+    Instrument: str, default: 'NARVAL'
+    The instrument from which the data has been collected. Available options are 'NARVAL', 'HARPS' or 'HARPS-N'.
+    
+    norm_spec: bool, default: False
+    Normalizes the spectrum.
+    
+    plot_fit: bool, default: False
+    Plots the continuum fitting normalization processes.
+    
+    plot_spec: bool, default: True
+    Plots the final reduced spectrum.
+    
+    print_stat: bool, default: True
+    Prints the status of each process within the function.
+    
+    save_results: bool, default: False
+    Saves the run results in a .csv format in the working directory
+    
+    results_file_name: str, default: None
+    Name of the file with which to save the results file
+    
+    save_figs: bool, default: False
+    Save the plots in a pdf format in the working directory
+    
+    save_figs_name: str, default=None
+    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
+    
+    out_file_path: list, .out format (NARVAL), default: None
+    List containing the paths of the .out files to extract the OBS_HJD. If None, HJD is returned as NaN. Used only when Instrument type is 'NARVAL'
+    
+    ccf_file_path: list, .fits format (HARPS/HARPS-N), default: None
+    List containig the paths of the CCF FITS files to extract the radial velocity. If None, the given radial velocity argument is used for all files for doppler shift corrections
+    
+    
+    Returns:
+    -----------
+    NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], HeI index, error on HeI index
+    HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], HeI index, error on HeI index
+    HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], HeI index, error on HeI index
+    
+    All values are type float() given inside a list.
+    
+    """
+    
+    results = [] # Empty list to which the run results will be appended
+    
+    # Creating a loop to go through each given file_path in the list of file paths
+    
+    # Using the tqdm function 'log_progress' to provide a neat progress bar in Jupyter Notebook which shows the total number of
+    # runs, the run time per iteration and the total run time for all files!
+    
+    for i in log_progress(range(len(file_path)), desc='Calculating HeID3 Index'):
+        
+        # Creating a loop for data from each Instrument;
+        
+        # NARVAL
+        
+        if Instrument == 'NARVAL':
+            
+            if out_file_path != None:
+                
+                # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
+                
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               out_file_path=out_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
+                
+            else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   out_file_path=None,
+                                   show_plots=False)
+                
+                if print_stat:
+                    print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+
+            if print_stat:
+                print('Total {} spectral orders extracted'.format(len(orders)))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            
+            order_38 = orders[61-38] # The orders begin from # 61 so to get # 38, we index as 61-38.
+            
+            if print_stat:
+                print('The #38 order wavelength read from .s file using pandas is: {}'.format(order_38[0].values))
+                print('The #38 order intensity read from .s file using pandas is: {}'.format(order_38[1].values))
+                print('The #38 order intensity error read from .s file using pandas is: {}'.format(order_38[2].values))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+            
+            # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of H alpha line; delta_lambda = (v/c)*lambda
+            
+            shift = ((radial_velocity/ap.constants.c.value)*HeI_line)  
+            shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
+            
+            wvl = np.round((order_38[0].values - shift), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
+            flx = order_38[1].values # Indexing flux array from order_34
+            flx_err = order_38[2].values # Indexing flux_err array from order_34
+            
+            # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
+            # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
+            
+            # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
+            # The uncertainty has units Jy as well!
+        
+            spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
+                                flux=flx*u.Jy, 
+                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
+            
+            # Printing info
+            
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {}nm'.format(radial_velocity, shift))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            # Fitting an nth order polynomial to the continuum for normalisation using specutils
+            
+            if norm_spec:
+                if print_stat:
+                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+                
+                if print_stat:
+                    print('Polynomial fit coefficients:')
+                    print(g_fit)
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
+                
+                spec_normalized = spec1d / y_cont_fitted # Spectrum is normalised by diving it with the polynomial fit
+                
+                # Plots the polynomial fits
+                if plot_fit:
+                    f, ax1 = plt.subplots(figsize=(10,4))  
+                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
+                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
+                    ax1.set_xlabel('$\lambda (nm)$')
+                    ax1.set_ylabel('Normalized Flux')
+                    ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
+                    
+                    # Saves the plot in a pdf format in the working directory
+                    if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
+                    
+                    f, ax2 = plt.subplots(figsize=(10,4))  
+                    ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
+                    ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Pipeline Normalized', alpha=0.6)
+                    plt.axhline(1.0, ls='--', c='gray')
+                    plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
+                    plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black')
+                    ax2.set_xlabel('$\lambda (nm)$')
+                    ax2.set_ylabel('Normalized Flux')
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
+                    plt.legend()
+                    
+                    if save_figs:
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
+                        
+                spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
+                
+            else:
+                spec = spec1d
+                
+                
+            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
+            if plot_spec:
+                f, ax  = plt.subplots(figsize=(10,4))
+                ax.plot(spec.spectral_axis, spec.flux, '-k')
+                ax.set_xlim(F1_line-0.1, F2_line+0.1)
+                ax.set_xlabel('$\lambda (nm)$')
+                ax.set_ylabel("Normalized Flux")
+                plt.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 {}±{}nm'.format(HeI_line, HeI_band/2))
+                plt.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
+                plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
+                plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
+                plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
+                
+                if save_figs:
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                
+                # Plots the zoomed in regions around the H alpha line.
+                f, ax1  = plt.subplots(figsize=(10,4))
+                ax1.plot(spec.spectral_axis, spec.flux)
+                ax1.set_xlabel('$\lambda (nm)$')
+                ax1.set_ylabel("Normalized Flux")
+                plt.vlines(HeI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
+                plt.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 band width = {}nm'.format(HeI_band))
+                plt.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                ax1.set_xlim(HeI_line-(HeI_band/2)-0.1, HeI_line+(HeI_band/2)+0.1)
+                plt.tight_layout()
+                plt.legend()
+                
+                if save_figs:
+                    plt.savefig('{}_HeI_line_plot.pdf'.format(save_figs_name), format='pdf')
+                
+        # HARPS
+        
+        elif Instrument == 'HARPS':
+            
+            # Opening the FITS file using 'astropy.io.fits' and extracting useful object parameters and spectrum using read_data from krome.spec_analysis
+            # NOTE: The format of this FITS file must be ADP which contains the reduced spectrum with the wav, flux and flux_err in three columns
+            
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+            else:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            flx_err = spec[2]
+            
+            # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
+           
+            shift = ((obj_params['RV']/ap.constants.c.value)*HeI_line)  
+            shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .fits files!
+            
+            # Since the HARPS spectra have their individual spectral orders stitched together, we do not have to extract them separately as done for NARVAL. Thus for HARPS, the required region is extracted by slicing the spectrum with the index corresponding to the left and right continuum obtained using the 'find_nearest' function. 
+            
+            left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
+            right_idx = find_nearest(wvl, F2_line+2)
+            
+            # If condition for when certain files have NaN as the flux errors; probably for all since the ESO Phase 3 data currently does not provide the flux errors
+            
+            flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
+            
+            if flx_err_nan:
+                if print_stat:
+                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                # Flux error calculated as photon noise plus CCD readout noise 
+                # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
+                # array and so on. But for photometric limited measurements, this noise is generally insignificant.
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
+                
+                if np.isnan(np.sum(flx_err_ron)):
+                    if print_stat:
+                        print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                # Slicing the data to contain only the region required for the index calculation as explained above and 
+                # creating a spectrum class for it.
+                
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
+                
+            else:
+                
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
+            
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {}nm'.format(obj_params['RV'], shift))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            if norm_spec:
+                if print_stat:
+                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+                
+                if print_stat:
+                    print('Polynomial fit coefficients:')
+                    print(g_fit)
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
+                spec_normalized = spec1d / y_cont_fitted
+                
+                spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values which are simply the errors divided by this polynomial fit.
+                
+                # Plots the polynomial fits
+                if plot_fit:
+                    
+                    f, ax1 = plt.subplots(figsize=(10,4))  
+                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
+                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
+                    ax1.set_xlabel('$\lambda (nm)$')
+                    ax1.set_ylabel('Flux (adu)')
+                    ax1.set_title("Continuum Fitting")
+                    plt.tight_layout()
+                    
+                    # Saves the plot in a pdf format in the working directory
+                    if save_figs:
+                        if print_stat:
+                            print('Saving plots as PDFs in the working directory')
+                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
+                    
+                    f, ax2 = plt.subplots(figsize=(10,4))  
+                    ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, label='Re-Normalized')
+                    plt.axhline(1.0, ls='--', c='gray')
+                    plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
+                    plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                    ax2.set_xlabel('$\lambda (nm)$')
+                    ax2.set_ylabel('Normalized Flux')
+                    ax2.set_title("Continuum Normalized ")
+                    plt.tight_layout()
+                    plt.legend()
+                    
+                    if save_figs:
+                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
+                
+            else:
+                spec = spec1d
+                
+                
+            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
+            if plot_spec:
+                f, ax  = plt.subplots(figsize=(10,4)) 
+                ax.plot(spec.spectral_axis, spec.flux, '-k')  
+                ax.set_xlabel('$\lambda (nm)$')
+                if norm_spec:
+                    ax.set_ylabel("Normalized Flux")
+                else:
+                    ax.set_ylabel("Flux (adu)")
+                plt.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 {}±{}nm'.format(HeI_line, HeI_band/2))
+                plt.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                plt.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
+                plt.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
+                plt.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
+                plt.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
+                
+                if save_figs:
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                
+                f, ax1  = plt.subplots(figsize=(10,4)) 
+                ax1.plot(spec.spectral_axis, spec.flux)
+                ax1.set_xlabel('$\lambda (nm)$')
+                if norm_spec:
+                    ax1.set_ylabel("Normalized Flux")
+                else:
+                    ax1.set_ylabel("Flux (adu)")
+                plt.vlines(HeI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
+                plt.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 band width = {}nm'.format(HeI_band))
+                plt.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
+                ax1.set_xlim(HeI_line-(HeI_band/2)-0.1, HeI_line+(HeI_band/2)+0.1)
+                plt.tight_layout()
+                plt.legend()
+                
+                if save_figs:
+                    plt.savefig('{}_HeI_line_plot.pdf'.format(save_figs_name), format='pdf')
+                
+        else:
+            raise ValueError('Instrument type not recognised. Available options are "NARVAL" and "HARPS"')
+            
+        # Now we have the spectrum to work with as a variable, 'spec'!
+        
+        # The three regions required for H alpha index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
+        # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
+        # Note: These values must have the same units as the spec wavelength axis.
+        
+        F_HeI_region = extract_region(spec, region=SpectralRegion((HeI_line-(HeI_band/2))*u.nm, (HeI_line+(HeI_band/2))*u.nm))
+        F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+        F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+        
+        regions = [F_HeI_region, F1_region, F2_region]
+            
+        # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown
+        
+        I_HeI, I_HeI_err = calc_ind(regions=regions,
+                                    index_name='HeI',
+                                    print_stat=print_stat)
+        
+        if Instrument=='NARVAL':
+            if out_file_path != None:
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_HeI', 'I_HeI_err']
+                res = list(obj_params.values()) + [I_HeI, I_HeI_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                results.append(res)
+            else:
+                header = ['I_HeI', 'I_HeI_err']
+                res = [I_HeI, I_HeI_err]
+                results.append(res)
+        
+        elif Instrument=='HARPS':
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_HeI', 'I_HeI_err']
+            res = list(obj_params.values()) + [I_HeI, I_HeI_err]
+            results.append(res)
+    
+    # Saving the results in a csv file format  
+    if save_results:
+        
+        if print_stat:
+            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+            writer = csv.writer(csvfile, dialect='excel')
+            writer.writerow(header)
+            for row in results:
+                writer.writerow(row)  
+            
+    return results
+
+## Defining a function to calculate the Balmer decrement Frasca, A. et al. 2015 (2015A&A...575A...4F)
+
+def balmer_decrement(file_path,
+                     radial_velocity,
+                     H_alpha_line=656.2808,
+                     H_alpha_band=0.1,
+                     H_beta_line=486.135,
+                     H_beta_band=0.1, 
+                     Instrument='NARVAL',
+                     plot_spec=True,
+                     print_stat=True,
+                     save_results=False, 
+                     results_file_name=None,
+                     save_figs=False,
+                     save_figs_name=None,
+                     out_file_path=None,
+                     ccf_file_path=None):
+    
+    """
+    
+    Calculates the H_alpha/H_beta flux ratio, the so-called Balmer Decrement, following Frasca, A. et al. 2015 (2015A&A...575A...4F).
+    NOTE: For first papers about the Balmer Decrement, see Landamn & Mongillo 1979 (Landman, D. A & Mongillo, M. 1979, ApJ, 230, 581) 
+    or Chester 1991 (Chester, M. M. 1991, Ph. D. Thesis, Pennsylvania State Univ.)
+    
+    
+    Parameters:
+    -----------
+    
+    file_path: list, .s format (NARVAL) or ADP..._.fits format (HARPS) 
+    List containng the paths of the spectrum files 
+    
+    radial_velocity: int
+    Stellar radial velocity along the line-of-sight. This value is used for doppler shifting the spectra to its rest frame.
+    
+    H_alpha_line: int, default: 656.2808 nm
+    H alpha line centre in nm.
+    
+    H_alpha_band: int, default: 0.1 nm
+    Band width (nm) in which to calculate the mean flux.
+    
+    H_beta_line: int, default: 486.135 nm
+    H beta line centre in nm. See https://physics.nist.gov/PhysRefData/ASD/lines_form.html for Balmer series lines.
+    
+    H_beta_band: int, default: 0.1 nm
+    Band width (nm) in which to calculate the mean flux.
+    
+    Instrument: str, default: 'NARVAL'
+    The instrument from which the data has been collected. Available options are 'NARVAL' or 'HARPS'.
+    
+    plot_spec: bool, default: True
+    Plots the final reduced spectrum.
+    
+    print_stat: bool, default: True
+    Prints the status of each process within the function.
+    
+    save_results: bool, default: False
+    Saves the run results in a .csv format in the working directory
+    
+    results_file_name: str, default: None
+    Name of the file with which to save the results file
+    
+    save_figs: bool, default: False
+    Save the plots in a pdf format in the working directory
+    
+    save_figs_name: str, default=None
+    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
+    
+    out_file_path: list, .out format (NARVAL), default: None
+    List containing the paths of the .out files to extract the OBS_HJD. If None, HJD is returned as NaN. Used only when Instrument type is 'NARVAL'
+    
+    ccf_file_path: list, .fits format (HARPS), default: None
+    List containig the paths of the CCF FITS files to extract the radial velocity. If None, the given radial velocity argument is used for all files for doppler shift corrections
+    
+    
+    Returns:
+    -----------
+    NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], H_alpha mean flux, H_alpha mean flux error, H_beta mean flux, H_beta mean flux error, balmer decrement, error on balmer decrement
+    HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], H_alpha mean flux, H_alpha mean flux error, H_beta mean flux, H_beta mean flux error, balmer decrement, error on balmer decrement
+    
+    All values are type float() given inside a list.
+    
+    """
+    
+    results = [] # Empty list to which the run results will be appended
+    
+    # Creating a loop to go through each given file_path in the list of file paths
+    
+    # Using the tqdm function 'log_progress' to provide a neat progress bar in Jupyter Notebook which shows the total number of
+    # runs, the run time per iteration and the total run time for all files!
+    
+    for i in log_progress(range(len(file_path)), desc='Calculating Balmer Decrement'):
+        
+        # Creating a loop for data from each Instrument;
+        
+        # NARVAL
+        
+        if Instrument == 'NARVAL':
+            
+            if out_file_path != None:
+                
+                # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
+                
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               out_file_path=out_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
+                
+            else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   out_file_path=None,
+                                   show_plots=False)
+                
+                if print_stat:
+                    print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+
+            if print_stat:
+                print('Total {} spectral orders extracted'.format(len(orders)))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            
+            order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34. This will be tha H_alpha order
+            order_46 = orders[61-46] # This will be the H_beta order.
+            
+            if print_stat:
+                print('The #34 Hα order wavelength read from .s file using pandas is: {}'.format(order_34[0].values))
+                print('The #34 Hα order intensity read from .s file using pandas is: {}'.format(order_34[1].values))
+                print('The #34 Hα order intensity error read from .s file using pandas is: {}'.format(order_34[2].values))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The #46 Hβ order wavelength read from .s file using pandas is: {}'.format(order_46[0].values))
+                print('The #46 Hβ order intensity read from .s file using pandas is: {}'.format(order_46[1].values))
+                print('The #46 Hβ order intensity error read from .s file using pandas is: {}'.format(order_46[2].values))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of H_alpha/H_beta line; delta_lambda = (v/c)*lambda. NOTE: The line shifts are used for the H_alpha/H_beta spectral orders respectively.
+            
+            shift_alpha = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
+            shift_alpha = (round(shift_alpha, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
+            
+            shift_beta = ((radial_velocity/ap.constants.c.value)*H_beta_line)  
+            shift_beta = (round(shift_beta, 4))
+            
+            wvl_alpha = np.round((order_34[0].values - shift_alpha), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
+            flx_alpha = order_34[1].values # Indexing flux array from order_34
+            flx_err_alpha = order_34[2].values # Indexing flux_err array from order_34
+            
+            wvl_beta = np.round((order_46[0].values - shift_beta), 4) 
+            flx_beta = order_46[1].values 
+            flx_err_beta = order_46[2].values
+            
+            # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
+            # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
+            
+            # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
+            # The uncertainty has units Jy as well!
+        
+            spec1d_alpha = Spectrum1D(spectral_axis=wvl_alpha*u.nm, 
+                                      flux=flx_alpha*u.Jy, 
+                                      uncertainty=StdDevUncertainty(flx_err_alpha, unit=u.Jy)) 
+            
+            spec1d_beta = Spectrum1D(spectral_axis=wvl_beta*u.nm, 
+                                      flux=flx_beta*u.Jy, 
+                                      uncertainty=StdDevUncertainty(flx_err_beta, unit=u.Jy))
+            
+            # Printing info
+            
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the Hα/Hβ line of 656.2808/486.135 nm is: {}/{}nm'.format(radial_velocity, shift_alpha, shift_beta))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The Hα/Hβ orders used range from {}/{}nm to {}/{}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d_alpha.spectral_axis[0].value, spec1d_beta.spectral_axis[0].value, spec1d_alpha.spectral_axis[-1].value, spec1d_beta.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            # Calculating the fluxes
+            
+            ## H_alpha
+            
+            # Using the 'find_nearest' function from 'spec_analysis.py' to find the left and right indices 
+            # which are used to slice the spectrum in the H_alpha region alone.
+            
+            left_idx_alpha = find_nearest(spec1d_alpha.spectral_axis.value, H_alpha_line-(H_alpha_band/2)) 
+            right_idx_alpha = find_nearest(spec1d_alpha.spectral_axis.value, H_alpha_line+(H_alpha_band/2))
+                                                   
+            H_alpha_line_region = [spec1d_alpha.spectral_axis.value[left_idx_alpha:right_idx_alpha+1], # Respective arrays are sliced using the indices above. 
+                                   spec1d_alpha.flux.value[left_idx_alpha:right_idx_alpha+1],          # Using right_idx_alpha+1 to include the final element in the array.
+                                   spec1d_alpha.uncertainty.array[left_idx_alpha:right_idx_alpha+1]]
+            
+            H_alpha_line_mean = np.round(np.mean(H_alpha_line_region[1]), 4) # Calculating mean of the flux within this region.
+            
+            # Calculating the error on the mean flux calculated above using error propagation.
+            H_alpha_line_sum_err = [i**2 for i in H_alpha_line_region[2]]
+            H_alpha_line_mean_err = np.round((np.sqrt(np.sum(H_alpha_line_sum_err))/len(H_alpha_line_sum_err)), 4)
+            
+            ## H_beta
+            
+            left_idx_beta = find_nearest(spec1d_beta.spectral_axis.value, H_beta_line-(H_beta_band/2)) 
+            right_idx_beta = find_nearest(spec1d_beta.spectral_axis.value, H_beta_line+(H_beta_band/2))
+                                                   
+            H_beta_line_region = [spec1d_beta.spectral_axis.value[left_idx_beta:right_idx_beta+1], 
+                                  spec1d_beta.flux.value[left_idx_beta:right_idx_beta+1], 
+                                  spec1d_beta.uncertainty.array[left_idx_beta:right_idx_beta+1]]
+            
+            H_beta_line_mean = np.round(np.mean(H_beta_line_region[1]), 4)
+            
+            H_beta_line_sum_err = [i**2 for i in H_beta_line_region[2]]
+            H_beta_line_mean_err = np.round((np.sqrt(np.sum(H_beta_line_sum_err))/len(H_beta_line_sum_err)), 4)
+            
+            ## Balmer Decrement
+            
+            balmer_dec = np.round((H_alpha_line_mean/H_beta_line_mean), 4)
+            
+            balmer_dec_err = np.round((balmer_dec*np.sqrt((H_alpha_line_mean_err/H_alpha_line_mean)**2 + (H_beta_line_mean_err/H_beta_line_mean)**2)), 4)
+            
+            if print_stat:
+                print('Mean of {} flux points in Hα: {}±{}'.format(len(H_alpha_line_region[1]), H_alpha_line_mean, H_alpha_line_mean_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('Mean of {} flux points in Hβ: {}±{}'.format(len(H_beta_line_region[1]), H_beta_line_mean, H_beta_line_mean_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('Calculated Balmer Decrement is: {}±{}'.format(balmer_dec, balmer_dec_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                
+            # Plots spectrum
+            
+            if plot_spec:
+                f, (ax1, ax2)  = plt.subplots(2, 1)
+                
+                ax1.plot(spec1d_alpha.spectral_axis, spec1d_alpha.flux, '-k')  
+                ax1.vlines(H_alpha_line, ymin=0, ymax=max(H_alpha_line_region[1]), linestyles='dotted', colors='red')
+                ax1.vlines(H_alpha_line-(H_alpha_band/2), ymin=0, ymax=max(H_alpha_line_region[1]), linestyles='--', colors='black', label='Hα band width = {}nm'.format(H_alpha_band))
+                ax1.vlines(H_alpha_line+(H_alpha_band/2), ymin=0, ymax=max(H_alpha_line_region[1]), linestyles='--', colors='black')
+                ax1.set_xlabel('$\lambda (nm)$')
+                ax1.set_ylabel("Normalized Flux")
+                ax1.set_xlim((H_alpha_line-(H_alpha_band)/2)-0.1, (H_alpha_line+(H_alpha_band)/2)+0.1)
+                ax1.yaxis.set_ticks_position('both')
+                ax1.xaxis.set_ticks_position('both')
+                ax1.tick_params(direction='in', which='both')
+                ax1.legend()
+               
+                ax2.plot(spec1d_beta.spectral_axis, spec1d_beta.flux, '-k')  
+                ax2.vlines(H_beta_line, ymin=0, ymax=max(H_beta_line_region[1]), linestyles='dotted', colors='blue')
+                ax2.vlines(H_beta_line-(H_beta_band/2), ymin=0, ymax=max(H_beta_line_region[1]), linestyles='--', colors='black', label='Hβ band width = {}nm'.format(H_beta_band))
+                ax2.vlines(H_beta_line+(H_beta_band/2), ymin=0, ymax=max(H_beta_line_region[1]), linestyles='--', colors='black')
+                ax2.set_xlabel('$\lambda (nm)$')
+                ax2.set_ylabel("Normalized Flux")
+                ax2.set_xlim((H_beta_line-(H_beta_band)/2)-0.1, (H_beta_line+(H_beta_band)/2)+0.1)
+                ax2.yaxis.set_ticks_position('both')
+                ax2.xaxis.set_ticks_position('both')
+                ax2.tick_params(direction='in', which='both')
+                ax2.legend()
+                
+                
+                if save_figs:
+                    plt.savefig('{}.png'.format(save_figs_name), format='png', dpi=300)
+                
+            if out_file_path != None:
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'F_H_alpha', 'F_H_alpha_err', 'F_H_beta', 'F_H_beta_err', 'BD', 'BD_err']
+                res = list(obj_params.values()) + [H_alpha_line_mean, H_alpha_line_mean_err, H_beta_line_mean, H_beta_line_mean_err, balmer_dec, balmer_dec_err] 
+                results.append(res)
+            else:
+                header = ['BD', 'BD_err']
+                res = [balmer_dec, balmer_dec_err]
+                results.append(res)
+                
+        
+        elif Instrument == 'HARPS':
+            
+            if ccf_file_path != None:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             ccf_file_path=ccf_file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+            else:
+                obj_params, spec = read_data(file_path=file_path[i],
+                                             Instrument=Instrument,
+                                             print_stat=print_stat,
+                                             show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
+                
+            # Assigning appropriate variables from spec individually!
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            flx_err = spec[2]
+            
+            # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from either the CCF FITS file or the user given value.
+           
+            shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
+            shift = (round(shift, 3)) # Using only 3 decimal places for the shift value since that's the precision of the wavelength in the .fits files!
+            
+            # Since the HARPS spectra have their individual spectral orders stitched together, we do not have to extract them separately as done for NARVAL. Thus for HARPS, the required region is extracted by slicing the spectrum with the index corresponding to the left and right continuum obtained using the 'find_nearest' function. 
+            
+            left_idx = find_nearest(wvl, H_beta_line-2) # ± 2nm extra included for both!
+            right_idx = find_nearest(wvl, H_alpha_line+2)
+            
+            # If condition for when certain files have NaN as the flux errors; probably for all since the ESO Phase 3 data currently does not provide the flux errors
+            
+            flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
+            
+            if flx_err_nan:
+                if print_stat:
+                    print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                # Flux error calculated as photon noise plus CCD readout noise 
+                # NOTE: The error calculation depends on a lot of other CCD parameters such as the pixel binning in each CCD
+                # array and so on. But for photometric limited measurements, this noise is generally insignificant.
+                
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
+                
+                if np.isnan(np.sum(flx_err_ron)):
+                    if print_stat:
+                        print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                # Slicing the data to contain only the region required for the index calculation as explained above and 
+                # creating a spectrum class for it.
+                
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
+                
+            else:
+                
+                spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                                    flux=flx[left_idx:right_idx+1]*u.Jy,
+                                    uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
+            
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            # Calculating the fluxes
+            
+            ## H_alpha
+            
+            left_idx_alpha = find_nearest(spec1d.spectral_axis.value, H_alpha_line-(H_alpha_band/2)) 
+            right_idx_alpha = find_nearest(spec1d.spectral_axis.value, H_alpha_line+(H_alpha_band/2))
+                                                   
+            H_alpha_line_region = [spec1d.spectral_axis.value[left_idx_alpha:right_idx_alpha+1], 
+                                   spec1d.flux.value[left_idx_alpha:right_idx_alpha+1], 
+                                   spec1d.uncertainty.array[left_idx_alpha:right_idx_alpha+1]]
+            
+            H_alpha_line_mean = np.round(np.mean(H_alpha_line_region[1]), 4) # Calculating mean of the flux within this bandwidth
+            
+            # Calculating the standard error on the mean flux calculated above.
+            H_alpha_line_sum_err = [i**2 for i in H_alpha_line_region[2]]
+            H_alpha_line_mean_err = np.round((np.sqrt(np.sum(H_alpha_line_sum_err))/len(H_alpha_line_sum_err)), 4)
+            
+            ## H_beta
+            
+            left_idx_beta = find_nearest(spec1d.spectral_axis.value, H_beta_line-(H_beta_band/2)) 
+            right_idx_beta = find_nearest(spec1d.spectral_axis.value, H_beta_line+(H_beta_band/2))
+                                                   
+            H_beta_line_region = [spec1d.spectral_axis.value[left_idx_beta:right_idx_beta+1], 
+                                  spec1d.flux.value[left_idx_beta:right_idx_beta+1], 
+                                  spec1d.uncertainty.array[left_idx_beta:right_idx_beta+1]]
+            
+            H_beta_line_mean = np.round(np.mean(H_beta_line_region[1]), 4)
+            
+            H_beta_line_sum_err = [i**2 for i in H_beta_line_region[2]]
+            H_beta_line_mean_err = np.round((np.sqrt(np.sum(H_beta_line_sum_err))/len(H_beta_line_sum_err)), 4)
+            
+            ## Balmer Decrement
+            
+            balmer_dec = np.round((H_alpha_line_mean/H_beta_line_mean), 4)
+            
+            balmer_dec_err = np.round((balmer_dec*np.sqrt((H_alpha_line_mean_err/H_alpha_line_mean)**2 + (H_beta_line_mean_err/H_beta_line_mean)**2)), 4)
+            
+            if print_stat:
+                print('Mean of {} flux points in Hα: {}±{}'.format(len(H_alpha_line_region[1]), H_alpha_line_mean, H_alpha_line_mean_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('Mean of {} flux points in Hβ: {}±{}'.format(len(H_beta_line_region[1]), H_beta_line_mean, H_beta_line_mean_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('Calculated Balmer Decrement is: {}±{}'.format(balmer_dec, balmer_dec_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            # Plots spectrum
+            
+            if plot_spec:
+                f, (ax1, ax2)  = plt.subplots(2, 1)
+                
+                ax1.plot(spec1d.spectral_axis, spec1d.flux, '-k')  
+                ax1.vlines(H_alpha_line, ymin=0, ymax=max(H_alpha_line_region[1]), linestyles='dotted', colors='red')
+                ax1.vlines(H_alpha_line-(H_alpha_band/2), ymin=0, ymax=max(H_alpha_line_region[1]), linestyles='--', colors='black', label='Hα band width = {}nm'.format(H_alpha_band))
+                ax1.vlines(H_alpha_line+(H_alpha_band/2), ymin=0, ymax=max(H_alpha_line_region[1]), linestyles='--', colors='black')
+                ax1.set_xlabel('$\lambda (nm)$')
+                ax1.set_ylabel("Flux (adu)")
+                ax1.set_xlim((H_alpha_line-(H_alpha_band)/2)-0.1, (H_alpha_line+(H_alpha_band)/2)+0.1)
+                ax1.yaxis.set_ticks_position('both')
+                ax1.xaxis.set_ticks_position('both')
+                ax1.tick_params(direction='in', which='both')
+                ax1.legend()
+               
+                ax2.plot(spec1d.spectral_axis, spec1d.flux, '-k')  
+                ax2.vlines(H_beta_line, ymin=0, ymax=max(H_beta_line_region[1]), linestyles='dotted', colors='blue')
+                ax2.vlines(H_beta_line-(H_beta_band/2), ymin=0, ymax=max(H_beta_line_region[1]), linestyles='--', colors='black', label='Hβ band width = {}nm'.format(H_beta_band))
+                ax2.vlines(H_beta_line+(H_beta_band/2), ymin=0, ymax=max(H_beta_line_region[1]), linestyles='--', colors='black')
+                ax2.set_xlabel('$\lambda (nm)$')
+                ax2.set_ylabel("Flux (adu)")
+                ax2.set_xlim((H_beta_line-(H_beta_band)/2)-0.1, (H_beta_line+(H_beta_band)/2)+0.1)
+                ax2.yaxis.set_ticks_position('both')
+                ax2.xaxis.set_ticks_position('both')
+                ax2.tick_params(direction='in', which='both')
+                ax2.legend()
+                
+                if save_figs:
+                    plt.savefig('{}.png'.format(save_figs_name), format='png', dpi=300)
+                
+            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'F_H_alpha', 'F_H_alpha_err', 'F_H_beta', 'F_H_beta_err', 'BD', 'BD_err']
+            res = list(obj_params.values()) + [H_alpha_line_mean, H_alpha_line_mean_err, H_beta_line_mean, H_beta_line_mean_err, balmer_dec, balmer_dec_err]
+            results.append(res)
+    
+    # Saving the results in a csv file format  
+    if save_results:
+        
+        if print_stat:
+            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+            writer = csv.writer(csvfile, dialect='excel')
+            writer.writerow(header)
+            for row in results:
+                writer.writerow(row)  
+            
+    return results
+
+## Defining a function to calculate the CaII IRT indices following M. MIttag et al. 2017 (2017, A&A, 607, A87)
+
+def CaII_IRT(file_path,
+             radial_velocity,
+             IRT_1_line=849.8,
+             IRT_1_band=0.1,
+             IRT_1_F1_line=849.0,
+             IRT_1_F1_band=0.2,
+             IRT_1_F2_line=850.9,
+             IRT_1_F2_band=0.2,
+             IRT_2_line=854.2,
+             IRT_2_band=0.1,
+             IRT_2_F1_line=853.0,
+             IRT_2_F1_band=0.2,
+             IRT_2_F2_line=856.6,
+             IRT_2_F2_band=0.2,
+             IRT_3_line=866.2,
+             IRT_3_band=0.1,
+             IRT_3_F1_line=864.1,
+             IRT_3_F1_band=0.2,
+             IRT_3_F2_line=867.8,
+             IRT_3_F2_band=0.2,
+             plot_spec=True,
+             print_stat=True,
+             save_results=False, 
+             results_file_name=None,
+             save_figs=False,
+             save_figs_name=None):
+    
+    """
+    
+    Calculates the CaII infrared triplet (IRT) indices following M. MIttag et al. 2017 (2017, A&A, 607, A87). This method is analogous to the
+    H_alpha index calculation method by Boisse et al. 2009 in which the mean flux in the IRT line is divided by the mean flux in certain
+    reference continuum bands. For the subtraction method, see Martínez-Arnáiz, R., López-Santiago, J., Crespo-Chacón, I., & Montes, D. 2011, MNRAS, 414, 2629.
+    
+    NOTE: This index is calculated ONLY for the NARVAL instrument due to its wider wavelength coverage containing these IRT lines. TheHARPS instrument does not cover 
+    these lines.
+    
+    
+    Parameters:
+    -----------
+    
+    file_path: list, .s format (NARVAL)
+    List containng the paths of the spectrum files 
+    
+    radial_velocity: int
+    Stellar radial velocity along the line-of-sight. This value is used for doppler shifting the spectra to its rest frame.
+    
+    IRT_1_line: int, default: 849.8 nm
+    IRT line 1 centre in nm.
+    
+    IRT_1_band: int, default: 0.1 nm
+    Band width (nm) in which to calculate the mean flux.
+    
+    IRT_2_line: int, default: 854.2 nm
+    IRT line 1 centre in nm.
+    
+    IRT_2_band: int, default: 0.1 nm
+    Band width (nm) in which to calculate the mean flux.
+    
+    IRT_3_line: int, default: 866.2 nm
+    IRT line 1 centre in nm.
+    
+    IRT_3_band: int, default: 0.1 nm
+    Band width (nm) in which to calculate the mean flux.
+    
+    plot_spec: bool, default: True
+    Plots the final reduced spectrum.
+    
+    print_stat: bool, default: True
+    Prints the status of each process within the function.
+    
+    save_results: bool, default: False
+    Saves the run results in a .csv format in the working directory
+    
+    results_file_name: str, default: None
+    Name of the file with which to save the results file
+    
+    save_figs: bool, default: False
+    Save the plots in a pdf format in the working directory
+    
+    save_figs_name: str, default=None
+    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
+    
+    Returns:
+    -----------
+    HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], IRT 1 index, IRT 1 index error, IRT 2 index, IRT 2 index error, IRT 3 index, IRT 3 index error.
+    
+    All values are type float() given inside a list.
+    
+    """
+    
+    results = [] # Empty list to which the run results will be appended
+    
+    # Creating a loop to go through each given file_path in the list of file paths
+    
+    # Using the tqdm function 'log_progress' to provide a neat progress bar in Jupyter Notebook which shows the total number of
+    # runs, the run time per iteration and the total run time for all files!
+    
+    for i in log_progress(range(len(file_path)), desc='Calculating CaII IRT indices'):
+            
+        if out_file_path != None:
+            
+            # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
+            
+            obj_params, orders = read_data(file_path=file_path[i],
+                                           out_file_path=out_file_path[i],
+                                           Instrument='NARVAL',
+                                           print_stat=print_stat,
+                                           show_plots=False)
+            
+            obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
+            
+        else:
+            
+            orders = read_data(file_path=file_path[i],
+                               Instrument='NARVAL',
+                               print_stat=print_stat,
+                               out_file_path=None,
+                               show_plots=False)
+            
+            if print_stat:
+                print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+
+        if print_stat:
+            print('Total {} spectral orders extracted'.format(len(orders)))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        order_27 = orders[61-27] # This order contains the 849.8 IRT line
+        order_26 = orders[61-26] # This order contains the other two IRT lines
+        
+        if print_stat:
+            print('The #27 IRT_1 order wavelength read from .s file using pandas is: {}'.format(order_27[0].values))
+            print('The #27 IRT_1 order intensity read from .s file using pandas is: {}'.format(order_27[1].values))
+            print('The #27 IRT_1 order intensity error read from .s file using pandas is: {}'.format(order_27[2].values))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('The #26 IRT_23 order wavelength read from .s file using pandas is: {}'.format(order_26[0].values))
+            print('The #26 IRT_23 order intensity read from .s file using pandas is: {}'.format(order_26[1].values))
+            print('The #26 IRT_23 order intensity error read from .s file using pandas is: {}'.format(order_26[2].values))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of IRT 3 line; delta_lambda = (v/c)*lambda. Any of the IRT lines can be used for doppler shifting the spectrum since they do not produce a significant difference in the final index.
+        
+        shift = ((radial_velocity/ap.constants.c.value)*IRT_3_line)  
+        shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
+        
+        wvl_IRT_1 = np.round((order_27[0].values - shift), 4) 
+        flx_IRT_1 = order_27[1].values 
+        flx_err_IRT_1 = order_27[2].values
+        
+        wvl_IRT_23 = np.round((order_26[0].values - shift), 4) 
+        flx_IRT_23 = order_26[1].values 
+        flx_err_IRT_23 = order_26[2].values
+        
+        # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
+        # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
+        
+        # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
+        # The uncertainty has units Jy as well!
+    
+        spec1d_IRT_1 = Spectrum1D(spectral_axis=wvl_IRT_1*u.nm, 
+                                  flux=flx_IRT_1*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_IRT_1, unit=u.Jy)) 
+        
+        spec1d_IRT_23 = Spectrum1D(spectral_axis=wvl_IRT_23*u.nm, 
+                                  flux=flx_IRT_23*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_IRT_23, unit=u.Jy))
+        
+        # Printing info
+        
+        if print_stat:
+            print('The doppler shift size using RV {} m/s and the CaII IRT line of 866.2nm is: {}nm'.format(radial_velocity, shift))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        # Plots spectrum
+        
+        if plot_spec:
+            f, (ax1, ax2, ax3)  = plt.subplots(3, 1, figsize=(6, 12))
+            
+            ax1.plot(spec1d_IRT_1.spectral_axis, spec1d_IRT_1.flux, '-k', label='Order #27')  
+            ax1.vlines(IRT_1_line, ymin=0, ymax=max(spec1d_IRT_1.flux.value), linestyles='dotted', colors='red')
+            ax1.vlines(IRT_1_line-(IRT_1_band/2), ymin=0, ymax=max(spec1d_IRT_1.flux.value), linestyles='--', colors='black', label='CaII IRT_1 bandwidth = {}nm'.format(IRT_1_band))
+            ax1.vlines(IRT_1_line+(IRT_1_band/2), ymin=0, ymax=max(spec1d_IRT_1.flux.value), linestyles='--', colors='black')
+            ax1.set_xlabel('$\lambda (nm)$')
+            ax1.set_ylabel("Normalized Flux")
+            ax1.set_xlim((IRT_1_line-(IRT_1_band/2))-0.1, (IRT_1_line+(IRT_1_band/2))+0.1)
+            ax1.yaxis.set_ticks_position('both')
+            ax1.xaxis.set_ticks_position('both')
+            ax1.tick_params(direction='in', which='both')
+            ax1.legend()
+           
+            ax2.plot(spec1d_IRT_23.spectral_axis, spec1d_IRT_23.flux, '-k', label='Order # 26')  
+            ax2.vlines(IRT_2_line, ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='dotted', colors='green')
+            ax2.vlines(IRT_2_line-(IRT_2_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black', label='CaII IRT_2 bandwidth = {}nm'.format(IRT_2_band))
+            ax2.vlines(IRT_2_line+(IRT_2_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black')
+            ax2.set_xlabel('$\lambda (nm)$')
+            ax2.set_ylabel("Normalized Flux")
+            ax2.set_xlim((IRT_2_line-(IRT_2_band/2))-0.1, (IRT_2_line+(IRT_2_band/2))+0.1)
+            ax2.yaxis.set_ticks_position('both')
+            ax2.xaxis.set_ticks_position('both')
+            ax2.tick_params(direction='in', which='both')
+            ax2.legend()
+            
+            ax3.plot(spec1d_IRT_23.spectral_axis, spec1d_IRT_23.flux, '-k', label='Order # 26')  
+            ax3.vlines(IRT_3_line, ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='dotted', colors='blue')
+            ax3.vlines(IRT_3_line-(IRT_3_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black', label='CaII IRT_3 bandwidth = {}nm'.format(IRT_3_band))
+            ax3.vlines(IRT_3_line+(IRT_3_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black')
+            ax3.set_xlabel('$\lambda (nm)$')
+            ax3.set_ylabel("Normalized Flux")
+            ax3.set_xlim((IRT_3_line-(IRT_3_band/2))-0.1, (IRT_3_line+(IRT_3_band/2))+0.1)
+            ax3.yaxis.set_ticks_position('both')
+            ax3.xaxis.set_ticks_position('both')
+            ax3.tick_params(direction='in', which='both')
+            ax3.legend()
+            
+            if save_figs:
+                plt.savefig('{}_CaII_IRT_lines_plot.pdf'.format(save_figs_name), format='pdf')
+                
+        # Extracting each of the IRT line region using 'extract_region' from 'specutils'
+        
+        ## IRT 1
+        
+        F_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_line-(IRT_1_band/2))*u.nm, (IRT_1_line+(IRT_1_band/2))*u.nm))
+        F1_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_F1_line-(IRT_1_F1_band/2))*u.nm, (IRT_1_F1_line+(IRT_1_F1_band/2))*u.nm))
+        F2_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_F2_line-(IRT_1_F2_band/2))*u.nm, (IRT_1_F2_line+(IRT_1_F2_band/2))*u.nm))
+        
+        ## IRT 2
+        
+        F_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_line-(IRT_2_band/2))*u.nm, (IRT_2_line+(IRT_2_band/2))*u.nm))
+        F1_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_F1_line-(IRT_2_F1_band/2))*u.nm, (IRT_2_F1_line+(IRT_2_F1_band/2))*u.nm))
+        F2_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_F2_line-(IRT_2_F2_band/2))*u.nm, (IRT_2_F2_line+(IRT_2_F2_band/2))*u.nm))
+        
+        ## IRT 3
+        
+        F_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_line-(IRT_3_band/2))*u.nm, (IRT_3_line+(IRT_3_band/2))*u.nm))
+        F1_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_F1_line-(IRT_3_F1_band/2))*u.nm, (IRT_3_F1_line+(IRT_3_F1_band/2))*u.nm))
+        F2_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_F2_line-(IRT_3_F2_band/2))*u.nm, (IRT_3_F2_line+(IRT_3_F2_band/2))*u.nm))
+                                        
+        
+        regions = [F_IRT_1_region, F1_IRT_1_region, F2_IRT_1_region, 
+                   F_IRT_2_region, F1_IRT_2_region, F2_IRT_3_region, 
+                   F_IRT_3_region, F1_IRT_3_region, F2_IRT_3_region]
+            
+        # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
+        
+        I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err = calc_ind(regions=regions,
+                                                                                    index_name='CaII_IRT',
+                                                                                    print_stat=print_stat)
+        
+        if out_file_path != None:
+            header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
+            res = list(obj_params.values()) + [I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err] 
+            results.append(res)
+        else:
+            header = ['I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
+            res = [I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err]
+            results.append(res)
+            
+    # Saving the results in a csv file format  
+    if save_results:
+        if print_stat:
+            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
         with open('{}.csv'.format(results_file_name), 'w') as csvfile:
             writer = csv.writer(csvfile, dialect='excel')
             writer.writerow(header)
