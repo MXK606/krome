@@ -1104,6 +1104,7 @@ def calc_ind(regions,
                    
         if print_stat:
             print('---------------------------------------------------------***CaII IRT line 849.8nm***-------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt1_region.spectral_axis[0].value, 3),
                                                                         np.round(irt1_region.spectral_axis[-1].value, 3)))
             print('F1 region used ranges from {}nm to {}nm'.format(np.round(irt1_F1_region.spectral_axis[0].value, 3),
@@ -1153,6 +1154,7 @@ def calc_ind(regions,
                    
         if print_stat:
             print('---------------------------------------------------------***CaII IRT line 854.2nm***-------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt2_region.spectral_axis[0].value, 3),
                                                                         np.round(irt2_region.spectral_axis[-1].value, 3)))
             print('F1 region used ranges from {}nm to {}nm'.format(np.round(irt2_F1_region.spectral_axis[0].value, 3),
@@ -1202,6 +1204,7 @@ def calc_ind(regions,
                    
         if print_stat:
             print('---------------------------------------------------------***CaII IRT line 866.2nm***-------------------------------------------------------------------------')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt3_region.spectral_axis[0].value, 3),
                                                                         np.round(irt3_region.spectral_axis[-1].value, 3)))
             print('F1 region used ranges from {}nm to {}nm'.format(np.round(irt3_F1_region.spectral_axis[0].value, 3),
@@ -1354,6 +1357,13 @@ def LS_periodogram(x,
         
         print('Calculating False Alarm Probabilities/Levels (FAPs/FALs) using the {} method'.format(fap_method))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        if probabilities == None:
+            
+            probabilities = [0.5, 0.2, 0.1]
+            
+        else:
+            
+            probabilities = probabilitiess
         
         fal = ls.false_alarm_level(probabilities, method=fap_method, minimum_frequency=minimum_frequency, 
                                    maximum_frequency=maximum_frequency, samples_per_peak=samples_per_peak) 
