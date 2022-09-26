@@ -26,6 +26,7 @@
 
 - If you use this software in your research, please cite the article "A Study of the Magnetic Activity and Variability of GJ 436" in the MNRAS journal using the following BibTex entry:
 
+```
 @ARTICLE{2022arXiv220911258K,
        author = {{Kumar}, M. and {Fares}, R.},
         title = "{A Study of the Magnetic Activity and Variability of GJ 436}",
@@ -41,5 +42,6 @@ archivePrefix = {arXiv},
        adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220911258K},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
+```
 
 
