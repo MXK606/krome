@@ -517,8 +517,6 @@ def obj_params(file_path,
         try:
             object_parameters['OBS_DATE'] = file[0].header['HIERARCH OHP OBS DATE START'] # Observation Date Start
         except KeyError:
-            object_parameters['OBS_DATE'] = file[0].header['DATE']
-        except KeyError:
             object_parameters['OBS_DATE'] = float('nan')
             if print_stat:
                 print('Object parameter for "HIERARCH OHP OBS DATE START"/"DATE" not found in the fits file header') 
@@ -552,9 +550,77 @@ def obj_params(file_path,
             object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
         except KeyError:
             object_parameters['RON'] = float('nan')
+            
+    elif Instrument == 'ELODIE':
+        
+        file = fits.open(file_path)
+        
+        try:
+            object_parameters['JD'] = file[0].header['MJD-OBS'] # Modified Julian Date
+        except KeyError:
+            object_parameters['JD'] = float('nan')
+            if print_stat:
+                print('Object parameter for "MJD-OBS" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['RA'] = file[0].header['ALPHA'] # Right Accession
+        except KeyError:
+            object_parameters['RA'] = float('nan')
+            if print_stat:
+                print('Object parameter for "ALPHA" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['DEC'] = file[0].header['DELTA'] # Declination
+        except KeyError:
+            object_parameters['DEC'] = float('nan')
+            if print_stat:
+                print('Object parameter for "DELTA" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Shutter last opening time in seconds
+        except KeyError:
+            object_parameters['EXPTIME'] = float('nan')
+            if print_stat:
+                print('Object parameter for "EXPTIME" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date Start
+        except KeyError:
+            object_parameters['OBS_DATE'] = float('nan')
+            if print_stat:
+                print('Object parameter for "DATE-OBS" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
+        except KeyError:
+            object_parameters['AIRMASS'] = float('nan')
+            if print_stat:
+                print('Object parameter for "AIRMASS" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        try:
+            object_parameters['SNR'] = np.round(file[0].header['SN'], 3)  # Signal-to-Noise ratio
+        except KeyError:
+            object_parameters['SNR'] = float('nan')
+            if print_stat:
+                print('Object parameter for "SN" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['GAIN'] = file[0].header['CCDGAIN'] #CCD gain
+        except KeyError:
+            object_parameters['GAIN'] = float('nan')
+            if print_stat:
+                print('Object parameter for "CCDGAIN" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
     else:
-        raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS", "HARPS-N" and "SOPHIE"')
+        raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N", "SOPHIE" and "ELODIE"')
         
     return object_parameters
     
@@ -1116,6 +1182,52 @@ def read_data(file_path,
                 ax.tick_params(direction='in', which='both')
                 f.tight_layout()
                 plt.show()
+            
+        return object_parameters, spectrum
+    
+    elif Instrument=='ELODIE':
+        
+        if print_stat:
+            print('Reading the data from the .fits file: {}'.format(file_path))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        file = fits.open(file_path)
+        
+        #Extracting useful information from the fits file header
+        
+        if print_stat:
+            print('Extracting useful object parameters from the .fits file header')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        object_parameters = obj_params(file_path, Instrument=Instrument, print_stat=print_stat)
+        
+        if print_stat:
+            keys = [i for i in object_parameters.keys()]
+            vals = [j for j in object_parameters.values()]
+            
+            for i in range(len(keys)):
+                print('{}: {}'.format(keys[i], vals[i]))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        # Constructing the spectral axis using start point, delta and axis length from file header
+        wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1'])
+        wvl = wvl/10 # nm
+        flx = file[0].data # Flux in ADU
+        
+        spectrum = [wvl, flx]
+        
+        # Plotting the spectrum
+        
+        if show_plots:
+            
+            f, ax  = plt.subplots(figsize=(10,4)) 
+            ax.plot(spectrum[0], spectrum[1], '-k')  
+            ax.set_xlabel('$\lambda$ (nm)')
+            ax.set_ylabel("Flux (adu)")
+            plt.minorticks_on()
+            ax.tick_params(direction='in', which='both')
+            f.tight_layout()
+            plt.show()
             
         return object_parameters, spectrum
         
