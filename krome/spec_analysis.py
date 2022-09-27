@@ -15,10 +15,13 @@ import numpy as np
 import pandas as pd
 from astropy.io import fits
 import csv
+import warnings
 import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm as log_progress
 from PyAstronomy import pyasl
 from astropy.timeseries import LombScargle
+from specutils.fitting import fit_generic_continuum
+from astropy.modeling.polynomial import Chebyshev1D
 
 
 ## Defining a function to find the index of a line containing a certain string
@@ -90,7 +93,7 @@ def obj_params(file_path,
     Path of the .out/.fits file
     
     Instrument: str
-    Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
+    Instrument type used. Available options: ['NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N']
     
     print_stat: bool, default=True
     Prints the status of each process within the function.
@@ -98,7 +101,7 @@ def obj_params(file_path,
     Returns:
     --------
     object parameters: dict
-    Dictionary containing the usefule object parameters
+    Dictionary containing the useful object parameters
     
     """
     
@@ -203,6 +206,117 @@ def obj_params(file_path,
             if print_stat:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+    elif Instrument=='ESPADONS':
+        
+        str_list = [
+            'Observation date = ',
+            'RA = ',
+            'DEC = ',
+            'V = ',
+            'Teffective = ',
+            'Distance = ',
+            'Julian Date = ',
+            'Airmass = ',
+            'Texposure = ',
+            'RUNID = ',
+            'SnrMax = ']
+    
+        file = open(file_path).readlines() 
+        
+        idx = []
+    
+        for string in str_list:
+            idx.append(find_string_idx(file_path, string, print_stat=print_stat))
+            
+        try:
+            object_parameters['OBS_DATE'] = file[idx[0]][19:-1]
+        except TypeError:
+            object_parameters['OBS_DATE'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[0]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['RA'] = float(file[idx[1]][5:-1])
+        except TypeError:
+            object_parameters['RA'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[1]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['DEC'] = float(file[idx[2]][6:-1])
+        except TypeError:
+            object_parameters['DEC'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[2]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        try:
+            object_parameters['V_mag'] = float(file[idx[3]][4:-1])
+        except TypeError:
+            object_parameters['V_mag'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[3]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        try:
+            object_parameters['T_eff'] = float(file[idx[4]][13:-9])
+        except TypeError:
+            object_parameters['T_eff'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[4]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['Dist'] = float(file[idx[5]][11:-9])
+        except TypeError:
+            object_parameters['Dist'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[5]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        try:
+            object_parameters['JD'] = float(file[idx[6]][14:-1])
+        except TypeError:
+            object_parameters['JD'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        try:
+            object_parameters['AIRMASS'] = float(file[idx[7]][10:-1])
+        except TypeError:
+            object_parameters['AIRMASS'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[7]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+           
+        try:
+            object_parameters['T_EXP'] = float(file[idx[8]][12:-6])
+        except TypeError:
+            object_parameters['T_EXP'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[8]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['RUN_ID'] = file[idx[9]][8:-1]
+        except TypeError:
+            object_parameters['RUN_ID'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[9])) 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['SNR'] = float(file[idx[10]][9:-1])
+        except TypeError:
+            object_parameters['SNR'] = float('nan')
+            if print_stat:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[10])) 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
             
     elif Instrument=='HARPS':
         
@@ -217,7 +331,7 @@ def obj_params(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['RA'] = file[0].header['RA'] # Barycentric Julian Date
+            object_parameters['RA'] = file[0].header['RA'] # Right Accession
         except KeyError:
             object_parameters['RA'] = float('nan')
             if print_stat:
@@ -225,7 +339,7 @@ def obj_params(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
-            object_parameters['DEC'] = file[0].header['DEC'] # Barycentric Julian Date
+            object_parameters['DEC'] = file[0].header['DEC'] # Declination
         except KeyError:
             object_parameters['DEC'] = float('nan')
             if print_stat:
@@ -233,7 +347,7 @@ def obj_params(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
-            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Barycentric Julian Date
+            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
         except KeyError:
             object_parameters['AIRMASS'] = float('nan')
             if print_stat:
@@ -301,7 +415,6 @@ def obj_params(file_path,
             object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
         except KeyError:
             object_parameters['RON'] = float('nan')
-            pass
         
     elif Instrument=='HARPS-N':
         
@@ -316,7 +429,7 @@ def obj_params(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['RA'] = file[0].header['RA'] # Barycentric Julian Date
+            object_parameters['RA'] = file[0].header['RA'] # Right Accession
         except KeyError:
             object_parameters['RA'] = float('nan')
             if print_stat:
@@ -324,7 +437,7 @@ def obj_params(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
-            object_parameters['DEC'] = file[0].header['DEC'] # Barycentric Julian Date
+            object_parameters['DEC'] = file[0].header['DEC'] # Declination
         except KeyError:
             object_parameters['DEC'] = float('nan')
             if print_stat:
@@ -332,7 +445,7 @@ def obj_params(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
-            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Barycentric Julian Date
+            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
         except KeyError:
             object_parameters['AIRMASS'] = float('nan')
             if print_stat:
@@ -362,9 +475,86 @@ def obj_params(file_path,
             if print_stat:
                 print('Object parameter for "PROGRAM" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+    elif Instrument == 'SOPHIE':
+        
+        file = fits.open(file_path)
+        
+        try:
+            object_parameters['JD'] = file[0].header['HIERARCH OHP OBS MJD'] # Modified Julian Date
+        except KeyError:
+            object_parameters['JD'] = file[0].header['HIERARCH OHP OBS BJD'] # Barycentric Julian Date
+        except KeyError:
+            object_parameters['JD'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP DRS MJD"/""HIERARCH OHP DRS BJD"" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['RA'] = file[0].header['HIERARCH OHP TARG ALPHA'] # Right Accession
+        except KeyError:
+            object_parameters['RA'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP TARG ALPHA" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['DEC'] = file[0].header['HIERARCH OHP TARG DELTA'] # Declination
+        except KeyError:
+            object_parameters['DEC'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP TARG DELTA" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['EXPTIME'] = file[0].header['HIERARCH OHP CCD DIT'] # Shutter last opening time in seconds
+        except KeyError:
+            object_parameters['EXPTIME'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP CCD DIT" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['OBS_DATE'] = file[0].header['HIERARCH OHP OBS DATE START'] # Observation Date Start
+        except KeyError:
+            object_parameters['OBS_DATE'] = file[0].header['DATE']
+        except KeyError:
+            object_parameters['OBS_DATE'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP OBS DATE START"/"DATE" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['PROG_ID'] = file[0].header['HIERARCH OHP OBS PROG ID'] # Program ID
+        except KeyError:
+            object_parameters['PROG_ID'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP OBS PROG ID" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+        try:
+            object_parameters['SIGDET'] = np.round(file[0].header['HIERARCH OHP DRS CCD SIGDET'], 3)  #CCD Readout Noise [e-]
+        except KeyError:
+            object_parameters['SIGDET'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP DRS CCD SIGDET" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['CONAD'] = file[0].header['HIERARCH OHP DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
+        except KeyError:
+            object_parameters['CONAD'] = float('nan')
+            if print_stat:
+                print('Object parameter for "HIERARCH OHP DRS CCD CONAD" not found in the fits file header') 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        try:
+            object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
+        except KeyError:
+            object_parameters['RON'] = float('nan')
     
     else:
-        raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
+        raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS", "HARPS-N" and "SOPHIE"')
         
     return object_parameters
     
@@ -552,6 +742,7 @@ def check_lines(spectral_orders,
 def read_data(file_path,
               Instrument,
               out_file_path=None,
+              meta_file_path=None,
               ccf_file_path=None,
               print_stat=True,
               show_plots=True):
@@ -566,7 +757,7 @@ def read_data(file_path,
     File path of the .s/.fits file
     
     Instrument: str
-    Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
+    Instrument type used. Available options: ['NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N', 'SOPHIE', 'ELODIE']
     
     out_file_path: str, default=None
     File path of the .out file to extract object parameters from
@@ -610,7 +801,7 @@ def read_data(file_path,
                 print('Stokes Profile: [V]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         elif len(df.columns)==3:
-            data_spec = pd.read_csv(file_path, names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True)
+            data_spec = pd.read_csv(file_path, names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
             if print_stat:
                 print('Stokes Profile: [I]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -620,6 +811,12 @@ def read_data(file_path,
         if print_stat:    
             print('Extracting all overlapping spectral orders')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # Checking if the data types for all columns are the same, i.e. float64
+        
+        for i in range(len(data_spec.dtypes)):
+            if data_spec.dtypes[i] != 'float64':
+                raise TypeError('Column {} in the given .s file has an invalid dtype of "{}". Accepted dtype is "float64"'.format(i-1, df.dtypes[i]))
         
         spec_orders = extract_orders(data_spec['Wavelength'],
                                      data_spec['Intensity'],
@@ -633,6 +830,69 @@ def read_data(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             object_parameters = obj_params(out_file_path, Instrument=Instrument, print_stat=print_stat)
+            
+            if print_stat:
+                keys = [i for i in object_parameters.keys()]
+                vals = [j for j in object_parameters.values()]
+                
+                for i in range(len(keys)):
+                    print('{}: {}'.format(keys[i], vals[i]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+            return object_parameters, spec_orders
+        
+        else:
+            return spec_orders
+        
+    if Instrument=='ESPADONS':
+        
+        if print_stat:
+            print('Reading the data from the .s file: {}'.format(file_path))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # Checking if its a Stokes V or I .s file using pandas
+    
+        df = pd.read_fwf(file_path, skiprows=2) # skipping first 2 rows of .s file
+        
+        # Defining the column names for both Stove V and I files
+        col_names_V = ['Wavelength', 'Intensity', 'Polarized', 'N1', 'N2', 'I_err'] 
+        col_names_I = ['Wavelength', 'Intensity', 'I_err']
+        
+        if len(df.columns)==6:
+            data_spec = pd.read_fwf(file_path, skiprows=2, names=col_names_V) 
+            if print_stat:
+                print('Stokes Profile: [V]')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        elif len(df.columns)==3:
+            data_spec = pd.read_fwf(file_path, skiprows=2, names=col_names_I) 
+            if print_stat:
+                print('Stokes Profile: [I]')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        else:
+            raise ValueError('Input .s file contains unrecognisable number of columns. Recognised numbers are 3 (I profile) and 6 (V profile).')
+            
+        if print_stat:    
+            print('Extracting all overlapping spectral orders')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # Checking if the data types for all columns are the same, i.e. float64
+        
+        for i in range(len(data_spec.dtypes)):
+            if data_spec.dtypes[i] != 'float64':
+                raise TypeError('Column {} in the given .s file has an invalid dtype of "{}". Accepted dtype is "float64"'.format(i-1, df.dtypes[i]))
+        
+        spec_orders = extract_orders(data_spec['Wavelength'],
+                                     data_spec['Intensity'],
+                                     data_spec['I_err'],
+                                     show_plot=show_plots)
+        
+        if meta_file_path != None:
+            
+            if print_stat:
+                print('Extracting useful object parameters from the .meta file: {}'.format(meta_file_path))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            object_parameters = obj_params(meta_file_path, Instrument=Instrument, print_stat=print_stat)
             
             if print_stat:
                 keys = [i for i in object_parameters.keys()]
@@ -774,10 +1034,88 @@ def read_data(file_path,
             ax.set_ylabel("Flux (adu)")
             plt.minorticks_on()
             ax.tick_params(direction='in', which='both')
-            plt.tight_layout()
+            f.tight_layout()
             plt.show()
             
         return object_parameters, spectrum
+    
+    elif Instrument == 'SOPHIE':
+        
+        if print_stat:
+            print('Reading the data from the .fits file: {}'.format(file_path))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        # Opening the FITS file using 'astropy.io.fits'
+        # NOTE: The format of this FITS file must be e2ds which the flux array for each spectral order separately. 
+        
+        file = fits.open(file_path)
+        
+        #Extracting useful information from the fits file header
+        
+        if print_stat:
+            print('Extracting useful object parameters from the .fits file header')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        object_parameters = obj_params(file_path, Instrument=Instrument, print_stat=print_stat)
+        
+        if print_stat:
+            keys = [i for i in object_parameters.keys()]
+            vals = [j for j in object_parameters.values()]
+            
+            for i in range(len(keys)):
+                print('{}: {}'.format(keys[i], vals[i]))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        if file[0].header['EXTNAME'].startswith('E2DS'):
+            
+            # Defining each wavelength, flux and flux error arrays from the FITS file!
+            
+            flx = file[0].data # Flux in ADU
+            wvl = file[1].data/10 # nm
+            
+            spectrum = [wvl, flx]
+            
+            # Plotting the spectrum
+            
+            if show_plots:
+                
+                f, ax  = plt.subplots(figsize=(10,4)) 
+                
+                for i in range(len(wvl)):
+                    ax.plot(spectrum[0][i], spectrum[1][i])
+                    
+                ax.set_xlabel('$\lambda$ (nm)')
+                ax.set_ylabel("Flux (adu)")
+                ax.set_title("{} spectral orders overplotted".format(len(wvl)))
+                plt.minorticks_on()
+                ax.tick_params(direction='in', which='both')
+                f.tight_layout()
+                plt.show()
+                
+        elif file[0].header['EXTNAME'].startswith('S1D'):
+            
+            wvl = file[1].data[0][0]/10 # nm 
+            flx = file[1].data[0][1] # Flux in ADU
+            flx_err = file[1].data[0][2]
+            
+            spectrum = [wvl, flx, flx_err]
+            
+            # Plotting the spectrum
+            
+            if show_plots:
+                
+                f, ax  = plt.subplots(figsize=(10,4)) 
+                ax.plot(spectrum[0], spectrum[1], '-k')  
+                ax.set_xlabel('$\lambda$ (nm)')
+                ax.set_ylabel("Flux (adu)")
+                plt.minorticks_on()
+                ax.tick_params(direction='in', which='both')
+                f.tight_layout()
+                plt.show()
+            
+        return object_parameters, spectrum
+        
+        
     
 ## Defining a function to do the calculation part for each index function given the regions!
 
@@ -844,12 +1182,9 @@ def calc_ind(regions,
         F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 4)
                    
         if print_stat:
-            print('H alpha region used ranges from {}nm to {}nm'.format(np.round(F_H_alpha_region.spectral_axis[0].value, 3),
-                                                                        np.round(F_H_alpha_region.spectral_axis[-1].value, 3)))
-            print('F1 region used ranges from {}nm to {}nm'.format(np.round(F1_region.spectral_axis[0].value, 3),
-                                                                   np.round(F1_region.spectral_axis[-1].value, 3)))
-            print('F2 region used ranges from {}nm to {}nm'.format(np.round(F2_region.spectral_axis[0].value, 3),
-                                                                   np.round(F2_region.spectral_axis[-1].value, 3)))
+            print('H alpha region used ranges from {:.4f}nm to {:.4f}nm'.format(F_H_alpha_region.spectral_axis[0].value, F_H_alpha_region.spectral_axis[-1].value))
+            print('F1 region used ranges from {:.4f}nm to {:.4f}nm'.format(F1_region.spectral_axis[0].value, F1_region.spectral_axis[-1].value))
+            print('F2 region used ranges from {:.4f}nm to {:.4f}nm'.format(F2_region.spectral_axis[0].value, F2_region.spectral_axis[-1].value))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         # H alpha index is computed using the calculated mean fluxes.
@@ -866,11 +1201,11 @@ def calc_ind(regions,
         
         if print_stat:
     
-            print('Mean of {} flux points in H alpha: {}±{}'.format(len(F_H_alpha_region.flux), F_H_alpha_mean, F_H_alpha_mean_err))
-            print('Mean of {} flux points in F1: {}±{}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
-            print('Mean of {} flux points in F2: {}±{}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
+            print('Mean of {} flux points in H alpha: {:.4f}±{:.4f}'.format(len(F_H_alpha_region.flux), F_H_alpha_mean, F_H_alpha_mean_err))
+            print('Mean of {} flux points in F1: {:.4f}±{:.4f}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
+            print('Mean of {} flux points in F2: {:.4f}±{:.4f}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Index from mean of flux points in each band: {}±{}'.format(Hai_from_mean, sigma_Hai_from_mean))
+            print('Index from mean of flux points in each band: {:.4f}±{:.4f}'.format(Hai_from_mean, sigma_Hai_from_mean))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         ## CaI_index 
@@ -895,12 +1230,11 @@ def calc_ind(regions,
             sigma_CaI_from_mean = np.round((CaI_from_mean*np.sqrt(np.square(F_CaI_mean_err/F_CaI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
             
             if print_stat:
-                print('CaI region used ranges from {}nm to {}nm'.format(F_CaI_region.spectral_axis[0].value, 
-                                                                         F_CaI_region.spectral_axis[-1].value))
+                print('CaI region used ranges from {:.4f}nm to {:.4f}nm'.format(F_CaI_region.spectral_axis[0].value, F_CaI_region.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Mean of {} flux points in CaI: {}±{}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
+                print('Mean of {} flux points in CaI: {:.4f}±{:.4f}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('Index from mean of flux points in each band: {}±{}'.format(CaI_from_mean, sigma_CaI_from_mean))
+                print('Index from mean of flux points in each band: {:.4f}±{:.4f}'.format(CaI_from_mean, sigma_CaI_from_mean))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
         else:
@@ -935,12 +1269,9 @@ def calc_ind(regions,
         F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 4)
                    
         if print_stat:
-            print('HeI D3 region used ranges from {}nm to {}nm'.format(np.round(F_HeI_region.spectral_axis[0].value, 3),
-                                                                        np.round(F_HeI_region.spectral_axis[-1].value, 3)))
-            print('F1 region used ranges from {}nm to {}nm'.format(np.round(F1_region.spectral_axis[0].value, 3),
-                                                                   np.round(F1_region.spectral_axis[-1].value, 3)))
-            print('F2 region used ranges from {}nm to {}nm'.format(np.round(F2_region.spectral_axis[0].value, 3),
-                                                                   np.round(F2_region.spectral_axis[-1].value, 3)))
+            print('HeI D3 region used ranges from {:.4f}nm to {:.4f}nm'.format(F_HeI_region.spectral_axis[0].value, F_HeI_region.spectral_axis[-1].value))
+            print('F1 region used ranges from {:.4f}nm to {:.4f}nm'.format(F1_region.spectral_axis[0].value, F1_region.spectral_axis[-1].value))
+            print('F2 region used ranges from {:.4f}nm to {:.4f}nm'.format(F2_region.spectral_axis[0].value, F2_region.spectral_axis[-1].value))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         # H alpha index is computed using the calculated mean fluxes.
@@ -957,11 +1288,11 @@ def calc_ind(regions,
         
         if print_stat:
     
-            print('Mean of {} flux points in HeID3: {}±{}'.format(len(F_HeI_region.flux), F_HeI_mean, F_HeI_mean_err))
-            print('Mean of {} flux points in F1: {}±{}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
-            print('Mean of {} flux points in F2: {}±{}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
+            print('Mean of {} flux points in HeID3: {:.4f}±{:.4f}'.format(len(F_HeI_region.flux), F_HeI_mean, F_HeI_mean_err))
+            print('Mean of {} flux points in F1: {:.4f}±{:.4f}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
+            print('Mean of {} flux points in F2: {:.4f}±{:.4f}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Index from mean of flux points in each band: {}±{}'.format(Hei_from_mean, sigma_Hei_from_mean))
+            print('Index from mean of flux points in each band: {:.4f}±{:.4f}'.format(Hei_from_mean, sigma_Hei_from_mean))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         return Hei_from_mean, sigma_Hei_from_mean
@@ -1017,22 +1348,22 @@ def calc_ind(regions,
         # Error on the sum of mean fluxes in D1 and D2
         sigma_D12 = np.sqrt(np.square(NaID1_err) + np.square(NaID2_err))
         
-        # Calculating the index and rounding it up to 5 decimal places
+        # Calculating the index and rounding it up to 4 decimal places
         NaID_index = np.round(((NaID1_mean + NaID2_mean)/F_cont.value), 4)
         
-        # Error calculated using error propagation and rounding it up to 5 decimal places
+        # Error calculated using error propagation and rounding it up to 4 decimal places
         sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + np.square(F_cont_err/F_cont.value))), 4)
         
         if print_stat:
             print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Mean of {} out of a total {} flux points in blue cont.: {}±{}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
-            print('Mean of {} out of a total {} flux points in red cont.:  {}±{}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
-            print('Mean cont. flux: {}±{}'.format(F_cont.value, F_cont_err))
-            print('Mean of {} flux points in D1: {}±{}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
-            print('Mean of {} flux points in D2: {}±{}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
+            print('Mean of {} out of a total {} flux points in blue cont.: {:.4f}±{:.4f}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
+            print('Mean of {} out of a total {} flux points in red cont.:  {:.4f}±{:.4f}'.format(len(F2_sorted_flux), len(F2_region.flux), F2_mean, F2_err))
+            print('Mean cont. flux: {:.4f}±{:.4f}'.format(F_cont.value, F_cont_err))
+            print('Mean of {} flux points in D1: {:.4f}±{:.4f}'.format(len(NaID1_region.flux), NaID1_mean, NaID1_err))
+            print('Mean of {} flux points in D2: {:.4f}±{:.4f}'.format(len(NaID2_region.flux), NaID2_mean, NaID2_err))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('The NaI doublet index is: {}±{}'.format(NaID_index, sigma_NaID_index))
+            print('The NaI doublet index is: {:.4f}±{:.4f}'.format(NaID_index, sigma_NaID_index))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         return NaID_index, sigma_NaID_index, F1_mean, F2_mean
@@ -1063,15 +1394,13 @@ def calc_ind(regions,
         sigma_CaIIH_from_mean = np.round((CaIIH_from_mean*np.sqrt(np.square(F_CaIIH_mean_err/F_CaIIH_mean) + np.square(cont_R_mean_err/cont_R_mean))), 4)
         
         if print_stat:
-            print('CaIIH region used ranges from {}nm to {}nm:'.format(F_CaIIH_region.spectral_axis[0].value, 
-                                                                 F_CaIIH_region.spectral_axis[-1].value))
-            print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
-                                                                 cont_R_region.spectral_axis[-1].value))
+            print('CaIIH region used ranges from {:.4f}nm to {:.4f}nm:'.format(F_CaIIH_region.spectral_axis[0].value, F_CaIIH_region.spectral_axis[-1].value))
+            print('Cont R region used ranges from {:.4f}nm to {:.4f}nm:'.format(cont_R_region.spectral_axis[0].value, cont_R_region.spectral_axis[-1].value))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Mean of {} flux points in CaIIH: {}±{}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
-            print('Mean of {} flux points in cont R: {}±{}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
+            print('Mean of {} flux points in CaIIH: {:.4f}±{:.4f}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
+            print('Mean of {} flux points in cont R: {:.4f}±{:.4f}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Index from mean of flux points in each band: {}±{}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
+            print('Index from mean of flux points in each band: {:.4f}±{:.4f}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         return CaIIH_from_mean, sigma_CaIIH_from_mean
@@ -1807,3 +2136,69 @@ def ephemerides(file_path,
                 writer.writerow(row)  
             
     return results
+
+## Defining a function to normalise the spectra using 'specutils'
+
+def normalise_spec(spec1d,
+                   degree,
+                   F1_line,
+                   F1_band,
+                   F2_line,
+                   F2_band,
+                   print_stat,
+                   plot_fit,
+                   save_figs,
+                   save_figs_name):
+    
+    """
+    
+    Insert Doc Here!
+    
+    """
+
+    # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
+                
+    with warnings.catch_warnings():  # Ignore warnings
+        warnings.simplefilter('ignore')
+        g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
+    
+    if print_stat:
+        print('Polynomial fit coefficients:')
+        print(g_fit)
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    
+    y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
+    
+    spec_normalized = spec1d / y_cont_fitted # Spectrum is normalised by diving it with the polynomial fit
+    
+    # Plots the polynomial fits
+    if plot_fit:
+        f, (ax1, ax2) = plt.subplots(2, 1, figsize=(10,8))  
+        ax1.plot(spec1d.spectral_axis, spec1d.flux)  
+        ax1.plot(spec1d.spectral_axis, y_cont_fitted)
+        ax1.set_xlabel('$\lambda (nm)$')
+        ax1.set_ylabel('Normalized Flux')
+        ax1.set_title("Continuum Fitting")
+        
+        ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
+        ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Pipeline Normalized', alpha=0.6)
+        ax2.axhline(1.0, ls='--', c='gray')
+        ax2.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
+        ax2.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black')
+        ax2.set_xlabel('$\lambda (nm)$')
+        ax2.set_ylabel('Normalized Flux')
+        ax2.set_title("Continuum Normalized ")
+        ax2.legend()
+        
+        f.tight_layout()
+        
+        # Saves the plot in a pdf format in the working directory
+        if save_figs:
+            if print_stat:
+                print('Saving plot as a PDF in the working directory')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
+            
+    return spec_normalized
+
+## Defining a function to doppler shift a given spectrum and return a Spectrum1D object
