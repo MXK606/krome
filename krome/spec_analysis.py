@@ -483,7 +483,7 @@ def obj_params(file_path,
         try:
             object_parameters['JD'] = file[0].header['HIERARCH OHP OBS MJD'] # Modified Julian Date
         except KeyError:
-            object_parameters['JD'] = file[0].header['HIERARCH OHP OBS BJD'] # Barycentric Julian Date
+            object_parameters['JD'] = file[0].header['HIERARCH OHP DRS BJD'] # Barycentric Julian Date
         except KeyError:
             object_parameters['JD'] = float('nan')
             if print_stat:
@@ -1017,7 +1017,7 @@ def read_data(file_path,
         # NOTE: No error column provided in the .fits file and no ReadOut noise as well to construct our own 
         # flux_err array!
         
-        # constructing the spectral axis using start point, delta and axis length from file header
+        # Constructing the spectral axis using start point, delta and axis length from file header
         wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1'])
         wvl = wvl/10 # nm
         flx = file[0].data # Flux in ADU
@@ -1094,11 +1094,15 @@ def read_data(file_path,
                 
         elif file[0].header['EXTNAME'].startswith('S1D'):
             
-            wvl = file[1].data[0][0]/10 # nm 
-            flx = file[1].data[0][1] # Flux in ADU
-            flx_err = file[1].data[0][2]
+            # NOTE: No error column provided in the .fits file and no ReadOut noise as well to construct our own 
+            # flux_err array!
             
-            spectrum = [wvl, flx, flx_err]
+            # Constructing the spectral axis using start point, delta and axis length from file header
+            wvl = file[0].header['CRVAL1'] + file[0].header['CDELT1']*np.arange(0, file[0].header['NAXIS1'])
+            wvl = wvl/10 # nm
+            flx = file[0].data # Flux in ADU
+            
+            spectrum = [wvl, flx]
             
             # Plotting the spectrum
             
