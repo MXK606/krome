@@ -2299,8 +2299,8 @@ def normalise_spec(spec1d,
         ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
         ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Pipeline Normalized', alpha=0.6)
         ax2.axhline(1.0, ls='--', c='gray')
-        ax2.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-        ax2.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black')
+        ax2.axvline(F1_line-(F1_band/2), linestyle='--', color='black', label='Region used for index calc.')
+        ax2.axvline(F2_line+(F2_band/2), linestyle='--', color='black')
         ax2.set_xlabel('$\lambda (nm)$')
         ax2.set_ylabel('Normalized Flux')
         ax2.set_title("Continuum Normalized ")
@@ -2317,4 +2317,33 @@ def normalise_spec(spec1d,
             
     return spec_normalized
 
-## Defining a function to doppler shift a given spectrum and return a Spectrum1D object
+## Defining a function to doppler shift a given Spectrum1D object
+
+
+def doppler_shift(spectral_axis,
+                  radial_velocity,
+                  rest_wavelength):
+    
+    # The spectra is doppler shift corrected in the wavelength axis using the stellar radial velocity and the given rest wavelength as; delta_lambda = (v/c)*lambda
+    
+    precision = str(spectral_axis[0])[::-1].find('.') # Finds the precision of the first element in the wavelength array 
+                
+    shift = ((radial_velocity/ap.constants.c.value)*rest_wavelength)  
+    shift = (round(shift, precision)) # Using the precision value found above for rounding off the doppler shift!
+    
+    # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. 
+    # If the stellar RV is negative, the shift value will be added instead.
+    
+    spectral_axis_shifted = np.round((spectral_axis - shift), precision) 
+    
+    # Printing info
+    
+    if print_stat:
+        print('The doppler shift size using RV {} m/s and the rest wavelength of {}nm is: {:.4f}nm'.format(radial_velocity, rest_wavelength, shift))
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        print('The spectral axis used ranges from {:.4f}nm to {:.4f}nm.'.format(spectral_axis_shifted[0], spectral_axis_shifted[-1])) 
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        print('These values are doppler shift corrected and rounded off to {} decimal places'.format(precision))
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+    return spectral_axis_shifted
