@@ -208,8 +208,11 @@ def H_alpha_index(file_path,
             shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
             
-            wvl = np.round((order_34[0].values - shift), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. 
-                                                            # If the stellar RV is negative, the shift value will be added instead.
+            # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. 
+            # If the stellar RV is negative, the shift value will be added instead.
+            
+            wvl = np.round((order_34[0].values - shift), 4) 
+                                                           
             flx = order_34[1].values # Indexing flux array from order_34
             flx_err = order_34[2].values # Indexing flux_err array from order_34
             
@@ -230,37 +233,6 @@ def H_alpha_index(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral order used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-            # Fitting an nth order polynomial to the continuum for normalisation using specutils
-            
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # Note the continuum normalized spectrum also has new uncertainty values!
-                
-                spec = normalise_spec(spec1d,
-                                      degree,
-                                      F1_line,
-                                      F1_band,
-                                      F2_line,
-                                      F2_band,
-                                      print_stat,
-                                      plot_fit,
-                                      save_figs,
-                                      save_figs_name) 
-                
-            else:
-                spec = spec1d
-                
-                
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                
-                lines = [H_alpha_line, H_alpha_band, F1_line, F1_band, F2_line, F2_band, CaI_line, CaI_band]
-                
-                plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, CaI_index, save_figs, save_figs_name)
                         
         # ESPADONS
         
@@ -304,7 +276,6 @@ def H_alpha_index(file_path,
                 print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2].values))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-            
             shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 4))
             
@@ -324,36 +295,6 @@ def H_alpha_index(file_path,
                 print('The spectral order used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            # Fitting an nth order polynomial to the continuum for normalisation using specutils
-            
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # Note the continuum normalized spectrum also has new uncertainty values!
-                
-                spec = normalise_spec(spec1d,
-                                      degree,
-                                      F1_line,
-                                      F1_band,
-                                      F2_line,
-                                      F2_band,
-                                      print_stat,
-                                      plot_fit,
-                                      save_figs,
-                                      save_figs_name) 
-                
-            else:
-                spec = spec1d
-                
-                
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                
-                lines = [H_alpha_line, H_alpha_band, F1_line, F1_band, F2_line, F2_band, CaI_line, CaI_band]
-                
-                plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, CaI_index, save_figs, save_figs_name)
                 
         # HARPS
         
@@ -435,35 +376,8 @@ def H_alpha_index(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-                # Note the continuum normalized spectrum also has new uncertainty values!
-                
-                spec = normalise_spec(spec1d,
-                                      degree,
-                                      F1_line,
-                                      F1_band,
-                                      F2_line,
-                                      F2_band,
-                                      print_stat,
-                                      plot_fit,
-                                      save_figs,
-                                      save_figs_name) 
-                
-            else:
-                spec = spec1d
-                
-                
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                
-                lines = [H_alpha_line, H_alpha_band, F1_line, F1_band, F2_line, F2_band, CaI_line, CaI_band]
-                
-                plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, CaI_index, save_figs, save_figs_name)
+        # HARPS-N
                 
         elif Instrument=='HARPS-N':
             
@@ -525,41 +439,40 @@ def H_alpha_index(file_path,
                 print('The spectral region used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # Note the continuum normalized spectrum also has new uncertainty values!
-                
-                spec = normalise_spec(spec1d,
-                                      degree,
-                                      F1_line,
-                                      F1_band,
-                                      F2_line,
-                                      F2_band,
-                                      print_stat,
-                                      plot_fit,
-                                      save_figs,
-                                      save_figs_name) 
-            else:
-                
-                spec = spec1d
-            
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                
-                lines = [H_alpha_line, H_alpha_band, F1_line, F1_band, F2_line, F2_band, CaI_line, CaI_band]
-                
-                plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, CaI_index, save_figs, save_figs_name)
                     
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS" and "HARPS-N"')
             
+        
+        # Fitting an nth order polynomial to the continuum for normalisation using specutils
+            
+        if norm_spec:
+            if print_stat:
+                print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            # Note the continuum normalized spectrum also has new uncertainty values!
+            
+            spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
+                                  print_stat, plot_fit, save_figs, save_figs_name) 
+            
+        else:
+            spec = spec1d
+            
+            
+        # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
+        
+        if plot_spec:
+            
+            lines = [H_alpha_line, H_alpha_band, F1_line, F1_band, F2_line, F2_band, CaI_line, CaI_band]
+            
+            plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, save_figs, save_figs_name, CaI_index)
+            
         # Now we have the spectrum to work with as a variable, 'spec'!
         
         # The three regions required for H alpha index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
-        # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
+        # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so 
+        # using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
         # Note: These values must have the same units as the spec wavelength axis.
         
         F_H_alpha_region = extract_region(spec, region=SpectralRegion((H_alpha_line-(H_alpha_band/2))*u.nm, (H_alpha_line+(H_alpha_band/2))*u.nm))
@@ -2368,100 +2281,6 @@ def HeI_index(file_path,
                 print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            # Fitting an nth order polynomial to the continuum for normalisation using specutils
-            
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
-                
-                with warnings.catch_warnings():  # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
-                
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
-                
-                spec_normalized = spec1d / y_cont_fitted # Spectrum is normalised by diving it with the polynomial fit
-                
-                # Plots the polynomial fits
-                if plot_fit:
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
-                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
-                    ax1.set_title("Continuum Fitting")
-                    plt.tight_layout()
-                    
-                    # Saves the plot in a pdf format in the working directory
-                    if save_figs:
-                        if print_stat:
-                            print('Saving plots as PDFs in the working directory')
-                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
-                    
-                    f, ax2 = plt.subplots(figsize=(10,4))  
-                    ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
-                    ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Pipeline Normalized', alpha=0.6)
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax2.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    ax2.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec1d.flux.value), linestyles='--', colors='black')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
-                        
-                spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
-                
-            else:
-                spec = spec1d
-                
-                
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                f, ax  = plt.subplots(figsize=(10,4))
-                ax.plot(spec.spectral_axis, spec.flux, '-k')
-                ax.set_xlim(F1_line-0.5, F2_line+0.5)
-                ax.set_xlabel('$\lambda (nm)$')
-                ax.set_ylabel("Normalized Flux")
-                ax.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 {}±{}nm'.format(HeI_line, HeI_band/2))
-                ax.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                ax.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
-                ax.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
-                ax.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
-                ax.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
-                plt.tight_layout()
-                plt.legend()
-                
-                if save_figs:
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
-                
-                # Plots the zoomed in regions around the HeI line.
-                f, ax1  = plt.subplots(figsize=(10,4))
-                ax1.plot(spec.spectral_axis, spec.flux)
-                ax1.set_xlabel('$\lambda (nm)$')
-                ax1.set_ylabel("Normalized Flux")
-                ax1.vlines(HeI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
-                ax1.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 band width = {}nm'.format(HeI_band))
-                ax1.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                ax1.set_xlim(HeI_line-(HeI_band/2)-0.1, HeI_line+(HeI_band/2)+0.1)
-                plt.tight_layout()
-                plt.legend()
-                
-                if save_figs:
-                    plt.savefig('{}_HeI_line_plot.pdf'.format(save_figs_name), format='pdf')
-                
         # HARPS
         
         elif Instrument == 'HARPS':
@@ -2537,101 +2356,6 @@ def HeI_index(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                # 'fit_generic_continuum' is a function imported from 'specutils' which fits a given polynomial model to the given spectrum.
-                
-                with warnings.catch_warnings():  # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
-                
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted = g_fit(spec1d.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
-                spec_normalized = spec1d / y_cont_fitted
-                
-                spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values which are simply the errors divided by this polynomial fit.
-                
-                # Plots the polynomial fits
-                if plot_fit:
-                    
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
-                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Flux (adu)')
-                    ax1.set_title("Continuum Fitting")
-                    plt.tight_layout()
-                    
-                    # Saves the plot in a pdf format in the working directory
-                    if save_figs:
-                        if print_stat:
-                            print('Saving plots as PDFs in the working directory')
-                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
-                    
-                    f, ax2 = plt.subplots(figsize=(10,4))  
-                    ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, label='Re-Normalized')
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax2.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    ax2.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
-                
-            else:
-                spec = spec1d
-                
-                
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                f, ax  = plt.subplots(figsize=(10,4)) 
-                ax.plot(spec.spectral_axis, spec.flux, '-k')  
-                ax.set_xlabel('$\lambda (nm)$')
-                if norm_spec:
-                    ax.set_ylabel("Normalized Flux")
-                else:
-                    ax.set_ylabel("Flux (adu)")
-                ax.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 {}±{}nm'.format(HeI_line, HeI_band/2))
-                ax.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                ax.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
-                ax.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
-                ax.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
-                ax.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
-                plt.tight_layout()
-                plt.legend()
-                
-                if save_figs:
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
-                
-                f, ax1  = plt.subplots(figsize=(10,4)) 
-                ax1.plot(spec.spectral_axis, spec.flux)
-                ax1.set_xlabel('$\lambda (nm)$')
-                if norm_spec:
-                    ax1.set_ylabel("Normalized Flux")
-                else:
-                    ax1.set_ylabel("Flux (adu)")
-                ax1.vlines(HeI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
-                ax1.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 band width = {}nm'.format(HeI_band))
-                ax1.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                ax1.set_xlim(HeI_line-(HeI_band/2)-0.1, HeI_line+(HeI_band/2)+0.1)
-                plt.tight_layout()
-                plt.legend()
-                
-                if save_figs:
-                    plt.savefig('{}_HeI_line_plot.pdf'.format(save_figs_name), format='pdf')
                     
         ## HARPS-N
                 
@@ -2690,101 +2414,33 @@ def HeI_index(file_path,
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
                                                                                                                                                               spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-            # Fitting an nth order polynomial to the continuum for normalisation using specutils
-            
-            if norm_spec:
-                if print_stat:
-                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree))
-                
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted = g_fit(spec1d.spectral_axis)
-                spec_normalized = spec1d / y_cont_fitted
-                
-                # Plots the polynomial fits
-                if plot_fit:
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
-                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Flux (adu)')
-                    ax1.set_title("Continuum Fitting")
-                    plt.tight_layout()
-                    
-                    # Saves the plot in a pdf format in the working directory
-                    if save_figs:
-                        if print_stat:
-                            print('Saving plots as PDFs in the working directory')
-                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
-                    
-                    f, ax2 = plt.subplots(figsize=(10,4))  
-                    ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax2.vlines(F1_line-(F1_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black', label='Region used for index calc.')
-                    ax2.vlines(F2_line+(F2_band/2), ymin=min(spec.flux.value), ymax=max(spec.flux.value), linestyles='--', colors='black')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized ")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
-                    
-                spec = spec_normalized # Note the continuum normalized spectrum also has new uncertainty values!
-                
-            else:
-                
-                spec = spec1d
-                
-            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-            if plot_spec:
-                f, ax  = plt.subplots(figsize=(10,4)) 
-                ax.plot(spec.spectral_axis, spec.flux, '-k')  
-                ax.set_xlabel('$\lambda (nm)$')
-                if norm_spec:
-                    ax.set_ylabel("Normalized Flux")
-                else:
-                    ax.set_ylabel("Flux (adu)")
-                ax.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 {}±{}nm'.format(HeI_line, HeI_band/2))
-                ax.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                ax.vlines(F1_line-(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue', label='Blue cont. {}±{}nm'.format(F1_line, F1_band/2))
-                ax.vlines(F1_line+(F1_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='blue')
-                ax.vlines(F2_line-(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red', label='Red cont. {}±{}nm'.format(F2_line, F2_band/2))
-                ax.vlines(F2_line+(F2_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='dashdot', colors='red')
-                plt.tight_layout()
-                plt.legend()
-                
-                if save_figs:
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
-                
-                f, ax1  = plt.subplots(figsize=(10,4)) 
-                ax1.plot(spec.spectral_axis, spec.flux)
-                ax1.set_xlabel('$\lambda (nm)$')
-                if norm_spec:
-                    ax1.set_ylabel("Normalized Flux")
-                else:
-                    ax1.set_ylabel("Flux (adu)")
-                ax1.vlines(HeI_line, ymin=0, ymax=max(spec.flux.value), linestyles='dotted', colors='green')
-                ax1.vlines(HeI_line-(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black', label='HeID3 band width = {}nm'.format(HeI_band))
-                ax1.vlines(HeI_line+(HeI_band/2), ymin=0, ymax=max(spec.flux.value), linestyles='--', colors='black')
-                ax1.set_xlim(HeI_line-(HeI_band/2)-0.1, HeI_line+(HeI_band/2)+0.1)
-                plt.tight_layout()
-                plt.legend()
-                
-                if save_figs:
-                    plt.savefig('{}_HeI_line_plot.pdf'.format(save_figs_name), format='pdf')
                 
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
+            
+        # Fitting an nth order polynomial to the continuum for normalisation using specutils
+            
+        if norm_spec:
+            if print_stat:
+                print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            # Note the continuum normalized spectrum also has new uncertainty values!
+            
+            spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
+                                  print_stat, plot_fit, save_figs, save_figs_name) 
+            
+        else:
+            spec = spec1d
+            
+            
+        # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
+        
+        if plot_spec:
+            
+            lines = [HeI_line, HeI_band, F1_line, F1_band, F2_line, F2_band]
+            
+            plot_spectrum(spec, lines, 'HeI', Instrument, norm_spec, save_figs, save_figs_name)
             
         # Now we have the spectrum to work with as a variable, 'spec'!
         
