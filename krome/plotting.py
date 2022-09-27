@@ -282,7 +282,14 @@ def overplot(file_path,
 
 ## Defining a function to plot the reduced spectrum for a given index function!
 
-def plot_spectrum(spec, lines, Index, Instrument, norm_spec, CaI_index, save_figs, save_figs_name):
+def plot_spectrum(spec, 
+                  lines, 
+                  Index, 
+                  Instrument, 
+                  norm_spec, 
+                  save_figs, 
+                  save_figs_name,
+                  CaI_index=None):
     
     """
     
@@ -359,8 +366,54 @@ def plot_spectrum(spec, lines, Index, Instrument, norm_spec, CaI_index, save_fig
         plt.minorticks_on()
             
         if save_figs:
-                plt.savefig('{}_reduced_line_plot.pdf'.format(save_figs_name), format='pdf', dpi=300)
+                plt.savefig('{}_Hα_line_plot.pdf'.format(save_figs_name), format='pdf', dpi=300)
                 
-    else:
+    elif Index=='HeI':
         
-        return
+        f, (ax1, ax2)  = plt.subplots(2, 1, figsize=(10,8))
+        ax1.plot(spec.spectral_axis, spec.flux, '-k')  
+        ax1.set_xlabel('$\lambda (nm)$')
+        ax2.set_xlabel('$\lambda (nm)$')
+        
+        if Instrument=='NARVAL' or Instrument=='ESPADONS':
+            ax1.set_ylabel("Normalized Flux")
+            ax2.set_ylabel("Normalized Flux")
+        else:
+            if norm_spec:
+                ax1.set_ylabel("Normalized Flux")
+                ax2.set_ylabel("Normalized Flux")
+            else:
+                ax1.set_ylabel("Flux (adu)")
+                ax2.set_ylabel("Flux (adu)")
+        
+        ax1.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='HeID3 {}±{}nm'.format(lines[0], lines[1]/2))
+        ax1.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
+        ax1.axvline(lines[2]-(lines[3]/2), linestyle='dotted', color='blue', label='Blue cont. {}±{}nm'.format(lines[2], lines[3]/2))
+        ax1.axvline(lines[2]+(lines[3]/2), linestyle='dotted', color='blue')
+        ax1.axvline(lines[4]-(lines[5]/2), linestyle='dashdot', color='red', label='Red cont. {}±{}nm'.format(lines[4], lines[5]/2))
+        ax1.axvline(lines[4]+(lines[5]/2), linestyle='dashdot', color='red')
+        ax1.set_xlim(lines[2]-0.5, lines[4]+0.5)
+        ax1.yaxis.set_ticks_position('both')
+        ax1.xaxis.set_ticks_position('both')
+        ax1.tick_params(direction='in', which='both')
+        ax1.legend()
+        
+        # Plots the zoomed in regions around the HeI line.
+        
+        ax2.plot(spec.spectral_axis, spec.flux)
+        ax2.axvline(lines[0], ymin=0, linestyle='dotted', color='green')
+        ax2.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='HeID3 band width = {}nm'.format(lines[1]))
+        ax2.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
+        ax2.set_xlim(lines[0]-(lines[1]/2)-0.1, lines[0]+(lines[1]/2)+0.1)
+        ax2.yaxis.set_ticks_position('both')
+        ax2.xaxis.set_ticks_position('both')
+        ax2.tick_params(direction='in', which='both')
+        ax2.legend()
+        
+        f.tight_layout()
+        plt.minorticks_on()
+        
+        if save_figs:
+            plt.savefig('{}_HeID3_line_plot.pdf'.format(save_figs_name), format='pdf')
+        
+    return
