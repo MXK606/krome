@@ -451,8 +451,13 @@ def H_alpha_index(file_path,
                 
             else:
                 
-                wvl = spec[0]
-                flx = spec[1]
+                left_idx = find_nearest(spec[0], F1_line-2) # ± 2nm extra included for both!
+                right_idx = find_nearest(spec[0], F2_line+2)
+                
+                # Slicing the data to contain only the region required for the index calculation
+                
+                wvl = spec[0][left_idx:right_idx+1]
+                flx = spec[1][left_idx:right_idx+1]
                 
                 # Flux error array is calculated as photon noise alone since RON isn't available
 
