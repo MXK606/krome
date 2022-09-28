@@ -486,6 +486,50 @@ def H_alpha_index(file_path,
             spec1d = Spectrum1D(spectral_axis=wvl_shifted*u.nm, 
                                 flux=flx*u.Jy, 
                                 uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
+            
+        # ELODIE
+        
+        elif Instrument=='ELODIE':
+            
+            obj_params, spec = read_data(file_path=file_path[i],
+                                         Instrument=Instrument,
+                                         print_stat=print_stat,
+                                         show_plots=False)
+            
+            obj_params['RV'] = radial_velocity
+            
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            
+            shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
+            shift = (round(shift, 3)) 
+            
+            left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
+            right_idx = find_nearest(wvl, F2_line+2)
+            
+            if print_stat:
+                print('Calculating the flux error array as the photon noise')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux) for flux in flx]) 
+                    
+            if np.isnan(np.sum(flx_err)):
+                if print_stat:
+                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            if print_stat:
+                print('The wavelength array read from the .fits file is: {}'.format(wvl))
+                print('The flux array read from the .fits file is: {}'.format(flx))
+                print('The calculated flux error array is: {}'.format(flx_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                              flux=flx[left_idx:right_idx+1]*u.Jy,
+                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
+            
                     
         else:
             raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N", "SOPHIE", "ELODIE"')
@@ -577,6 +621,16 @@ def H_alpha_index(file_path,
             
         elif Instrument=='HARPS-N':
             header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+            results.append(res)
+            
+        elif Instrument=='SOPHIE':
+            header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+            results.append(res)
+            
+        elif Instrument=='ELODIE':
+            header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'AIRMASS', 'SNR', 'GAIN', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
             res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
             results.append(res)
                 
