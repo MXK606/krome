@@ -197,9 +197,9 @@ def H_alpha_index(file_path,
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
             
             if print_stat:
-                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0].values))
-                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1].values))
-                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2].values))
+                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
+                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
+                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
             
@@ -211,10 +211,10 @@ def H_alpha_index(file_path,
             # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. 
             # If the stellar RV is negative, the shift value will be added instead.
             
-            wvl = np.round((order_34[0].values - shift), 4) 
+            wvl = np.round((order_34[0] - shift), 4) 
                                                            
-            flx = order_34[1].values # Indexing flux array from order_34
-            flx_err = order_34[2].values # Indexing flux_err array from order_34
+            flx = order_34[1] # Indexing flux array from order_34
+            flx_err = order_34[2] # Indexing flux_err array from order_34
             
             # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
@@ -225,14 +225,6 @@ def H_alpha_index(file_path,
             spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
                                 flux=flx*u.Jy, 
                                 uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
-            
-            # Printing info
-            
-            if print_stat:
-                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {:.4f}nm'.format(radial_velocity, shift))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral order used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
         # ESPADONS
         
@@ -271,30 +263,21 @@ def H_alpha_index(file_path,
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
             
             if print_stat:
-                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0].values))
-                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1].values))
-                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2].values))
+                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
+                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
+                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
             shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
             shift = (round(shift, 4))
             
-            wvl = np.round((order_34[0].values - shift), 4) 
-            flx = order_34[1].values 
-            flx_err = order_34[2].values 
+            wvl = np.round((order_34[0] - shift), 4) 
+            flx = order_34[1] 
+            flx_err = order_34[2] 
         
             spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
                                 flux=flx*u.Jy, 
-                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
-            
-            # Printing info
-            
-            if print_stat:
-                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {:.4f}nm'.format(radial_velocity, shift))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral order used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
+                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy))    
                 
         # HARPS
         
@@ -322,11 +305,6 @@ def H_alpha_index(file_path,
             flx = spec[1] # ADU
             flx_err = spec[2]
             
-            if print_stat:
-                print('The wavelength array read from the .fits file is: {}'.format(wvl))
-                print('The flux array read from the .fits file is: {}'.format(flx))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
            
             shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
@@ -351,12 +329,18 @@ def H_alpha_index(file_path,
                 
                 with warnings.catch_warnings():  # Ignore warnings
                     warnings.simplefilter('ignore')
-                    flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
+                    flx_err_ron = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx])
                 
                 if np.isnan(np.sum(flx_err_ron)):
                     if print_stat:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                if print_stat:
+                    print('The wavelength array read from the .fits file is: {}'.format(wvl))
+                    print('The flux array read from the .fits file is: {}'.format(flx))
+                    print('The calculated flux error array is: {}'.format(flx_err_ron))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Slicing the data to contain only the region required for the index calculation as explained above and 
                 # creating a spectrum class for it.
@@ -370,13 +354,7 @@ def H_alpha_index(file_path,
                 spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
                                     flux=flx[left_idx:right_idx+1]*u.Jy,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
-            
-            if print_stat:
-                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {:.4f}nm'.format(obj_params['RV'], shift))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral region used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
+              
         # HARPS-N
                 
         elif Instrument=='HARPS-N':
@@ -404,11 +382,6 @@ def H_alpha_index(file_path,
             wvl = spec[0] # nm
             flx = spec[1] # ADU
             
-            if print_stat:
-                print('The wavelength array read from the .fits file is: {}'.format(wvl))
-                print('The flux array read from the .fits file is: {}'.format(flx))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
             # Calculating doppler shift size using delta_lambda/lambda = v/c and the RV from the CCF FITS file
             
             shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
@@ -422,9 +395,24 @@ def H_alpha_index(file_path,
             left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, F2_line+2)
             
+            if print_stat:
+                print('Calculating the flux error array as the photon noise')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
             with warnings.catch_warnings():  # Ignore warnings
                     warnings.simplefilter('ignore')
-                    flx_err = [np.sqrt(flux) for flux in flx] # Using only photon noise as flx_err approx since no RON info available!
+                    flx_err = np.asarray([np.sqrt(flux) for flux in flx]) # Using only photon noise as flx_err approx since no RON info available!
+                    
+            if np.isnan(np.sum(flx_err)):
+                if print_stat:
+                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            if print_stat:
+                print('The wavelength array read from the .fits file is: {}'.format(wvl))
+                print('The flux array read from the .fits file is: {}'.format(flx))
+                print('The calculated flux error array is: {}'.format(flx_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Slicing the data to contain only the region required for the index calculation as explained above and creating 
             # a spectrum class for it
@@ -433,15 +421,79 @@ def H_alpha_index(file_path,
                               flux=flx[left_idx:right_idx+1]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
-            if print_stat:
-                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {:.4f}nm'.format(obj_params['RV'], shift))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral region used ranges from {:.4f}nm to {:.4f}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        # SOPHIE
+        
+        elif Instrument == 'SOPHIE':
             
+            obj_params, spec = read_data(file_path=file_path[i],
+                                         Instrument=Instrument,
+                                         print_stat=print_stat,
+                                         show_plots=False)
+            
+            obj_params['RV'] = radial_velocity 
+            
+            # Checking if the FITS file is e2ds since it has 39 spectral orders using an arbitray order number of 50. If greater than 50, assume its s1d.
+            
+            if len(spec[0]) < 50:
+                
+                if print_stat:
+                    print('Total {} spectral orders extracted'.format(len(spec[0])))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                wvl = spec[0][36] ## For SOPHIE spectra, the H alpha line along with its reference bands are within the 37th order.
+                flx = spec[1][36]
+                    
+                # Flux error array is calculated as photon noise plus CCD readout noise 
+
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx])
+                
+            else:
+                
+                wvl = spec[0]
+                flx = spec[1]
+                
+                # Flux error array is calculated as photon noise alone since RON isn't available
+
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux) for flux in flx])
+                    
+                
+            if np.isnan(np.sum(flx_err)):
+                if print_stat:
+                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            if print_stat:
+                print('The wavelength array read from .fits file is: {}'.format(wvl))
+                print('The flux array read from .fits file is: {}'.format(flx))
+                print('The calculated flux error array is: {}'.format(flx_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')    
+                
+            
+            shift = ((obj_params['RV']/ap.constants.c.value)*H_alpha_line)  
+            shift = (round(shift, 4)) 
+            
+            wvl_shifted = np.round((wvl - shift), 4) 
+            
+            spec1d = Spectrum1D(spectral_axis=wvl_shifted*u.nm, 
+                                flux=flx*u.Jy, 
+                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
                     
         else:
-            raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS" and "HARPS-N"')
+            raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N", "SOPHIE", "ELODIE"')
+            
+        # Printing spec info
+            
+        if print_stat:
+            print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {:.4f}nm'.format(radial_velocity, shift))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('These values are doppler shift corrected and rounded off to 4 decimal places')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         
         # Fitting an nth order polynomial to the continuum for normalisation using specutils
