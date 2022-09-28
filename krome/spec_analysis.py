@@ -884,9 +884,9 @@ def read_data(file_path,
             if data_spec.dtypes[i] != 'float64':
                 raise TypeError('Column {} in the given .s file has an invalid dtype of "{}". Accepted dtype is "float64"'.format(i-1, df.dtypes[i]))
         
-        spec_orders = extract_orders(data_spec['Wavelength'],
-                                     data_spec['Intensity'],
-                                     data_spec['I_err'],
+        spec_orders = extract_orders(data_spec['Wavelength'].values,
+                                     data_spec['Intensity'].values,
+                                     data_spec['I_err'].values,
                                      show_plot=show_plots)
         
         if out_file_path != None:
@@ -947,9 +947,9 @@ def read_data(file_path,
             if data_spec.dtypes[i] != 'float64':
                 raise TypeError('Column {} in the given .s file has an invalid dtype of "{}". Accepted dtype is "float64"'.format(i-1, df.dtypes[i]))
         
-        spec_orders = extract_orders(data_spec['Wavelength'],
-                                     data_spec['Intensity'],
-                                     data_spec['I_err'],
+        spec_orders = extract_orders(data_spec['Wavelength'].values,
+                                     data_spec['Intensity'].values,
+                                     data_spec['I_err'].values,
                                      show_plot=show_plots)
         
         if meta_file_path != None:
@@ -1182,6 +1182,9 @@ def read_data(file_path,
                 ax.tick_params(direction='in', which='both')
                 f.tight_layout()
                 plt.show()
+                
+        else:
+            raise ValueError("FITS file extension header keyword 'EXTNAME' not recognised. Expected values are E2DS* and S1D*")
             
         return object_parameters, spectrum
     
