@@ -415,5 +415,69 @@ def plot_spectrum(spec,
         
         if save_figs:
             plt.savefig('{}_HeID3_line_plot.pdf'.format(save_figs_name), format='pdf')
+            
+    elif Index=='CaIIHK':
+        
+        f, (ax1, ax2, ax3)  = plt.subplots(3, 1, figsize=(10,12))
+        ax1.plot(spec.spectral_axis, spec.flux, '-k')  
+        ax1.set_xlabel('$\lambda (nm)$')
+        ax2.set_xlabel('$\lambda (nm)$')
+        ax3.set_xlabel('$\lambda (nm)$')
+        
+        if Instrument=='NARVAL' or Instrument=='ESPADONS':
+            ax1.set_ylabel("Normalized Flux")
+            ax2.set_ylabel("Normalized Flux")
+            ax3.set_ylabel("Normalized Flux")
+        else:
+            if norm_spec:
+                ax1.set_ylabel("Normalized Flux")
+                ax2.set_ylabel("Normalized Flux")
+                ax3.set_ylabel("Normalized Flux")
+            else:
+                ax1.set_ylabel("Flux (adu)")
+                ax2.set_ylabel("Flux (adu)")
+                ax3.set_ylabel("Flux (adu)")
+        
+        ax1.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='CaII H {}±{}nm'.format(lines[0], lines[1]/2))
+        ax1.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
+        ax1.axvline(lines[2]-(lines[3]/2), linestyle='--', color='black', label='CaII K {}±{}nm'.format(lines[2], lines[3]/2))
+        ax1.axvline(lines[2]+(lines[3]/2), linestyle='--', color='black')
+        ax1.axvline(lines[4]-(lines[5]/2), linestyle='dotted', color='blue', label='Blue cont. {}±{}nm'.format(lines[4], lines[5]/2))
+        ax1.axvline(lines[4]+(lines[5]/2), linestyle='dotted', color='blue')
+        ax1.axvline(lines[6]-(lines[7]/2), linestyle='dashdot', color='red', label='Red cont. {}±{}nm'.format(lines[6], lines[7]/2))
+        ax1.axvline(lines[6]+(lines[7]/2), linestyle='dashdot', color='red')
+        ax1.set_xlim(lines[4]-1.5, lines[6]+1.5)
+        ax1.yaxis.set_ticks_position('both')
+        ax1.xaxis.set_ticks_position('both')
+        ax1.tick_params(direction='in', which='both')
+        ax1.legend()
+        
+        # Plots the zoomed in regions around the H&K lines.
+        
+        ax2.plot(spec.spectral_axis, spec.flux)
+        ax2.axvline(lines[0], ymin=0, linestyle='dotted', color='green')
+        ax2.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='CaII H band width = {}nm'.format(lines[1]))
+        ax2.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
+        ax2.set_xlim(lines[0]-(lines[1]/2)-0.1, lines[0]+(lines[1]/2)+0.1)
+        ax2.yaxis.set_ticks_position('both')
+        ax2.xaxis.set_ticks_position('both')
+        ax2.tick_params(direction='in', which='both')
+        ax2.legend()
+        
+        ax3.plot(spec.spectral_axis, spec.flux)
+        ax3.axvline(lines[2], ymin=0, linestyle='dotted', color='green')
+        ax3.axvline(lines[2]-(lines[3]/2), linestyle='--', color='black', label='CaII K band width = {}nm'.format(lines[2]))
+        ax3.axvline(lines[2]+(lines[3]/2), linestyle='--', color='black')
+        ax3.set_xlim(lines[2]-(lines[3]/2)-0.1, lines[2]+(lines[3]/2)+0.1)
+        ax3.yaxis.set_ticks_position('both')
+        ax3.xaxis.set_ticks_position('both')
+        ax3.tick_params(direction='in', which='both')
+        ax3.legend()
+        
+        f.tight_layout()
+        plt.minorticks_on()
+        
+        if save_figs:
+            plt.savefig('{}_CaIIHK_lines_plot.pdf'.format(save_figs_name), format='pdf')
         
     return
