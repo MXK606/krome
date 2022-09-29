@@ -1487,42 +1487,62 @@ def calc_ind(regions,
         
         return NaID_index, sigma_NaID_index, F1_mean, F2_mean
     
-    ## CaIIH
+    ## CaIIHK
     
-    elif index_name=='CaIIH':
+    elif index_name=='CaIIHK':
         
         F_CaIIH_region = regions[0]
-        cont_R_region = regions[1]
+        F_CaIIK_region = regions[1]
+        F1_region = regions[2]
+        F2_region = regions[3]
         
         F_CaIIH_mean = np.round(np.mean(F_CaIIH_region.flux.value), 4) # Calculating mean of the flux within this bandwidth
+        F_CaIIK_mean = np.round(np.mean(F_CaIIK_region.flux.value), 4) 
         
-        # Calculating the standard error on the mean flux calculated above.
+        # Calculating the standard error on the mean fluxes calculated above.
         F_CaIIH_sum_err = [i**2 for i in F_CaIIH_region.uncertainty.array]
         F_CaIIH_mean_err = np.round((np.sqrt(np.sum(F_CaIIH_sum_err))/len(F_CaIIH_sum_err)), 4)
         
-        # Doing the same for the cont R region!
+        F_CaIIK_sum_err = [i**2 for i in F_CaIIK_region.uncertainty.array]
+        F_CaIIK_mean_err = np.round((np.sqrt(np.sum(F_CaIIK_sum_err))/len(F_CaIIK_sum_err)), 4)
         
-        cont_R_mean = np.round(np.mean(cont_R_region.flux.value), 4)
-        cont_R_sum_err = [i**2 for i in cont_R_region.uncertainty.array]
-        cont_R_mean_err = np.round((np.sqrt(np.sum(cont_R_sum_err))/len(cont_R_sum_err)), 4)
+        # Doing the same for the reference continuum regions!
+        
+        F1_mean = np.round(np.mean(F1_region.flux.value), 4)
+        F1_sum_err = [i**2 for i in F1_region.uncertainty.array]
+        F1_mean_err = np.round((np.sqrt(np.sum(F1_sum_err))/len(F1_sum_err)), 4)
+        
+        F2_mean = np.round(np.mean(F2_region.flux.value), 4)
+        F2_sum_err = [i**2 for i in F2_region.uncertainty.array]
+        F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 4)
 
         # Calculating the index from the mean fluxes calculated above
-        CaIIH_from_mean = np.round((F_CaIIH_mean/cont_R_mean), 4)
+        CaIIHK_from_mean = np.round(((F_CaIIH_mean + F_CaIIK_mean)/(F1_mean + F2_mean)), 4)
+        
+        #Error on the index numerator is;
+        sigma_FHK_from_mean = np.sqrt((np.square(F_CaIIH_mean_err) + np.square(F_CaIIK_mean_err)))
+        
+        #Error on the index denominator is;
+        sigma_F12_from_mean = np.sqrt((np.square(F1_mean_err) + np.square(F2_mean_err)))
         
         # Error on this index is calculated using error propagation!
-        sigma_CaIIH_from_mean = np.round((CaIIH_from_mean*np.sqrt(np.square(F_CaIIH_mean_err/F_CaIIH_mean) + np.square(cont_R_mean_err/cont_R_mean))), 4)
+        sigma_CaIIHK_from_mean = np.round((CaIIHK_from_mean*np.sqrt(np.square(sigma_FHK_from_mean/(F_CaIIH_mean+F_CaIIK_mean)) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
         
         if print_stat:
             print('CaIIH region used ranges from {:.4f}nm to {:.4f}nm:'.format(F_CaIIH_region.spectral_axis[0].value, F_CaIIH_region.spectral_axis[-1].value))
-            print('Cont R region used ranges from {:.4f}nm to {:.4f}nm:'.format(cont_R_region.spectral_axis[0].value, cont_R_region.spectral_axis[-1].value))
+            print('CaIIK region used ranges from {:.4f}nm to {:.4f}nm:'.format(F_CaIIK_region.spectral_axis[0].value, F_CaIIK_region.spectral_axis[-1].value))
+            print('F1 region used ranges from {:.4f}nm to {:.4f}nm:'.format(F1_region.spectral_axis[0].value, F1_region.spectral_axis[-1].value))
+            print('F2 region used ranges from {:.4f}nm to {:.4f}nm:'.format(F2_region.spectral_axis[0].value, F2_region.spectral_axis[-1].value))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Mean of {} flux points in CaIIH: {:.4f}±{:.4f}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
-            print('Mean of {} flux points in cont R: {:.4f}±{:.4f}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
+            print('Mean of {} flux points in CaIIK: {:.4f}±{:.4f}'.format(len(F_CaIIK_region.flux), F_CaIIK_mean, F_CaIIK_mean_err))
+            print('Mean of {} flux points in F1: {:.4f}±{:.4f}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
+            print('Mean of {} flux points in F2: {:.4f}±{:.4f}'.format(len(F2_region.flux), F2_mean, F2_mean_err))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('Index from mean of flux points in each band: {:.4f}±{:.4f}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
+            print('Index from mean of flux points in each band: {:.4f}±{:.4f}'.format(CaIIHK_from_mean, sigma_CaIIHK_from_mean))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        return CaIIH_from_mean, sigma_CaIIH_from_mean
+        return CaIIHK_from_mean, sigma_CaIIHK_from_mean
     
     ## CaII IRT
     
