@@ -1641,7 +1641,7 @@ def CaIIHK_Index(file_path,
     # Using the tqdm function 'log_progress' to provide a neat progress bar in Jupyter Notebook which shows the total number of
     # runs, the run time per iteration and the total run time for all files!
     
-    for i in log_progress(range(len(file_path)), desc='Calculating CaIIH Index'):
+    for i in log_progress(range(len(file_path)), desc='Calculating CaII HK Index'):
         
         # Creating a loop for each instrument type.
         
@@ -1680,32 +1680,105 @@ def CaIIHK_Index(file_path,
             
             # The CaIIH line is found only within one spectral order, # 57
             
-            order_57 = orders[61-57] # The orders begin from # 61 so to get # 57, we index as 61-57.
+            CaIIH_order = orders[61-57] # The orders begin from # 61 so to get # 57, we index as 61-57.
             
             if print_stat:
-                print('The #57 order wavelength read from .s file using pandas is: {}'.format(order_57[0].values))
-                print('The #57 order intensity read from .s file using pandas is: {}'.format(order_57[1].values))
-                print('The #57 order intensity error read from .s file using pandas is: {}'.format(order_57[2].values))
+                print('The CaII H order wavelength read from .s file using pandas is: {}'.format(CaIIH_order[0]))
+                print('The CaII H order intensity read from .s file using pandas is: {}'.format(CaIIH_order[1]))
+                print('The CaII H order intensity error read from .s file using pandas is: {}'.format(CaIIH_order[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of CaIIH line; delta_lambda = (v/c)*lambda
+            # The CaIIK line is found within two spectral orders, # 57 and # 58. We will use # 58 since it contains the left reference continuum as well!
+            
+            CaIIK_order = orders[61-58] 
+            
+            if print_stat:
+                print('The CaII K order wavelength read from .s file using pandas is: {}'.format(CaIIK_order[0]))
+                print('The CaII K order intensity read from .s file using pandas is: {}'.format(CaIIK_order[1]))
+                print('The CaII K order intensity error read from .s file using pandas is: {}'.format(CaIIK_order[2]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and 
+            # the rest wavelength of CaIIH line; delta_lambda = (v/c)*lambda
 
             shift = ((radial_velocity/ap.constants.c.value)*CaIIH_line)
             shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
 
-            wvl = np.round((order_57[0].values - shift), 4)
-            flx = order_57[1].values
-            flx_err = order_57[2].values
+            wvl_H = np.round((CaIIH_order[0] - shift), 4)
+            flx_H = CaIIH_order[1]
+            flx_err_H = CaIIH_order[2]
             
-            # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
+            wvl_K = np.round((CaIIK_order[0] - shift), 4)
+            flx_K = CaIIK_order[1]
+            flx_err_K = CaIIK_order[2]
+            
+            # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils' for each line
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
             
             # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
             # The uncertainty has units Jy as well!
 
+            spec1d_H = Spectrum1D(spectral_axis=wvl_H*u.nm, 
+                                  flux=flx_H*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_H, unit=u.Jy))
+            
+            spec1d_K = Spectrum1D(spectral_axis=wvl_K*u.nm, 
+                                  flux=flx_K*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_K, unit=u.Jy))
+            
+            spec1d = [spec1d_H, spec1d_K] # Creating a list containing both Spectrum1D objects
+            
+            
+        # ESPADONS
+        
+        elif Instrument == 'ESPADONS':
+            
+            if meta_file_path != None:
+                
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               meta_file_path=meta_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
+                
+                obj_params['RV'] = radial_velocity 
+                
+            else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   meta_file_path=None,
+                                   show_plots=False)
+                
+                if print_stat:
+                    print('"meta_file_path" not given as an argument. Run will only return the indices and their errros instead.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+
+            if print_stat:
+                print('Total {} spectral orders extracted'.format(len(orders)))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            
+            order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
+            
+            if print_stat:
+                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
+                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
+                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+            shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
+            shift = (round(shift, 4))
+            
+            wvl = np.round((order_34[0] - shift), 4) 
+            flx = order_34[1] 
+            flx_err = order_34[2] 
+        
             spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
                                 flux=flx*u.Jy, 
-                                uncertainty=StdDevUncertainty(flx, unit=u.Jy))
+                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy))  
 
         ## HARPS 
 
@@ -1857,58 +1930,133 @@ def CaIIHK_Index(file_path,
         else:
             raise ValueError('Instrument type not recognisable. Available options are "NARVAL", "HARPS" and "HARPS-N"')
             
-        # Printing spec info
+        # Creating two events for further analysis. One for cases where spectrum is 1 dimensional, and one for where the spectrum has individual orders!
             
-        if print_stat:
-            print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('These values are doppler shift corrected and rounded off to 4 decimal places')
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        if type(spec1d) == list:
             
-        
-        # Fitting an nth order polynomial to the continuum for normalisation using specutils
+            # Printing spec info
             
-        if norm_spec:
             if print_stat:
-                print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The CaII H order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d_H.spectral_axis[0].value, spec1d_H.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The CaII K order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d_K.spectral_axis[0].value, spec1d_K.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('These values are doppler shift corrected and rounded off to 4 decimal places')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
             
-            # Note the continuum normalized spectrum also has new uncertainty values!
+            # Fitting an nth order polynomial to the continuum for normalisation using specutils
+                
+            if norm_spec:
+                if print_stat:
+                    print('Normalising both spectral orders by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                # Note the continuum normalized spectrum also has new uncertainty values!
+                
+                spec_H = normalise_spec(spec1d_H, degree, CaIIH_line, CaIIH_band, F2_line, F2_band,
+                                        print_stat, plot_fit, save_figs, save_figs_name) 
+                
+                spec_K = normalise_spec(spec1d_K, degree, F1_line, F1_band, CaIIK_line, CaIIK_band,
+                                        print_stat, plot_fit, save_figs, save_figs_name) 
+                
+            else:
+                spec_H = spec1d_H
+                spec_K = spec1d_K
+                
+            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
             
-            spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
-                                  print_stat, plot_fit, save_figs, save_figs_name) 
+            if plot_spec:
+                
+                wvl_HK = np.asarray(list(spec_K.spectral_axis.value) + list(spec_H.spectral_axis.value))
+                flx_HK = np.asarray(list(spec_K.flux.value) + list(spec_H.flux.value))
+                flx_err_HK = np.asarray(list(spec_K.uncertainty.array) + list(spec_H.uncertainty.array))
+                
+                # This Spectrum1D object is used for plotting ONLY!
+                
+                spec1d_HK = Spectrum1D(spectral_axis=wvl_HK*u.nm, 
+                                       flux=flx_HK*u.Jy, 
+                                       uncertainty=StdDevUncertainty(flx_err_HK, unit=u.Jy))
+                
+                lines = [CaIIH_line, CaIIH_band, CaIIK_line, CaIIK_band, F1_line, F1_band, F2_line, F2_band]
+                
+                plot_spectrum(spec1d_HK, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
+                
+            
+            # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
+            F_CaIIH_region = extract_region(spec_H, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
+            
+            # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
+            F_CaIIK_region = extract_region(spec_K, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
+            
+            # Doing the same for the reference continuum regions!
+            F1_region = extract_region(spec_K, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+            F2_region = extract_region(spec_H, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            
+            regions = [F_CaIIH_region, F_CaIIK_region, F1_region, F2_region]
+            
+            # Calculating the index using 'calc_inc' from krome.spec_analysis
+            
+            I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
+                                              index_name='CaIIHK',
+                                              print_stat=print_stat)
             
         else:
-            spec = spec1d
             
-        # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
-        
-        if plot_spec:
+            # Printing spec info
+                
+            if print_stat:
+                print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('These values are doppler shift corrected and rounded off to 4 decimal places')
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
             
-            lines = [CaIIH_line, CaIIH_band, CaIIK_line, CaIIK_band, F1_line, F1_band, F2_line, F2_band]
+            # Fitting an nth order polynomial to the continuum for normalisation using specutils
+                
+            if norm_spec:
+                if print_stat:
+                    print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                # Note the continuum normalized spectrum also has new uncertainty values!
+                
+                spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
+                                      print_stat, plot_fit, save_figs, save_figs_name) 
+                
+            else:
+                spec = spec1d
+                
+            # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
             
-            plot_spectrum(spec, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
+            if plot_spec:
+                
+                lines = [CaIIH_line, CaIIH_band, CaIIK_line, CaIIK_band, F1_line, F1_band, F2_line, F2_band]
+                
+                plot_spectrum(spec, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
+                
             
-        
-        # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
-        F_CaIIH_region = extract_region(spec, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
-        
-        # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
-        F_CaIIK_region = extract_region(spec, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
-        
-        # Doing the same for the reference continuum regions!
-        F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-        F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
-        
-        regions = [F_CaIIH_region, F_CaIIK_region, F1_region, F2_region]
-        
-        # Calculating the index using 'calc_inc' from krome.spec_analysis
-        
-        I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
-                                          index_name='CaIIHK',
-                                          print_stat=print_stat)
+            # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
+            F_CaIIH_region = extract_region(spec, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
+            
+            # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
+            F_CaIIK_region = extract_region(spec, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
+            
+            # Doing the same for the reference continuum regions!
+            F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+            F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            
+            regions = [F_CaIIH_region, F_CaIIK_region, F1_region, F2_region]
+            
+            # Calculating the index using 'calc_inc' from krome.spec_analysis
+            
+            I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
+                                              index_name='CaIIHK',
+                                              print_stat=print_stat)
             
         if Instrument=='NARVAL':
             if out_file_path != None:
