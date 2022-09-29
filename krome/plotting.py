@@ -440,8 +440,8 @@ def plot_spectrum(spec,
         
         ax1.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='CaII H {}±{}nm'.format(lines[0], lines[1]/2))
         ax1.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
-        ax1.axvline(lines[2]-(lines[3]/2), linestyle='--', color='black', label='CaII K {}±{}nm'.format(lines[2], lines[3]/2))
-        ax1.axvline(lines[2]+(lines[3]/2), linestyle='--', color='black')
+        ax1.axvline(lines[2]-(lines[3]/2), linestyle='-.', color='black', label='CaII K {}±{}nm'.format(lines[2], lines[3]/2))
+        ax1.axvline(lines[2]+(lines[3]/2), linestyle='-.', color='black')
         ax1.axvline(lines[4]-(lines[5]/2), linestyle='dotted', color='blue', label='Blue cont. {}±{}nm'.format(lines[4], lines[5]/2))
         ax1.axvline(lines[4]+(lines[5]/2), linestyle='dotted', color='blue')
         ax1.axvline(lines[6]-(lines[7]/2), linestyle='dashdot', color='red', label='Red cont. {}±{}nm'.format(lines[6], lines[7]/2))
@@ -466,8 +466,8 @@ def plot_spectrum(spec,
         
         ax3.plot(spec.spectral_axis, spec.flux)
         ax3.axvline(lines[2], ymin=0, linestyle='dotted', color='green')
-        ax3.axvline(lines[2]-(lines[3]/2), linestyle='--', color='black', label='CaII K band width = {}nm'.format(lines[2]))
-        ax3.axvline(lines[2]+(lines[3]/2), linestyle='--', color='black')
+        ax3.axvline(lines[2]-(lines[3]/2), linestyle='-.', color='black', label='CaII K band width = {}nm'.format(lines[2]))
+        ax3.axvline(lines[2]+(lines[3]/2), linestyle='-.', color='black')
         ax3.set_xlim(lines[2]-(lines[3]/2)-0.1, lines[2]+(lines[3]/2)+0.1)
         ax3.yaxis.set_ticks_position('both')
         ax3.xaxis.set_ticks_position('both')
