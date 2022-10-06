@@ -1555,7 +1555,8 @@ def CaIIHK_Index(file_path,
                  save_figs=False,
                  save_figs_name=None,
                  out_file_path=None,
-                 ccf_file_path=None):
+                 ccf_file_path=None,
+                 meta_file_path=None):
     
     """
     Calculates the CaIIH index following Morgenthaler A., et al., 2012, A&A, 540, A138. 
@@ -1677,10 +1678,20 @@ def CaIIHK_Index(file_path,
             if print_stat:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            # The CaIIK line is found within two spectral orders, # 57 and # 58. We will use # 58 since it contains the left reference continuum as well!
+            
+            CaIIK_order = orders[61-58] # The orders begin from # 61 so to get # 58, we index as 61-58.
+            
+            if print_stat:
+                print('The CaII K order wavelength read from .s file using pandas is: {}'.format(CaIIK_order[0]))
+                print('The CaII K order intensity read from .s file using pandas is: {}'.format(CaIIK_order[1]))
+                print('The CaII K order intensity error read from .s file using pandas is: {}'.format(CaIIK_order[2]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # The CaIIH line is found only within one spectral order, # 57
             
-            CaIIH_order = orders[61-57] # The orders begin from # 61 so to get # 57, we index as 61-57.
+            CaIIH_order = orders[61-57] 
             
             if print_stat:
                 print('The CaII H order wavelength read from .s file using pandas is: {}'.format(CaIIH_order[0]))
@@ -1688,45 +1699,36 @@ def CaIIHK_Index(file_path,
                 print('The CaII H order intensity error read from .s file using pandas is: {}'.format(CaIIH_order[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            # The CaIIK line is found within two spectral orders, # 57 and # 58. We will use # 58 since it contains the left reference continuum as well!
-            
-            CaIIK_order = orders[61-58] 
-            
-            if print_stat:
-                print('The CaII K order wavelength read from .s file using pandas is: {}'.format(CaIIK_order[0]))
-                print('The CaII K order intensity read from .s file using pandas is: {}'.format(CaIIK_order[1]))
-                print('The CaII K order intensity error read from .s file using pandas is: {}'.format(CaIIK_order[2]))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and 
             # the rest wavelength of CaIIH line; delta_lambda = (v/c)*lambda
 
             shift = ((radial_velocity/ap.constants.c.value)*CaIIH_line)
             shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
-
-            wvl_H = np.round((CaIIH_order[0] - shift), 4)
-            flx_H = CaIIH_order[1]
-            flx_err_H = CaIIH_order[2]
             
             wvl_K = np.round((CaIIK_order[0] - shift), 4)
             flx_K = CaIIK_order[1]
             flx_err_K = CaIIK_order[2]
+
+            wvl_H = np.round((CaIIH_order[0] - shift), 4)
+            flx_H = CaIIH_order[1]
+            flx_err_H = CaIIH_order[2]
             
             # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils' for each line
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
             
             # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
             # The uncertainty has units Jy as well!
+            
+            spec1d_K = Spectrum1D(spectral_axis=wvl_K*u.nm, 
+                                  flux=flx_K*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_K, unit=u.Jy))
 
             spec1d_H = Spectrum1D(spectral_axis=wvl_H*u.nm, 
                                   flux=flx_H*u.Jy, 
                                   uncertainty=StdDevUncertainty(flx_err_H, unit=u.Jy))
             
-            spec1d_K = Spectrum1D(spectral_axis=wvl_K*u.nm, 
-                                  flux=flx_K*u.Jy, 
-                                  uncertainty=StdDevUncertainty(flx_err_K, unit=u.Jy))
-            
-            spec1d = [spec1d_H, spec1d_K] # Creating a list containing both Spectrum1D objects
+            spec1d = [spec1d_K, spec1d_H] # Creating a list containing both Spectrum1D objects
             
             
         # ESPADONS
@@ -1761,24 +1763,48 @@ def CaIIHK_Index(file_path,
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
-            order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
+            CaIIK_order = orders[61-58] 
             
             if print_stat:
-                print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
-                print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
-                print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
+                print('The CaII K order wavelength read from .s file using pandas is: {}'.format(CaIIK_order[0]))
+                print('The CaII K order intensity read from .s file using pandas is: {}'.format(CaIIK_order[1]))
+                print('The CaII K order intensity error read from .s file using pandas is: {}'.format(CaIIK_order[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-            shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
-            shift = (round(shift, 4))
             
-            wvl = np.round((order_34[0] - shift), 4) 
-            flx = order_34[1] 
-            flx_err = order_34[2] 
-        
-            spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
-                                flux=flx*u.Jy, 
-                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy))  
+            CaIIH_order = orders[61-57] 
+            
+            if print_stat:
+                print('The CaII H order wavelength read from .s file using pandas is: {}'.format(CaIIH_order[0]))
+                print('The CaII H order intensity read from .s file using pandas is: {}'.format(CaIIH_order[1]))
+                print('The CaII H order intensity error read from .s file using pandas is: {}'.format(CaIIH_order[2]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+            shift = ((radial_velocity/ap.constants.c.value)*CaIIH_line)
+            shift = (round(shift, 4)) 
+            
+            wvl_K = np.round((CaIIK_order[0] - shift), 4)
+            flx_K = CaIIK_order[1]
+            flx_err_K = CaIIK_order[2]
+
+            wvl_H = np.round((CaIIH_order[0] - shift), 4)
+            flx_H = CaIIH_order[1]
+            flx_err_H = CaIIH_order[2]
+            
+            # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils' for each line
+            # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
+            
+            # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
+            # The uncertainty has units Jy as well!
+            
+            spec1d_K = Spectrum1D(spectral_axis=wvl_K*u.nm, 
+                                  flux=flx_K*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_K, unit=u.Jy))
+
+            spec1d_H = Spectrum1D(spectral_axis=wvl_H*u.nm, 
+                                  flux=flx_H*u.Jy, 
+                                  uncertainty=StdDevUncertainty(flx_err_H, unit=u.Jy))
+            
+            spec1d = [spec1d_K, spec1d_H] # Creating a list containing both Spectrum1D objects 
 
         ## HARPS 
 
@@ -1926,9 +1952,142 @@ def CaIIHK_Index(file_path,
             spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
                               flux=flx[left_idx:right_idx+1]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
+            
+        # SOPHIE
+        
+        elif Instrument == 'SOPHIE':
+            
+            obj_params, spec = read_data(file_path=file_path[i],
+                                         Instrument=Instrument,
+                                         print_stat=print_stat,
+                                         show_plots=False)
+            
+            obj_params['RV'] = radial_velocity 
+            
+            # Checking if the FITS file is e2ds since it has 39 spectral orders using an arbitray order number of 50. If greater than 50, assume its s1d.
+            
+            if len(spec[0]) < 50:
+                
+                if print_stat:
+                    print('Total {} spectral orders extracted'.format(len(spec[0])))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                wvl_K = spec[0][0] ## For SOPHIE spectra, the CaII K line is within the first spectral order.
+                flx_K = spec[1][0]
+                
+                wvl_H = spec[0][1] ## The CaII H line is within the second spectral order.
+                flx_H = spec[1][1]
+                
+                wvl_F2 = spec[0][2] ## The complete F2 line is within the third spectral order.
+                flx_F2 = spec[1][2]
+                    
+                # Flux error array is calculated as photon noise plus CCD readout noise 
+
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err_K = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx_K])
+                    flx_err_H = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx_H])
+                    flx_err_F2 = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx_F2])
+                    
+                if np.isnan(np.sum(flx_err_K)):
+                    if print_stat:
+                        print('The calculated flux error array for the CaII K order contains a few NaN values due to negative flux encountered in the square root.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                if np.isnan(np.sum(flx_err_H)):
+                    if print_stat:
+                        print('The calculated flux error array for the CaII H order contains a few NaN values due to negative flux encountered in the square root.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                if np.isnan(np.sum(flx_err_F2)):
+                    if print_stat:
+                        print('The calculated flux error array for the F2 line order contains a few NaN values due to negative flux encountered in the square root.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                if print_stat:
+                    print('The CaII K order wavelength read from .fits file is: {}'.format(wvl_K))
+                    print('The CaII K order flux read from .fits file is: {}'.format(flx_K))
+                    print('The CaII K order calculated flux error is: {}'.format(flx_err_K))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    print('The CaII H order wavelength read from .fits file is: {}'.format(wvl_H))
+                    print('The CaII H order flux read from .fits file is: {}'.format(flx_H))
+                    print('The CaII H order calculated flux error is: {}'.format(flx_err_H))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    print('The F2 line order wavelength read from .fits file is: {}'.format(wvl_F2))
+                    print('The F2 line order flux read from .fits file is: {}'.format(flx_F2))
+                    print('The F2 line order calculated flux error is: {}'.format(flx_err_F2))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+                # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and 
+                # the rest wavelength of CaIIH line; delta_lambda = (v/c)*lambda
+    
+                shift = ((radial_velocity/ap.constants.c.value)*CaIIH_line)
+                shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
+    
+                wvl_K = np.round((wvl_K - shift), 4)
+                wvl_H = np.round((wvl_H - shift), 4)
+                wvl_F2 = np.round((wvl_F2 - shift), 4)
+                
+                # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils' for each line
+                # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
+                
+                # The spectral and flux axes are given units nm and Jy respectively using 'astropy.units'. 
+                # The uncertainty has units Jy as well!
+                
+                spec1d_K = Spectrum1D(spectral_axis=wvl_K*u.nm, 
+                                      flux=flx_K*u.Jy, 
+                                      uncertainty=StdDevUncertainty(flx_err_K, unit=u.Jy))
+    
+                spec1d_H = Spectrum1D(spectral_axis=wvl_H*u.nm, 
+                                      flux=flx_H*u.Jy, 
+                                      uncertainty=StdDevUncertainty(flx_err_H, unit=u.Jy))
+                
+                spec1d_F2 = Spectrum1D(spectral_axis=wvl_F2*u.nm, 
+                                      flux=flx_F2*u.Jy, 
+                                      uncertainty=StdDevUncertainty(flx_err_F2, unit=u.Jy))
+                
+                spec1d = [spec1d_K, spec1d_H, spec1d_F2] # Creating a list containing all Spectrum1D objects
+                
+            else:
+                
+                left_idx = find_nearest(spec[0], F1_line-2) # ± 2nm extra included for both!
+                right_idx = find_nearest(spec[0], F2_line+2)
+                
+                # Slicing the data to contain only the region required for the index calculation
+                
+                wvl = spec[0][left_idx:right_idx+1]
+                flx = spec[1][left_idx:right_idx+1]
+                
+                # Flux error array is calculated as photon noise alone since RON isn't available
+
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux) for flux in flx])
+                    
+                
+                if np.isnan(np.sum(flx_err)):
+                    if print_stat:
+                        print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                if print_stat:
+                    print('The wavelength array read from .fits file is: {}'.format(wvl))
+                    print('The flux array read from .fits file is: {}'.format(flx))
+                    print('The calculated flux error array is: {}'.format(flx_err))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')    
+                    
+                
+                shift = ((obj_params['RV']/ap.constants.c.value)*CaIIH_line)  
+                shift = (round(shift, 4)) 
+                
+                wvl_shifted = np.round((wvl - shift), 4) 
+                
+                spec1d = Spectrum1D(spectral_axis=wvl_shifted*u.nm, 
+                                    flux=flx*u.Jy, 
+                                    uncertainty=StdDevUncertainty(flx_err, unit=u.Jy))
 
         else:
-            raise ValueError('Instrument type not recognisable. Available options are "NARVAL", "HARPS" and "HARPS-N"')
+            raise ValueError('Instrument type not recognisable. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N" and "SOPHIE"')
             
         # Creating two events for further analysis. One for cases where spectrum is 1 dimensional, and one for where the spectrum has individual orders!
             
@@ -1939,10 +2098,15 @@ def CaIIHK_Index(file_path,
             if print_stat:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The CaII H order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d_H.spectral_axis[0].value, spec1d_H.spectral_axis[-1].value))
+                print('The CaII K order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d[0].spectral_axis[0].value, spec1d[0].spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The CaII K order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d_K.spectral_axis[0].value, spec1d_K.spectral_axis[-1].value))
+                print('The CaII H order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d[1].spectral_axis[0].value, spec1d[1].spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+                if len(spec1d) == 3: ## This is ONLY in the case of the SOPHIE Instrument
+                    print('The F2 line order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d[2].spectral_axis[0].value, spec1d[2].spectral_axis[-1].value))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
                 print('These values are doppler shift corrected and rounded off to 4 decimal places')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -1951,28 +2115,51 @@ def CaIIHK_Index(file_path,
                 
             if norm_spec:
                 if print_stat:
-                    print('Normalising both spectral orders by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
+                    print('Normalising spectral orders by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Note the continuum normalized spectrum also has new uncertainty values!
                 
-                spec_H = normalise_spec(spec1d_H, degree, CaIIH_line, CaIIH_band, F2_line, F2_band,
+                spec_K = normalise_spec(spec1d[0], degree, F1_line, F1_band, CaIIK_line, CaIIK_band,
                                         print_stat, plot_fit, save_figs, save_figs_name) 
                 
-                spec_K = normalise_spec(spec1d_K, degree, F1_line, F1_band, CaIIK_line, CaIIK_band,
-                                        print_stat, plot_fit, save_figs, save_figs_name) 
+                if len(spec1d) == 3:
+                    
+                    spec_H = normalise_spec(spec1d[1], degree, CaIIH_line, CaIIH_band, CaIIH_line, CaIIH_band,
+                                            print_stat, plot_fit, save_figs, save_figs_name)
+                    
+                    spec_F2 = normalise_spec(spec1d[2], degree, F2_line, F2_band, F2_line, F2_band,
+                                             print_stat, plot_fit, save_figs, save_figs_name)
+                    
+                else:
+                    
+                    spec_H = normalise_spec(spec1d[1], degree, CaIIH_line, CaIIH_band, F2_line, F2_band,
+                                            print_stat, plot_fit, save_figs, save_figs_name)
+                
                 
             else:
-                spec_H = spec1d_H
-                spec_K = spec1d_K
+                spec_K = spec1d[0]
+                spec_H = spec1d[1]
+                
+                if len(spec1d) == 3:
+                    spec_F2 = spec1d[2]
+                
                 
             # Plots the final reduced spectra along with the relevant bandwidths and line/continuum positions
             
             if plot_spec:
                 
-                wvl_HK = np.asarray(list(spec_K.spectral_axis.value) + list(spec_H.spectral_axis.value))
-                flx_HK = np.asarray(list(spec_K.flux.value) + list(spec_H.flux.value))
-                flx_err_HK = np.asarray(list(spec_K.uncertainty.array) + list(spec_H.uncertainty.array))
+                if len(spec1d) == 3:
+                    
+                    wvl_HK = np.asarray(list(spec_K.spectral_axis.value) + list(spec_H.spectral_axis.value) + list(spec_F2.spectral_axis.value))
+                    flx_HK = np.asarray(list(spec_K.flux.value) + list(spec_H.flux.value) + list(spec_F2.flux.value))
+                    flx_err_HK = np.asarray(list(spec_K.uncertainty.array) + list(spec_H.uncertainty.array) + list(spec_F2.uncertainty.array))
+                    
+                else:
+                    
+                    wvl_HK = np.asarray(list(spec_K.spectral_axis.value) + list(spec_H.spectral_axis.value))
+                    flx_HK = np.asarray(list(spec_K.flux.value) + list(spec_H.flux.value))
+                    flx_err_HK = np.asarray(list(spec_K.uncertainty.array) + list(spec_H.uncertainty.array))
                 
                 # This Spectrum1D object is used for plotting ONLY!
                 
@@ -1985,23 +2172,20 @@ def CaIIHK_Index(file_path,
                 plot_spectrum(spec1d_HK, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
                 
             
-            # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
-            F_CaIIH_region = extract_region(spec_H, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
-            
             # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
             F_CaIIK_region = extract_region(spec_K, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
             
+            # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
+            F_CaIIH_region = extract_region(spec_H, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
+            
             # Doing the same for the reference continuum regions!
             F1_region = extract_region(spec_K, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-            F2_region = extract_region(spec_H, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
             
-            regions = [F_CaIIH_region, F_CaIIK_region, F1_region, F2_region]
+            if len(spec1d) == 3:
+                F2_region = extract_region(spec_F2, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            else:
+                F2_region = extract_region(spec_H, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
             
-            # Calculating the index using 'calc_inc' from krome.spec_analysis
-            
-            I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
-                                              index_name='CaIIHK',
-                                              print_stat=print_stat)
             
         else:
             
@@ -2050,18 +2234,30 @@ def CaIIHK_Index(file_path,
             F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
             F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
             
-            regions = [F_CaIIH_region, F_CaIIK_region, F1_region, F2_region]
-            
-            # Calculating the index using 'calc_inc' from krome.spec_analysis
-            
-            I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
-                                              index_name='CaIIHK',
-                                              print_stat=print_stat)
+        # Creating a list containing the extracted regions 
+        
+        regions = [F_CaIIK_region, F_CaIIH_region, F1_region, F2_region]
+        
+        # Calculating the index using 'calc_inc' from krome.spec_analysis
+        
+        I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
+                                          index_name='CaIIHK',
+                                          print_stat=print_stat)
             
         if Instrument=='NARVAL':
             if out_file_path != None:
                 header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
                 res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                results.append(res)
+            else:
+                header = ['I_CaIIHK', 'I_CaIIHK_err']
+                res = [I_CaIIHK, I_CaIIHK_err]
+                results.append(res)
+                
+        elif Instrument=='ESPADONS':
+            if meta_file_path != None:
+                header = ['OBS_DATE', 'RA', 'DEC', 'V_mag', 'T_eff', 'Distance', 'JD', 'AIRMASS', 'T_EXP', 'RUN_ID', 'SNR', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+                res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err] 
                 results.append(res)
             else:
                 header = ['I_CaIIHK', 'I_CaIIHK_err']
@@ -2075,6 +2271,11 @@ def CaIIHK_Index(file_path,
             
         elif Instrument=='HARPS-N':
             header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+            res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
+            results.append(res)
+            
+        elif Instrument=='SOPHIE':
+            header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
             res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
             results.append(res)
             
