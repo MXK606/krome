@@ -16,6 +16,7 @@ import pandas as pd
 from astropy.io import fits
 import csv
 import warnings
+import astropy as ap
 import matplotlib.pyplot as plt
 from tqdm.notebook import tqdm as log_progress
 from PyAstronomy import pyasl
@@ -2345,7 +2346,8 @@ def normalise_spec(spec1d,
 
 def doppler_shift(spectral_axis,
                   radial_velocity,
-                  rest_wavelength):
+                  rest_wavelength,
+                  print_stat=True):
     
     # The spectra is doppler shift corrected in the wavelength axis using the stellar radial velocity and the given rest wavelength as; delta_lambda = (v/c)*lambda
     
