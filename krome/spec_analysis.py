@@ -1491,8 +1491,8 @@ def calc_ind(regions,
     
     elif index_name=='CaIIHK':
         
-        F_CaIIH_region = regions[0]
-        F_CaIIK_region = regions[1]
+        F_CaIIK_region = regions[0]
+        F_CaIIH_region = regions[1]
         F1_region = regions[2]
         F2_region = regions[3]
         
@@ -1831,7 +1831,7 @@ def LS_periodogram(x,
             
         else:
             
-            probabilities = probabilitiess
+            probabilities = probabilities
         
         fal = ls.false_alarm_level(probabilities, method=fap_method, minimum_frequency=minimum_frequency, 
                                    maximum_frequency=maximum_frequency, samples_per_peak=samples_per_peak) 
