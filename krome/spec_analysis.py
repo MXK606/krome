@@ -1234,6 +1234,9 @@ def read_data(file_path,
             plt.show()
             
         return object_parameters, spectrum
+    
+    else:
+        raise ValueError('Instrument not recognised. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N", "SOPHIE" and "ELODIE"')
         
         
     
