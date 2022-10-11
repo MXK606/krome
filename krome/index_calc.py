@@ -53,7 +53,8 @@ def H_alpha_index(file_path,
                   out_file_path=None,
                   meta_file_path=None,
                   ccf_file_path=None,
-                  CaI_index=True):
+                  CaI_index=True,
+                  plot_only_spec=False):
     
     """
     Calculates the H alpha index following Boisse I., et al., 2009, A&A, 495, 959. In addition, it also 
@@ -569,86 +570,97 @@ def H_alpha_index(file_path,
             
             plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, save_figs, save_figs_name, CaI_index)
             
-        # Now we have the spectrum to work with as a variable, 'spec'!
+        if plot_only_spec:
+            
+            pass
         
-        # The three regions required for H alpha index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
-        # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so 
-        # using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
-        # Note: These values must have the same units as the spec wavelength axis.
-        
-        F_H_alpha_region = extract_region(spec, region=SpectralRegion((H_alpha_line-(H_alpha_band/2))*u.nm, (H_alpha_line+(H_alpha_band/2))*u.nm))
-        F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-        F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
-        
-        if CaI_index:
-            F_CaI_region = extract_region(spec, region=SpectralRegion((CaI_line-(CaI_band/2))*u.nm, (CaI_line+(CaI_band/2))*u.nm))
-            regions = [F_H_alpha_region, F1_region, F2_region, F_CaI_region]
         else:
-            regions = [F_H_alpha_region, F1_region, F2_region]
             
-        # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown
-        
-        I_Ha, I_Ha_err, I_CaI, I_CaI_err = calc_ind(regions=regions,
-                                                    index_name='HaI',
-                                                    print_stat=print_stat,
-                                                    CaI_index=CaI_index)
-        
-        if Instrument=='NARVAL':
-            if out_file_path != None:
-                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
-                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err] 
-                results.append(res)
+            # Now we have the spectrum to work with as a variable, 'spec'!
+            
+            # The three regions required for H alpha index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
+            # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so 
+            # using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
+            # Note: These values must have the same units as the spec wavelength axis.
+            
+            F_H_alpha_region = extract_region(spec, region=SpectralRegion((H_alpha_line-(H_alpha_band/2))*u.nm, (H_alpha_line+(H_alpha_band/2))*u.nm))
+            F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+            F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            
+            if CaI_index:
+                F_CaI_region = extract_region(spec, region=SpectralRegion((CaI_line-(CaI_band/2))*u.nm, (CaI_line+(CaI_band/2))*u.nm))
+                regions = [F_H_alpha_region, F1_region, F2_region, F_CaI_region]
             else:
-                header = ['I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                res = [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+                regions = [F_H_alpha_region, F1_region, F2_region]
+                
+            # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown
+            
+            I_Ha, I_Ha_err, I_CaI, I_CaI_err = calc_ind(regions=regions,
+                                                        index_name='HaI',
+                                                        print_stat=print_stat,
+                                                        CaI_index=CaI_index)
+            
+            if Instrument=='NARVAL':
+                if out_file_path != None:
+                    header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                    # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
+                    res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err] 
+                    results.append(res)
+                else:
+                    header = ['I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                    res = [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+                    results.append(res)
+                    
+            elif Instrument=='ESPADONS':
+                if meta_file_path != None:
+                    header = ['OBS_DATE', 'RA', 'DEC', 'V_mag', 'T_eff', 'Distance', 'JD', 'AIRMASS', 'T_EXP', 'RUN_ID', 'SNR', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                    res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err] 
+                    results.append(res)
+                else:
+                    header = ['I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                    res = [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+                    results.append(res)
+            
+            elif Instrument=='HARPS':
+                header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
                 results.append(res)
                 
-        elif Instrument=='ESPADONS':
-            if meta_file_path != None:
-                header = ['OBS_DATE', 'RA', 'DEC', 'V_mag', 'T_eff', 'Distance', 'JD', 'AIRMASS', 'T_EXP', 'RUN_ID', 'SNR', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err] 
+            elif Instrument=='HARPS-N':
+                header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
                 results.append(res)
-            else:
-                header = ['I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-                res = [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
-                results.append(res)
-        
-        elif Instrument=='HARPS':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
-            results.append(res)
-            
-        elif Instrument=='HARPS-N':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
-            results.append(res)
-            
-        elif Instrument=='SOPHIE':
-            header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
-            results.append(res)
-            
-        elif Instrument=='ELODIE':
-            header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'AIRMASS', 'SNR', 'GAIN', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
-            res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
-            results.append(res)
                 
+            elif Instrument=='SOPHIE':
+                header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+                results.append(res)
+                
+            elif Instrument=='ELODIE':
+                header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'AIRMASS', 'SNR', 'GAIN', 'RV', 'I_Ha', 'I_Ha_err', 'I_CaI', 'I_CaI_err']
+                res = list(obj_params.values()) + [I_Ha, I_Ha_err, I_CaI, I_CaI_err]
+                results.append(res)
+                
+    if plot_only_spec:
+        
+        return
     
-    # Saving the results in a csv file format  
-    if save_results:
+    else:
         
-        if print_stat:
-            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-
-        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
-            writer = csv.writer(csvfile, dialect='excel')
-            writer.writerow(header)
-            for row in results:
-                writer.writerow(row)  
+        # Saving the results in a csv file format  
+        if save_results:
             
-    return results
+            if print_stat:
+                print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    
+            with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+                writer = csv.writer(csvfile, dialect='excel')
+                writer.writerow(header)
+                for row in results:
+                    writer.writerow(row)  
+                
+        return results
 
 ## Defining a function to calculate the NaI index following Rodrigo F. Díaz et al. 2007 (2007MNRAS.378.1007D)
 
@@ -1556,7 +1568,8 @@ def CaIIHK_Index(file_path,
                  save_figs_name=None,
                  out_file_path=None,
                  ccf_file_path=None,
-                 meta_file_path=None):
+                 meta_file_path=None,
+                 plot_only_spec=False):
     
     """
     Calculates the CaIIH index following Morgenthaler A., et al., 2012, A&A, 540, A138. 
@@ -2171,20 +2184,25 @@ def CaIIHK_Index(file_path,
                 
                 plot_spectrum(spec1d_HK, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
                 
+            if plot_only_spec:
+                
+                pass
             
-            # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
-            F_CaIIK_region = extract_region(spec_K, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
-            
-            # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
-            F_CaIIH_region = extract_region(spec_H, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
-            
-            # Doing the same for the reference continuum regions!
-            F1_region = extract_region(spec_K, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-            
-            if len(spec1d) == 3:
-                F2_region = extract_region(spec_F2, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
             else:
-                F2_region = extract_region(spec_H, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            
+                # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
+                F_CaIIK_region = extract_region(spec_K, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
+                
+                # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
+                F_CaIIH_region = extract_region(spec_H, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
+                
+                # Doing the same for the reference continuum regions!
+                F1_region = extract_region(spec_K, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+                
+                if len(spec1d) == 3:
+                    F2_region = extract_region(spec_F2, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+                else:
+                    F2_region = extract_region(spec_H, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
             
             
         else:
@@ -2223,76 +2241,94 @@ def CaIIHK_Index(file_path,
                 
                 plot_spectrum(spec, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
                 
+            if plot_only_spec:
+                
+                pass
             
-            # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
-            F_CaIIH_region = extract_region(spec, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
-            
-            # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
-            F_CaIIK_region = extract_region(spec, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
-            
-            # Doing the same for the reference continuum regions!
-            F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-            F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
-            
-        # Creating a list containing the extracted regions 
-        
-        regions = [F_CaIIK_region, F_CaIIH_region, F1_region, F2_region]
-        
-        # Calculating the index using 'calc_inc' from krome.spec_analysis
-        
-        I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
-                                          index_name='CaIIHK',
-                                          print_stat=print_stat)
-            
-        if Instrument=='NARVAL':
-            if out_file_path != None:
-                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
-                res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
-                results.append(res)
             else:
-                header = ['I_CaIIHK', 'I_CaIIHK_err']
-                res = [I_CaIIHK, I_CaIIHK_err]
+            
+                # Extracting the CaIIH line region using the given bandwidth 'CaIIH_band'
+                F_CaIIH_region = extract_region(spec, region=SpectralRegion((CaIIH_line-(CaIIH_band/2))*u.nm, (CaIIH_line+(CaIIH_band/2))*u.nm))
+                
+                # Extracting the CaIIK line region using the given bandwidth 'CaIIK_band'
+                F_CaIIK_region = extract_region(spec, region=SpectralRegion((CaIIK_line-(CaIIK_band/2))*u.nm, (CaIIK_line+(CaIIK_band/2))*u.nm))
+                
+                # Doing the same for the reference continuum regions!
+                F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+                F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            
+        if plot_only_spec:
+            
+            pass
+        
+        else:
+        
+            # Creating a list containing the extracted regions 
+            
+            regions = [F_CaIIK_region, F_CaIIH_region, F1_region, F2_region]
+            
+            # Calculating the index using 'calc_inc' from krome.spec_analysis
+            
+            I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
+                                              index_name='CaIIHK',
+                                              print_stat=print_stat)
+                
+            if Instrument=='NARVAL':
+                if out_file_path != None:
+                    header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+                    res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 
+                                                                               # 'results' empty list created at the start of this function!
+                    results.append(res)
+                else:
+                    header = ['I_CaIIHK', 'I_CaIIHK_err']
+                    res = [I_CaIIHK, I_CaIIHK_err]
+                    results.append(res)
+                    
+            elif Instrument=='ESPADONS':
+                if meta_file_path != None:
+                    header = ['OBS_DATE', 'RA', 'DEC', 'V_mag', 'T_eff', 'Distance', 'JD', 'AIRMASS', 'T_EXP', 'RUN_ID', 'SNR', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+                    res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err] 
+                    results.append(res)
+                else:
+                    header = ['I_CaIIHK', 'I_CaIIHK_err']
+                    res = [I_CaIIHK, I_CaIIHK_err]
+                    results.append(res)
+            
+            elif Instrument=='HARPS':
+                header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+                res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
                 results.append(res)
                 
-        elif Instrument=='ESPADONS':
-            if meta_file_path != None:
-                header = ['OBS_DATE', 'RA', 'DEC', 'V_mag', 'T_eff', 'Distance', 'JD', 'AIRMASS', 'T_EXP', 'RUN_ID', 'SNR', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
-                res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err] 
+            elif Instrument=='HARPS-N':
+                header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+                res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
                 results.append(res)
-            else:
-                header = ['I_CaIIHK', 'I_CaIIHK_err']
-                res = [I_CaIIHK, I_CaIIHK_err]
+                
+            elif Instrument=='SOPHIE':
+                header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
+                res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
                 results.append(res)
+            
+    if plot_only_spec:
         
-        elif Instrument=='HARPS':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
-            res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
-            results.append(res)
+        return
+    
+    else:
+    
+        # Saving the results in a csv file format  
+        if save_results:
             
-        elif Instrument=='HARPS-N':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
-            res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
-            results.append(res)
-            
-        elif Instrument=='SOPHIE':
-            header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_CaIIHK', 'I_CaIIHK_err']
-            res = list(obj_params.values()) + [I_CaIIHK, I_CaIIHK_err]
-            results.append(res)
-            
-    # Saving the results in a csv file format  
-    if save_results:
-        
-        if print_stat:
-            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
-            writer = csv.writer(csvfile, dialect='excel')
-            writer.writerow(header)
-            for row in results:
-                writer.writerow(row)  
-            
-    return results
+            if print_stat:
+                print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+            with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+                writer = csv.writer(csvfile, dialect='excel')
+                writer.writerow(header)
+                for row in results:
+                    writer.writerow(row)  
+                
+        return results
 
 ## Defining a function for calculating the HeI D3 index following Gomes da Silva et al. 2011 (2011A&A...534A..30G)
 
@@ -2315,7 +2351,8 @@ def HeI_index(file_path,
               save_figs=False,
               save_figs_name=None,
               out_file_path=None,
-              ccf_file_path=None):
+              ccf_file_path=None,
+              plot_only_spec=False):
     
     """
     Calculates the HeI index following Gomes da Silva et al. 2011 (2011A&A...534A..30G).  
@@ -2471,14 +2508,60 @@ def HeI_index(file_path,
             spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
                                 flux=flx*u.Jy, 
                                 uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
+                
+                
+        # ESPADONS
+        
+        elif Instrument == 'ESPADONS':
             
-            # Printing info
+            if meta_file_path != None:
+                
+                # Using read_data from krome.spec_analysis to extract useful object parameters and all individual spectral orders
+                
+                obj_params, orders = read_data(file_path=file_path[i],
+                                               meta_file_path=meta_file_path[i],
+                                               Instrument=Instrument,
+                                               print_stat=print_stat,
+                                               show_plots=False)
+                
+                obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
+                
+            else:
+                
+                orders = read_data(file_path=file_path[i],
+                                   Instrument=Instrument,
+                                   print_stat=print_stat,
+                                   meta_file_path=None,
+                                   show_plots=False)
+                
+                if print_stat:
+                    print('"meta_file_path" not given as an argument. Run will only return the indices and their errros instead.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                
+
+            if print_stat:
+                print('Total {} spectral orders extracted'.format(len(orders)))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            
+            order_38 = orders[61-38] 
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {}nm'.format(radial_velocity, shift))
+                print('The #38 order wavelength read from .s file using pandas is: {}'.format(order_38[0]))
+                print('The #38 order intensity read from .s file using pandas is: {}'.format(order_38[1]))
+                print('The #38 order intensity error read from .s file using pandas is: {}'.format(order_38[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral order used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+            shift = ((radial_velocity/ap.constants.c.value)*HeI_line)  
+            shift = (round(shift, 4))
+            
+            wvl = np.round((order_34[0] - shift), 4) 
+            flx = order_34[1] 
+            flx_err = order_34[2] 
+        
+            spec1d = Spectrum1D(spectral_axis=wvl*u.nm, 
+                                flux=flx*u.Jy, 
+                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy)) 
                 
         # HARPS
         
@@ -2550,12 +2633,7 @@ def HeI_index(file_path,
                                     flux=flx[left_idx:right_idx+1]*u.Jy,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
-            if print_stat:
-                print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {}nm'.format(obj_params['RV'], shift))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                    
+             
         ## HARPS-N
                 
         elif Instrument=='HARPS-N':
@@ -2607,15 +2685,128 @@ def HeI_index(file_path,
                               flux=flx[left_idx:right_idx+1]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
+                
+        # SOPHIE
+        
+        elif Instrument == 'SOPHIE':
+            
+            obj_params, spec = read_data(file_path=file_path[i],
+                                         Instrument=Instrument,
+                                         print_stat=print_stat,
+                                         show_plots=False)
+            
+            obj_params['RV'] = radial_velocity 
+            
+            # Checking if the FITS file is e2ds since it has 39 spectral orders using an arbitray order number of 50. If greater than 50, assume its s1d.
+            
+            if len(spec[0]) < 50:
+                
+                if print_stat:
+                    print('Total {} spectral orders extracted'.format(len(spec[0])))
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                        
+                wvl = spec[0][29] ## For SOPHIE spectra, the HeI line along with its reference bands are within the 30th order.
+                flx = spec[1][29]
+                    
+                # Flux error array is calculated as photon noise plus CCD readout noise 
+
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx])
+                
+            else:
+                
+                left_idx = find_nearest(spec[0], F1_line-2) # ± 2nm extra included for both!
+                right_idx = find_nearest(spec[0], F2_line+2)
+                
+                # Slicing the data to contain only the region required for the index calculation
+                
+                wvl = spec[0][left_idx:right_idx+1]
+                flx = spec[1][left_idx:right_idx+1]
+                
+                # Flux error array is calculated as photon noise alone since RON isn't available
+
+                with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux) for flux in flx])
+                    
+                
+            if np.isnan(np.sum(flx_err)):
+                if print_stat:
+                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {}nm'.format(obj_params['RV'], shift))
+                print('The wavelength array read from .fits file is: {}'.format(wvl))
+                print('The flux array read from .fits file is: {}'.format(flx))
+                print('The calculated flux error array is: {}'.format(flx_err))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')    
+                
+            
+            shift = ((obj_params['RV']/ap.constants.c.value)*HeI_line)  
+            shift = (round(shift, 4)) 
+            
+            wvl_shifted = np.round((wvl - shift), 4) 
+            
+            spec1d = Spectrum1D(spectral_axis=wvl_shifted*u.nm, 
+                                flux=flx*u.Jy, 
+                                uncertainty=StdDevUncertainty(flx_err, unit=u.Jy))
+            
+        # ELODIE
+        
+        elif Instrument=='ELODIE':
+            
+            obj_params, spec = read_data(file_path=file_path[i],
+                                         Instrument=Instrument,
+                                         print_stat=print_stat,
+                                         show_plots=False)
+            
+            obj_params['RV'] = radial_velocity
+            
+            wvl = spec[0] # nm
+            flx = spec[1] # ADU
+            
+            shift = ((obj_params['RV']/ap.constants.c.value)*HeI_line)  
+            shift = (round(shift, 3)) 
+            
+            left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
+            right_idx = find_nearest(wvl, F2_line+2)
+            
+            if print_stat:
+                print('Calculating the flux error array as the photon noise')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
-                                                                                                                                                              spec1d.spectral_axis[-1].value))
+            
+            with warnings.catch_warnings():  # Ignore warnings
+                    warnings.simplefilter('ignore')
+                    flx_err = np.asarray([np.sqrt(flux) for flux in flx]) 
+                    
+            if np.isnan(np.sum(flx_err)):
+                if print_stat:
+                    print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                    
+            if print_stat:
+                print('The wavelength array read from the .fits file is: {}'.format(wvl))
+                print('The flux array read from the .fits file is: {}'.format(flx))
+                print('The calculated flux error array is: {}'.format(flx_err))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+            spec1d = Spectrum1D(spectral_axis=(wvl[left_idx:right_idx+1] - shift)*u.nm, 
+                              flux=flx[left_idx:right_idx+1]*u.Jy,
+                              uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
                 
         else:
-            raise ValueError('Instrument type not recognised. Available options are "NARVAL", "HARPS" and "HARPS-N"')
+            raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N", "SOPHIE" and "ELODIE"')
+            
+        # Printing spec info
+            
+        if print_stat:
+            print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {:.4f}nm'.format(radial_velocity, shift))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('These values are doppler shift corrected and rounded off to 4 decimal places')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
@@ -2641,58 +2832,92 @@ def HeI_index(file_path,
             
             plot_spectrum(spec, lines, 'HeI', Instrument, norm_spec, save_figs, save_figs_name)
             
-        # Now we have the spectrum to work with as a variable, 'spec'!
-        
-        # The three regions required for HeI index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
-        # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so using the line and line bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
-        # Note: These values must have the same units as the spec wavelength axis.
-        
-        F_HeI_region = extract_region(spec, region=SpectralRegion((HeI_line-(HeI_band/2))*u.nm, (HeI_line+(HeI_band/2))*u.nm))
-        F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
-        F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
-        
-        regions = [F_HeI_region, F1_region, F2_region]
+        if plot_only_spec:
             
-        # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
+            pass
         
-        I_HeI, I_HeI_err = calc_ind(regions=regions,
-                                    index_name='HeI',
-                                    print_stat=print_stat)
-        
-        if Instrument=='NARVAL':
-            if out_file_path != None:
-                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_HeI', 'I_HeI_err']
-                res = list(obj_params.values()) + [I_HeI, I_HeI_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 'results' empty list created at the start of this function!
-                results.append(res)
-            else:
-                header = ['I_HeI', 'I_HeI_err']
-                res = [I_HeI, I_HeI_err]
-                results.append(res)
-        
-        elif Instrument=='HARPS':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_HeI', 'I_HeI_err']
-            res = list(obj_params.values()) + [I_HeI, I_HeI_err]
-            results.append(res)
+        else:
             
-        elif Instrument=='HARPS-N':
-            header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_HeI', 'I_HeI_err']
-            res = list(obj_params.values()) + [I_HeI, I_HeI_err]
-            results.append(res)
+            # Now we have the spectrum to work with as a variable, 'spec'!
+            
+            # The three regions required for HeI index calculation are extracted from 'spec' using the 'extract region' function from 'specutils'. 
+            # The function uses another function called 'SpectralRegion' as one of its arguments which defines the region to be extracted done so using the line and line 
+            # bandwidth values; i.e. left end of region would be 'line - bandwidth/2' and right end would be 'line + bandwidth/2'.
+            # Note: These values must have the same units as the spec wavelength axis.
+            
+            F_HeI_region = extract_region(spec, region=SpectralRegion((HeI_line-(HeI_band/2))*u.nm, (HeI_line+(HeI_band/2))*u.nm))
+            F1_region = extract_region(spec, region=SpectralRegion((F1_line-(F1_band/2))*u.nm, (F1_line+(F1_band/2))*u.nm))
+            F2_region = extract_region(spec, region=SpectralRegion((F2_line-(F2_band/2))*u.nm, (F2_line+(F2_band/2))*u.nm))
+            
+            regions = [F_HeI_region, F1_region, F2_region]
+                
+            # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
+            
+            I_HeI, I_HeI_err = calc_ind(regions=regions,
+                                        index_name='HeI',
+                                        print_stat=print_stat)
+            
+            if Instrument=='NARVAL':
+                if out_file_path != None:
+                    header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_HeI', 'I_HeI_err']
+                    res = list(obj_params.values()) + [I_HeI, I_HeI_err] # Creating results list 'res' containing the calculated parameters and appending this list to the 
+                                                                         # 'results' empty list created at the start of this function!
+                    results.append(res)
+                else:
+                    header = ['I_HeI', 'I_HeI_err']
+                    res = [I_HeI, I_HeI_err]
+                    results.append(res)
+                    
+            elif Instrument=='ESPADONS':
+                if meta_file_path != None:
+                    header = ['OBS_DATE', 'RA', 'DEC', 'V_mag', 'T_eff', 'Distance', 'JD', 'AIRMASS', 'T_EXP', 'RUN_ID', 'SNR', 'RV', 'I_HeI', 'I_HeI_err']
+                    res = list(obj_params.values()) + [I_HeI, I_HeI_err]
+                    results.append(res)
+                else:
+                    header = ['I_HeI', 'I_HeI_err']
+                    res = [I_HeI, I_HeI_err]
+                    results.append(res)
+            
+            elif Instrument=='HARPS':
+                header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_HeI', 'I_HeI_err']
+                res = list(obj_params.values()) + [I_HeI, I_HeI_err]
+                results.append(res)
+                
+            elif Instrument=='HARPS-N':
+                header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'I_HeI', 'I_HeI_err']
+                res = list(obj_params.values()) + [I_HeI, I_HeI_err]
+                results.append(res)
+                
+            elif Instrument=='SOPHIE':
+                header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_HeI', 'I_HeI_err']
+                res = list(obj_params.values()) + [I_HeI, I_HeI_err]
+                results.append(res)
+                
+            elif Instrument=='ELODIE':
+                header = ['JD', 'RA', 'DEC', 'T_EXP', 'OBS_DATE', 'AIRMASS', 'SNR', 'GAIN', 'RV', 'I_HeI', 'I_HeI_err']
+                res = list(obj_params.values()) + [I_HeI, I_HeI_err]
+                results.append(res)
+                
+    if plot_only_spec:
+        
+        return
     
-    # Saving the results in a csv file format  
-    if save_results:
-        
-        if print_stat:
-            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-
-        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
-            writer = csv.writer(csvfile, dialect='excel')
-            writer.writerow(header)
-            for row in results:
-                writer.writerow(row)  
+    else:
+    
+        # Saving the results in a csv file format  
+        if save_results:
             
-    return results
+            if print_stat:
+                print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    
+            with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+                writer = csv.writer(csvfile, dialect='excel')
+                writer.writerow(header)
+                for row in results:
+                    writer.writerow(row)  
+                
+        return results
 
 ## Defining a function to calculate the Balmer decrement Frasca, A. et al. 2015 (2015A&A...575A...4F)
 
