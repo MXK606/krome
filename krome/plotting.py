@@ -481,3 +481,5 @@ def plot_spectrum(spec,
             plt.savefig('{}_CaIIHK_lines_plot.pdf'.format(save_figs_name), format='pdf')
         
     return
+
+
