@@ -2,14 +2,15 @@
 # coding: utf-8
 
 """
-plotting.py: This python module contains functions to plot results obtained from the index_calc.py module.
+plotting.py: This python module contains functions to plot results obtained from the index_calc.py module along with the function dealing with plotting 
+the spectrum for each index function inside index_calc.py.
 
 """
 
 __author__ = "Mukul Kumar"
-__email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "17-03-2022"
-__version__ = "1.2"
+__email__ = "mukulkumar531@gmail.com, MXK606@alumni.bham.ac.uk"
+__date__ = "11-10-2022"
+__version__ = "1.5"
 
 import numpy as np
 import matplotlib.pyplot as plt
