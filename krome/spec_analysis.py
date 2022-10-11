@@ -7,9 +7,9 @@ spec_analysis.py: This python module contains supplementary functions used by th
 """
 
 __author__ = "Mukul Kumar"
-__email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "26-05-2022"
-__version__ = "1.2"
+__email__ = "mukulkumar531@gmail.com, MXK606@alumni.bham.ac.uk"
+__date__ = "11-10-2022"
+__version__ = "1.7"
 
 import numpy as np
 import pandas as pd
