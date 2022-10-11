@@ -2,14 +2,14 @@
 # coding: utf-8
 
 """
-index_calc.py: This python module contains the CaIIH, NaI, and Hα (CaI within it) activity index calculation functions.
+index_calc.py: This python module contains the CaIIH&K, HeID3, NaI, and Hα (CaI within it) activity index calculation functions.
 
 """
 
 __author__ = "Mukul Kumar"
-__email__ = "Mukul.k@uaeu.ac.ae, MXK606@alumni.bham.ac.uk"
-__date__ = "10-03-2022"
-__version__ = "1.8.1"
+__email__ = "mukulkumar531@gmail.com, MXK606@alumni.bham.ac.uk"
+__date__ = "11-10-2022"
+__version__ = "2.0"
 
 import numpy as np
 import pandas as pd
