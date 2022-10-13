@@ -3527,6 +3527,7 @@ def CaII_IRT(file_path,
              IRT_3_F2_line=867.8,
              IRT_3_F2_band=0.2,
              plot_spec=True,
+             plot_only_spec=False,
              print_stat=True,
              save_results=False, 
              results_file_name=None,
@@ -3701,55 +3702,67 @@ def CaII_IRT(file_path,
                      IRT_3_line, IRT_3_band, IRT_3_F1_line, IRT_3_F1_band, IRT_3_F2_line, IRT_3_F2_band]
             
             plot_spectrum(spec=spec1d_all, lines=lines, Index='IRT', Instrument='NARVAL', norm_spec=False, save_figs=save_figs, save_figs_name=save_figs_name)
-                
-        # Extracting each of the IRT line region using 'extract_region' from 'specutils'
-        
-        ## IRT 1
-        
-        F_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_line-(IRT_1_band/2))*u.nm, (IRT_1_line+(IRT_1_band/2))*u.nm))
-        F1_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_F1_line-(IRT_1_F1_band/2))*u.nm, (IRT_1_F1_line+(IRT_1_F1_band/2))*u.nm))
-        F2_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_F2_line-(IRT_1_F2_band/2))*u.nm, (IRT_1_F2_line+(IRT_1_F2_band/2))*u.nm))
-        
-        ## IRT 2
-        
-        F_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_line-(IRT_2_band/2))*u.nm, (IRT_2_line+(IRT_2_band/2))*u.nm))
-        F1_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_F1_line-(IRT_2_F1_band/2))*u.nm, (IRT_2_F1_line+(IRT_2_F1_band/2))*u.nm))
-        F2_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_F2_line-(IRT_2_F2_band/2))*u.nm, (IRT_2_F2_line+(IRT_2_F2_band/2))*u.nm))
-        
-        ## IRT 3
-        
-        F_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_line-(IRT_3_band/2))*u.nm, (IRT_3_line+(IRT_3_band/2))*u.nm))
-        F1_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_F1_line-(IRT_3_F1_band/2))*u.nm, (IRT_3_F1_line+(IRT_3_F1_band/2))*u.nm))
-        F2_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_F2_line-(IRT_3_F2_band/2))*u.nm, (IRT_3_F2_line+(IRT_3_F2_band/2))*u.nm))
-                                        
-        
-        regions = [F_IRT_1_region, F1_IRT_1_region, F2_IRT_1_region, 
-                   F_IRT_2_region, F1_IRT_2_region, F2_IRT_3_region, 
-                   F_IRT_3_region, F1_IRT_3_region, F2_IRT_3_region]
             
-        # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
+        if plot_only_spec:
+            
+            pass
         
-        IRT_index_list = calc_ind(regions=regions, index_name='CaII_IRT', print_stat=print_stat)
-        
-        if out_file_path != None:
-            header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
-            res = list(obj_params.values()) + IRT_index_list
-            results.append(res)
         else:
-            header = ['I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
-            res = IRT_index_list
-            results.append(res)
             
-    # Saving the results in a csv file format  
-    if save_results:
-        if print_stat:
-            print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
-            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-
-        with open('{}.csv'.format(results_file_name), 'w') as csvfile:
-            writer = csv.writer(csvfile, dialect='excel')
-            writer.writerow(header)
-            for row in results:
-                writer.writerow(row)  
+            # Extracting each of the IRT line region using 'extract_region' from 'specutils'
             
-    return results
+            ## IRT 1
+            
+            F_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_line-(IRT_1_band/2))*u.nm, (IRT_1_line+(IRT_1_band/2))*u.nm))
+            F1_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_F1_line-(IRT_1_F1_band/2))*u.nm, (IRT_1_F1_line+(IRT_1_F1_band/2))*u.nm))
+            F2_IRT_1_region = extract_region(spec1d_IRT_1, region=SpectralRegion((IRT_1_F2_line-(IRT_1_F2_band/2))*u.nm, (IRT_1_F2_line+(IRT_1_F2_band/2))*u.nm))
+            
+            ## IRT 2
+            
+            F_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_line-(IRT_2_band/2))*u.nm, (IRT_2_line+(IRT_2_band/2))*u.nm))
+            F1_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_F1_line-(IRT_2_F1_band/2))*u.nm, (IRT_2_F1_line+(IRT_2_F1_band/2))*u.nm))
+            F2_IRT_2_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_2_F2_line-(IRT_2_F2_band/2))*u.nm, (IRT_2_F2_line+(IRT_2_F2_band/2))*u.nm))
+            
+            ## IRT 3
+            
+            F_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_line-(IRT_3_band/2))*u.nm, (IRT_3_line+(IRT_3_band/2))*u.nm))
+            F1_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_F1_line-(IRT_3_F1_band/2))*u.nm, (IRT_3_F1_line+(IRT_3_F1_band/2))*u.nm))
+            F2_IRT_3_region = extract_region(spec1d_IRT_23, region=SpectralRegion((IRT_3_F2_line-(IRT_3_F2_band/2))*u.nm, (IRT_3_F2_line+(IRT_3_F2_band/2))*u.nm))
+                                            
+            
+            regions = [F_IRT_1_region, F1_IRT_1_region, F2_IRT_1_region, 
+                       F_IRT_2_region, F1_IRT_2_region, F2_IRT_3_region, 
+                       F_IRT_3_region, F1_IRT_3_region, F2_IRT_3_region]
+                
+            # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
+            
+            IRT_index_list = calc_ind(regions=regions, index_name='CaII_IRT', print_stat=print_stat)
+            
+            if out_file_path != None:
+                header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
+                res = list(obj_params.values()) + IRT_index_list
+                results.append(res)
+            else:
+                header = ['I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
+                res = IRT_index_list
+                results.append(res)
+                
+    if plot_only_spec:
+        
+        return
+    
+    else:
+    
+        # Saving the results in a csv file format  
+        if save_results:
+            if print_stat:
+                print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    
+            with open('{}.csv'.format(results_file_name), 'w') as csvfile:
+                writer = csv.writer(csvfile, dialect='excel')
+                writer.writerow(header)
+                for row in results:
+                    writer.writerow(row)  
+                
+        return results
