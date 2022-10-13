@@ -2256,37 +2256,6 @@ def normalise_spec(spec1d,
             
     return spec_normalized
 
-## Defining a function to doppler shift a given Spectrum1D object
-
-
-def doppler_shift(spectral_axis,
-                  radial_velocity,
-                  rest_wavelength,
-                  print_stat=True):
-    
-    # The spectra is doppler shift corrected in the wavelength axis using the stellar radial velocity and the given rest wavelength as; delta_lambda = (v/c)*lambda
-    
-    precision = str(spectral_axis[0])[::-1].find('.') # Finds the precision of the first element in the wavelength array 
-                
-    shift = ((radial_velocity/ap.constants.c.value)*rest_wavelength)  
-    shift = (round(shift, precision)) # Using the precision value found above for rounding off the doppler shift!
-    
-    # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. 
-    # If the stellar RV is negative, the shift value will be added instead.
-    
-    spectral_axis_shifted = np.round((spectral_axis - shift), precision) 
-    
-    # Printing info
-    
-    if print_stat:
-        print('The doppler shift size using RV {} m/s and the rest wavelength of {}nm is: {:.4f}nm'.format(radial_velocity, rest_wavelength, shift))
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        print('The spectral axis used ranges from {:.4f}nm to {:.4f}nm.'.format(spectral_axis_shifted[0], spectral_axis_shifted[-1])) 
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        print('These values are doppler shift corrected and rounded off to {} decimal places'.format(precision))
-        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-    return spectral_axis_shifted
 
 ## Defining a function to calculate the tidal bulge height following Cuntz et al. 2000
 
@@ -2379,3 +2348,192 @@ def tidal_bulge_height(ephem_result_file_path,
             
     return results
 
+## Defining a function to bin the data into evenly-spaced intervals for the Pooled Varince calculation
+
+def bin_data(jd, index, bin_size, bin_min=2, print_stat=True):
+    
+    """
+    Bins the given data into evenly-spaced intervals of length, `bin_size`
+    
+    Parameters:
+    ----------
+    
+    jd: arr
+    Observation dates used for binning the data
+    
+    index: arr
+    Index values associated with the observation dates
+    
+    bin_size: float
+    Lenght of evenly-spaced intervals in the same unit as `jd`
+    
+    bin_min: int, default=2
+    Minimum number of values in any given bin. Bins with values below `bin_min` are discarded
+    
+    print_stat: bool
+    Prints useful output whilst running the function
+    
+    Returns:
+    -------
+    
+    binned data
+    type: list
+    
+    """
+    
+    bins_1d = np.arange(np.min(jd), np.max(jd), bin_size) ## For N number of points in 'bins_1d', there will be N-1 bins.
+    
+    bins = [[bins_1d[i], bins_1d[i+1]] for i in range(len(bins_1d)-1)]
+    
+    if bins[-1][1] < np.max(jd):
+        bins.append([bins[-1][1], np.max(jd)]) # For cases when the last element of the last bin is smaller than the maximum of given jd, 
+                                               # it creates a new bin to include it. Now bins length is the same as 'bins_1d'
+            
+    if print_stat:
+        print('Total number of bins to check between {} and {} JD are {}'.format(jd.min(), jd.max(), len(bins)))
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    
+    binned_data_list = []
+
+    for i in range(len(bins)):
+        index_list_per_bin = []
+        for j in range(len(jd)):
+            if jd[j] > bins[i][0] and jd[j] < bins[i][1]:
+                index_list_per_bin.append(index[j])
+        binned_data_list.append(index_list_per_bin)
+        
+    binned_data_list = [x for x in binned_data_list if x != [] and len(x) >=bin_min] # Remove all empty lists and lists with length less than 2
+    
+    if print_stat:
+        print('Total number of bins with more than {} data points are {}'.format(bin_min, len(binned_data_list)))
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+    return binned_data_list
+
+## Defining a function to calculate the Pooled variance 
+
+def pool_var_run(jd, index, bin_size, bin_min=2, method='DR', print_stat=True):
+    
+    """
+    Calculated the pooled variance using either the R. A. DONAHUE et al. 1997 (a) method OR the Scandariato et al. 2017 method.
+    
+    Parameters:
+    ----------
+    
+    jd: arr
+    Observation dates used for binning the data
+    
+    index: arr
+    Index values associated with the observation dates
+    
+    bin_size: float
+    Lenght of evenly-spaced intervals in the same unit as `jd`
+    
+    bin_min: int, default=2
+    Minimum number of values in any given bin. Bins with values below `bin_min` are discarded
+    
+    method: str
+    Method with which to calculate the Pooled Variance. Available options are 'DR' & 'SG'
+    
+    print_stat: bool
+    Prints useful output whilst running the function
+    
+    Returns:
+    -------
+    
+    Pooled Varince; length=1
+    type: float
+    
+    """
+    
+    binned_data = bin_data(jd, index, bin_size, bin_min, print_stat=print_stat)
+    
+    if method=='DR':
+        
+        if print_stat:
+            print('Using the Donahue et al. 1997a method')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+
+        n_bins = len(binned_data)
+        
+        pool_var = np.sum([np.var(data, ddof=1) for data in binned_data])/n_bins
+        
+    elif method=='SG':
+        
+        if print_stat:
+            print('Using the Scandariato et al. 2017 method')
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        ## In this method, the mean and standard deviation are replaced with median and MAD!
+        
+        def mad(data, axis=None):
+            return np.mean(np.absolute(data - np.mean(data, axis)), axis)
+
+        pool_var = np.median([mad(data) for data in binned_data])
+        
+    else:
+        raise TypeError('Keyword argument for "method" not recognised. Available options are "DR" & "SG"')
+    
+    return pool_var
+
+## Defining a function to calculated the pooled variance for a given set of binned data!
+
+def Pooled_Variance(jd, index, 
+                    P_min=1.0, 
+                    P_max=100.0, 
+                    P_res=1.0, 
+                    bin_min=2, 
+                    method='DR',
+                    fmt='-k', 
+                    xscale='log',
+                    fig_format='png',
+                    show_plot=True, 
+                    save_plot=False, 
+                    save_name=None,
+                    custom_p_grid=None,
+                    print_stat=False):
+    
+    
+    """
+    
+    Insert Docstring Here
+    
+    """
+    
+    pool_var_list = []
+    
+    if custom_p_grid == None:
+        period_grid = np.arange(P_min, P_max, P_res)
+    else:
+        period_grid = custom_p_grid
+        
+    if print_stat:
+        print('Timescales to test range from {}d to {}d with a grid resolution of {}d'.format(period_grid[0], period_grid[-1], np.diff(period_grid)[0]))
+        print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    
+    for t in log_progress(range(len(period_grid)), desc='Calculating Pooled Variance'):
+        
+        pool_var_list.append(pool_var_run(jd, index, bin_size=period_grid[t], bin_min=bin_min, method=method, print_stat=print_stat))
+        
+    if show_plot:
+        
+        ## Plotting the PV results
+        
+        pool_var_list = np.asarray(pool_var_list)
+
+        plt.figure(figsize=(10,4))
+        plt.plot(period_grid, pool_var_list, fmt, markersize=10, label='{} method'.format(method))
+        plt.xscale(xscale)
+        plt.xlabel(r'log($\tau$) (d)')
+        plt.ylabel(r'$\sigma_{P}^2$', fontsize=20)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        
+        if save_plot:
+            if print_stat:
+                print('Saving the PV diagram as {}.pdf in the working directory'.format(save_name))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            plt.savefig('{}'.format(save_name+'.'+fig_format), format=fig_format, dpi=300)
+            
+    return period_grid, pool_var_list
