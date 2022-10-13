@@ -837,17 +837,17 @@ def NaI_index(file_path,
             # The spectral and flux axes are given nm and Jy units using 'astropy.units' as 'u'. The uncertainty has units Jy as well!
             
             
-            spec1 = Spectrum1D(spectral_axis=np.round((ord_39[0].values - shift), 4)*u.nm, 
-                               flux=ord_39[1].values*u.Jy, 
-                               uncertainty=StdDevUncertainty(ord_39[2].values))
+            spec1 = Spectrum1D(spectral_axis=np.round((ord_39[0] - shift), 4)*u.nm, 
+                               flux=ord_39[1]*u.Jy, 
+                               uncertainty=StdDevUncertainty(ord_39[2]))
             
-            spec2 = Spectrum1D(spectral_axis=np.round((ord_38[0].values - shift), 4)*u.nm, 
-                               flux=ord_38[1].values*u.Jy, 
-                               uncertainty=StdDevUncertainty(ord_38[2].values))
+            spec2 = Spectrum1D(spectral_axis=np.round((ord_38[0] - shift), 4)*u.nm, 
+                               flux=ord_38[1]*u.Jy, 
+                               uncertainty=StdDevUncertainty(ord_38[2]))
             
-            spec3 = Spectrum1D(spectral_axis=np.round((ord_37[0].values - shift), 4)*u.nm, 
-                               flux=ord_37[1].values*u.Jy, 
-                               uncertainty=StdDevUncertainty(ord_37[2].values))
+            spec3 = Spectrum1D(spectral_axis=np.round((ord_37[0] - shift), 4)*u.nm, 
+                               flux=ord_37[1]*u.Jy, 
+                               uncertainty=StdDevUncertainty(ord_37[2]))
                             
             if print_stat:
                 print('The three spectral orders used range from; {}nm-{}nm, {}nm-{}nm, and {}nm-{}nm'.format(spec1.spectral_axis[0].value, 
@@ -2481,9 +2481,9 @@ def HeI_index(file_path,
             order_38 = orders[61-38] # The orders begin from # 61 so to get # 38, we index as 61-38.
             
             if print_stat:
-                print('The #38 order wavelength read from .s file using pandas is: {}'.format(order_38[0].values))
-                print('The #38 order intensity read from .s file using pandas is: {}'.format(order_38[1].values))
-                print('The #38 order intensity error read from .s file using pandas is: {}'.format(order_38[2].values))
+                print('The #38 order wavelength read from .s file using pandas is: {}'.format(order_38[0]))
+                print('The #38 order intensity read from .s file using pandas is: {}'.format(order_38[1]))
+                print('The #38 order intensity error read from .s file using pandas is: {}'.format(order_38[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
             
@@ -2492,9 +2492,9 @@ def HeI_index(file_path,
             shift = ((radial_velocity/ap.constants.c.value)*HeI_line)  
             shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
             
-            wvl = np.round((order_38[0].values - shift), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
-            flx = order_38[1].values # Indexing flux array from order_34
-            flx_err = order_38[2].values # Indexing flux_err array from order_34
+            wvl = np.round((order_38[0] - shift), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
+            flx = order_38[1] # Indexing flux array from order_34
+            flx_err = order_38[2] # Indexing flux_err array from order_34
             
             # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
