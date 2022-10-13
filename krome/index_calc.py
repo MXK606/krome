@@ -2166,19 +2166,16 @@ def CaIIHK_Index(file_path,
                     
                     wvl_HK = np.asarray(list(spec_K.spectral_axis.value) + list(spec_H.spectral_axis.value) + list(spec_F2.spectral_axis.value))
                     flx_HK = np.asarray(list(spec_K.flux.value) + list(spec_H.flux.value) + list(spec_F2.flux.value))
-                    flx_err_HK = np.asarray(list(spec_K.uncertainty.array) + list(spec_H.uncertainty.array) + list(spec_F2.uncertainty.array))
                     
                 else:
                     
                     wvl_HK = np.asarray(list(spec_K.spectral_axis.value) + list(spec_H.spectral_axis.value))
                     flx_HK = np.asarray(list(spec_K.flux.value) + list(spec_H.flux.value))
-                    flx_err_HK = np.asarray(list(spec_K.uncertainty.array) + list(spec_H.uncertainty.array))
                 
                 # This Spectrum1D object is used for plotting ONLY!
                 
                 spec1d_HK = Spectrum1D(spectral_axis=wvl_HK*u.nm, 
-                                       flux=flx_HK*u.Jy, 
-                                       uncertainty=StdDevUncertainty(flx_err_HK, unit=u.Jy))
+                                       flux=flx_HK*u.Jy)
                 
                 lines = [CaIIH_line, CaIIH_band, CaIIK_line, CaIIK_band, F1_line, F1_band, F2_line, F2_band]
                 
@@ -3051,30 +3048,28 @@ def balmer_decrement(file_path,
             order_46 = orders[61-46] # This will be the H_beta order.
             
             if print_stat:
-                print('The #34 Hα order wavelength read from .s file using pandas is: {}'.format(order_34[0].values))
-                print('The #34 Hα order intensity read from .s file using pandas is: {}'.format(order_34[1].values))
-                print('The #34 Hα order intensity error read from .s file using pandas is: {}'.format(order_34[2].values))
+                print('The #34 Hα order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
+                print('The #34 Hα order intensity read from .s file using pandas is: {}'.format(order_34[1]))
+                print('The #34 Hα order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The #46 Hβ order wavelength read from .s file using pandas is: {}'.format(order_46[0].values))
-                print('The #46 Hβ order intensity read from .s file using pandas is: {}'.format(order_46[1].values))
-                print('The #46 Hβ order intensity error read from .s file using pandas is: {}'.format(order_46[2].values))
+                print('The #46 Hβ order wavelength read from .s file using pandas is: {}'.format(order_46[0]))
+                print('The #46 Hβ order intensity read from .s file using pandas is: {}'.format(order_46[1]))
+                print('The #46 Hβ order intensity error read from .s file using pandas is: {}'.format(order_46[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of H_alpha/H_beta line; delta_lambda = (v/c)*lambda. NOTE: The line shifts are used for the H_alpha/H_beta spectral orders respectively.
+            # The spectra is now doppler shift corrected in the wavelength axis using 
+            # the stellar radial velocity and the rest wavelength of H_alpha line; delta_lambda = (v/c)*lambda. 
             
-            shift_alpha = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
-            shift_alpha = (round(shift_alpha, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
+            shift = ((radial_velocity/ap.constants.c.value)*H_alpha_line)  
+            shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
             
-            shift_beta = ((radial_velocity/ap.constants.c.value)*H_beta_line)  
-            shift_beta = (round(shift_beta, 4))
+            wvl_alpha = np.round((order_34[0] - shift), 4)
+            flx_alpha = order_34[1] 
+            flx_err_alpha = order_34[2] 
             
-            wvl_alpha = np.round((order_34[0].values - shift_alpha), 4) # Subtracting the calculated doppler shift value from the wavelength axis since the stellar radial velocity is positive. If the stellar RV is negative, the shift value will be added instead.
-            flx_alpha = order_34[1].values # Indexing flux array from order_34
-            flx_err_alpha = order_34[2].values # Indexing flux_err array from order_34
-            
-            wvl_beta = np.round((order_46[0].values - shift_beta), 4) 
-            flx_beta = order_46[1].values 
-            flx_err_beta = order_46[2].values
+            wvl_beta = np.round((order_46[0] - shift), 4) 
+            flx_beta = order_46[1] 
+            flx_err_beta = order_46[2]
             
             # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
             # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
@@ -3093,9 +3088,11 @@ def balmer_decrement(file_path,
             # Printing info
             
             if print_stat:
-                print('The doppler shift size using RV {} m/s and the Hα/Hβ line of 656.2808/486.135 nm is: {}/{}nm'.format(radial_velocity, shift_alpha, shift_beta))
+                print('The doppler shift size using RV {} m/s and the Hα line of 656.2808 nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                print('The Hα/Hβ orders used range from {}/{}nm to {}/{}nm. These values are doppler shift corrected and rounded off to 4 decimal places'.format(spec1d_alpha.spectral_axis[0].value, spec1d_beta.spectral_axis[0].value, spec1d_alpha.spectral_axis[-1].value, spec1d_beta.spectral_axis[-1].value))
+                print('The Hα/Hβ spectral regions used range from {}/{}nm to {}/{}nm.'.format(spec1d_alpha.spectral_axis[0].value, spec1d_beta.spectral_axis[0].value, spec1d_alpha.spectral_axis[-1].value, spec1d_beta.spectral_axis[-1].value)) 
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                print('These values are doppler shift corrected and rounded off to 4 decimal places')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
             # Calculating the fluxes
@@ -3645,13 +3642,13 @@ def CaII_IRT(file_path,
         order_26 = orders[61-26] # This order contains the other two IRT lines
         
         if print_stat:
-            print('The #27 IRT_1 order wavelength read from .s file using pandas is: {}'.format(order_27[0].values))
-            print('The #27 IRT_1 order intensity read from .s file using pandas is: {}'.format(order_27[1].values))
-            print('The #27 IRT_1 order intensity error read from .s file using pandas is: {}'.format(order_27[2].values))
+            print('The #27 IRT_1 order wavelength read from .s file using pandas is: {}'.format(order_27[0]))
+            print('The #27 IRT_1 order intensity read from .s file using pandas is: {}'.format(order_27[1]))
+            print('The #27 IRT_1 order intensity error read from .s file using pandas is: {}'.format(order_27[2]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            print('The #26 IRT_23 order wavelength read from .s file using pandas is: {}'.format(order_26[0].values))
-            print('The #26 IRT_23 order intensity read from .s file using pandas is: {}'.format(order_26[1].values))
-            print('The #26 IRT_23 order intensity error read from .s file using pandas is: {}'.format(order_26[2].values))
+            print('The #26 IRT_23 order wavelength read from .s file using pandas is: {}'.format(order_26[0]))
+            print('The #26 IRT_23 order intensity read from .s file using pandas is: {}'.format(order_26[1]))
+            print('The #26 IRT_23 order intensity error read from .s file using pandas is: {}'.format(order_26[2]))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         # The spectra is now doppler shift corrected in the wavelength axis using the stellar radial velocity and the rest wavelength of IRT 3 line; delta_lambda = (v/c)*lambda. Any of the IRT lines can be used for doppler shifting the spectrum since they do not produce a significant difference in the final index.
@@ -3659,13 +3656,13 @@ def CaII_IRT(file_path,
         shift = ((radial_velocity/ap.constants.c.value)*IRT_3_line)  
         shift = (round(shift, 4)) # Using only 4 decimal places for the shift value since that's the precision of the wavelength in the .s files!
         
-        wvl_IRT_1 = np.round((order_27[0].values - shift), 4) 
-        flx_IRT_1 = order_27[1].values 
-        flx_err_IRT_1 = order_27[2].values
+        wvl_IRT_1 = np.round((order_27[0] - shift), 4) 
+        flx_IRT_1 = order_27[1] 
+        flx_err_IRT_1 = order_27[2]
         
-        wvl_IRT_23 = np.round((order_26[0].values - shift), 4) 
-        flx_IRT_23 = order_26[1].values 
-        flx_err_IRT_23 = order_26[2].values
+        wvl_IRT_23 = np.round((order_26[0] - shift), 4) 
+        flx_IRT_23 = order_26[1]
+        flx_err_IRT_23 = order_26[2]
         
         # Creating a spectrum object called 'spec1d' using 'Spectrum1D' from 'specutils'
         # Docs for 'specutils' are here; https://specutils.readthedocs.io/en/stable/ 
@@ -3690,48 +3687,20 @@ def CaII_IRT(file_path,
         # Plots spectrum
         
         if plot_spec:
-            f, (ax1, ax2, ax3)  = plt.subplots(3, 1, figsize=(6, 12))
             
-            ax1.plot(spec1d_IRT_1.spectral_axis, spec1d_IRT_1.flux, '-k', label='Order #27')  
-            ax1.vlines(IRT_1_line, ymin=0, ymax=max(spec1d_IRT_1.flux.value), linestyles='dotted', colors='red')
-            ax1.vlines(IRT_1_line-(IRT_1_band/2), ymin=0, ymax=max(spec1d_IRT_1.flux.value), linestyles='--', colors='black', label='CaII IRT_1 bandwidth = {}nm'.format(IRT_1_band))
-            ax1.vlines(IRT_1_line+(IRT_1_band/2), ymin=0, ymax=max(spec1d_IRT_1.flux.value), linestyles='--', colors='black')
-            ax1.set_xlabel('$\lambda (nm)$')
-            ax1.set_ylabel("Normalized Flux")
-            ax1.set_xlim((IRT_1_line-(IRT_1_band/2))-0.1, (IRT_1_line+(IRT_1_band/2))+0.1)
-            ax1.yaxis.set_ticks_position('both')
-            ax1.xaxis.set_ticks_position('both')
-            ax1.tick_params(direction='in', which='both')
-            ax1.legend()
-           
-            ax2.plot(spec1d_IRT_23.spectral_axis, spec1d_IRT_23.flux, '-k', label='Order # 26')  
-            ax2.vlines(IRT_2_line, ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='dotted', colors='green')
-            ax2.vlines(IRT_2_line-(IRT_2_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black', label='CaII IRT_2 bandwidth = {}nm'.format(IRT_2_band))
-            ax2.vlines(IRT_2_line+(IRT_2_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black')
-            ax2.set_xlabel('$\lambda (nm)$')
-            ax2.set_ylabel("Normalized Flux")
-            ax2.set_xlim((IRT_2_line-(IRT_2_band/2))-0.1, (IRT_2_line+(IRT_2_band/2))+0.1)
-            ax2.yaxis.set_ticks_position('both')
-            ax2.xaxis.set_ticks_position('both')
-            ax2.tick_params(direction='in', which='both')
-            ax2.legend()
+            wvl_all = np.asarray(list(spec1d_IRT_1.spectral_axis.value) + list(spec1d_IRT_23.spectral_axis.value))
+            flx_all = np.asarray(list(spec1d_IRT_1.flux.value) + list(spec1d_IRT_23.flux.value))
+                
+            # This Spectrum1D object is used for plotting ONLY!
             
-            ax3.plot(spec1d_IRT_23.spectral_axis, spec1d_IRT_23.flux, '-k', label='Order # 26')  
-            ax3.vlines(IRT_3_line, ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='dotted', colors='blue')
-            ax3.vlines(IRT_3_line-(IRT_3_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black', label='CaII IRT_3 bandwidth = {}nm'.format(IRT_3_band))
-            ax3.vlines(IRT_3_line+(IRT_3_band/2), ymin=0, ymax=max(spec1d_IRT_23.flux.value), linestyles='--', colors='black')
-            ax3.set_xlabel('$\lambda (nm)$')
-            ax3.set_ylabel("Normalized Flux")
-            ax3.set_xlim((IRT_3_line-(IRT_3_band/2))-0.1, (IRT_3_line+(IRT_3_band/2))+0.1)
-            ax3.yaxis.set_ticks_position('both')
-            ax3.xaxis.set_ticks_position('both')
-            ax3.tick_params(direction='in', which='both')
-            ax3.legend()
+            spec1d_all = Spectrum1D(spectral_axis=wvl_all*u.nm, 
+                                   flux=flx_all*u.Jy)
             
-            f.tight_layout()
+            lines = [IRT_1_line, IRT_1_band, IRT_1_F1_line, IRT_1_F1_band, IRT_1_F2_line, IRT_1_F2_band, 
+                     IRT_2_line, IRT_2_band, IRT_2_F1_line, IRT_2_F1_band, IRT_2_F2_line, IRT_2_F2_band, 
+                     IRT_3_line, IRT_3_band, IRT_3_F1_line, IRT_3_F1_band, IRT_3_F2_line, IRT_3_F2_band]
             
-            if save_figs:
-                plt.savefig('{}_CaII_IRT_lines_plot.pdf'.format(save_figs_name), format='pdf')
+            plot_spectrum(spec=spec1d_all, lines=lines, Index='IRT', Instrument='NARVAL', norm_spec=False, save_figs=save_figs, save_figs_name=save_figs_name)
                 
         # Extracting each of the IRT line region using 'extract_region' from 'specutils'
         
@@ -3760,17 +3729,15 @@ def CaII_IRT(file_path,
             
         # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
         
-        I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err = calc_ind(regions=regions,
-                                                                                    index_name='CaII_IRT',
-                                                                                    print_stat=print_stat)
+        IRT_index_list = calc_ind(regions=regions, index_name='CaII_IRT', print_stat=print_stat)
         
         if out_file_path != None:
             header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
-            res = list(obj_params.values()) + [I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err] 
+            res = list(obj_params.values()) + IRT_index_list
             results.append(res)
         else:
             header = ['I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
-            res = [I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err]
+            res = IRT_index_list
             results.append(res)
             
     # Saving the results in a csv file format  
