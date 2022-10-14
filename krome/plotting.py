@@ -417,6 +417,50 @@ def plot_spectrum(spec,
         if save_figs:
             plt.savefig('{}_HeID3_line_plot.pdf'.format(save_figs_name), format='pdf')
             
+    elif Index=='CaIIH':
+        
+        f, (ax1, ax2)  = plt.subplots(2, 1, figsize=(10,8))
+        ax1.plot(spec.spectral_axis, spec.flux, '-k')  
+        ax1.set_xlabel('$\lambda (nm)$')
+        ax2.set_xlabel('$\lambda (nm)$')
+        
+        if Instrument=='NARVAL' or Instrument=='ESPADONS':
+            ax1.set_ylabel("Normalized Flux")
+            ax2.set_ylabel("Normalized Flux")
+        else:
+            if norm_spec:
+                ax1.set_ylabel("Normalized Flux")
+                ax2.set_ylabel("Normalized Flux")
+            else:
+                ax1.set_ylabel("Flux (adu)")
+                ax2.set_ylabel("Flux (adu)")
+        
+        ax1.axvline(lines[0], linestyle='dotted', color='green')
+        ax1.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='CaIIH {}±{}nm'.format(lines[0], lines[1]/2))
+        ax1.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
+        ax1.axvline(lines[2]-(lines[3]/2), linestyle='--', color='red', label='Red cont. {}±{}nm'.format(lines[2], lines[3]/2))
+        ax1.axvline(lines[2]+(lines[3]/2), linestyle='--', color='red')
+        ax1.set_xlim(lines[0]-0.5, lines[2]+0.5)
+        
+        # Plots the zoomed in region around the CaIIH line.
+
+        ax2.plot(spec.spectral_axis, spec.flux, '-k')
+        ax2.axvline(lines[0], ymin=0, linestyle='dotted', color='green')
+        ax2.axvline(lines[0]-(lines[1]/2), linestyle='--', color='black', label='CaIIH band width = {}nm'.format(lines[1]))
+        ax2.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
+        ax2.set_xlim(lines[0]-(lines[1]/2)-0.1, lines[0]+(lines[1]/2)+0.1)
+        ax2.yaxis.set_ticks_position('both')
+        ax2.xaxis.set_ticks_position('both')
+        ax2.tick_params(direction='in', which='both')
+        ax2.legend()
+        
+        f.tight_layout()
+        plt.minorticks_on()
+        
+        if save_figs:
+            plt.savefig('{}_CaIIH_line_plot.pdf'.format(save_figs_name), format='pdf')
+
+            
     elif Index=='CaIIHK':
         
         f, (ax1, ax2, ax3)  = plt.subplots(3, 1, figsize=(10,12))
