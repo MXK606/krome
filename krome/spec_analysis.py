@@ -1493,6 +1493,45 @@ def calc_ind(regions,
         
         return NaID_index, sigma_NaID_index, F1_mean, F2_mean
     
+    ## CaIIH
+    
+    elif index_name=='CaIIH':
+        
+        F_CaIIH_region = regions[0]
+        cont_R_region = regions[1]
+        
+        F_CaIIH_mean = np.round(np.mean(F_CaIIH_region.flux.value), 5) # Calculating mean of the flux within this bandwidth
+        
+        # Calculating the standard error on the mean flux calculated above.
+        F_CaIIH_sum_err = [i**2 for i in F_CaIIH_region.uncertainty.array]
+        F_CaIIH_mean_err = np.round((np.sqrt(np.sum(F_CaIIH_sum_err))/len(F_CaIIH_sum_err)), 5)
+        
+        # Doing the same for the cont R region!
+        
+        cont_R_mean = np.round(np.mean(cont_R_region.flux.value), 5)
+        cont_R_sum_err = [i**2 for i in cont_R_region.uncertainty.array]
+        cont_R_mean_err = np.round((np.sqrt(np.sum(cont_R_sum_err))/len(cont_R_sum_err)), 5)
+
+        # Calculating the index from the mean fluxes calculated above
+        CaIIH_from_mean = np.round((F_CaIIH_mean/cont_R_mean), 5)
+        
+        # Error on this index is calculated using error propagation!
+        sigma_CaIIH_from_mean = np.round((CaIIH_from_mean*np.sqrt(np.square(F_CaIIH_mean_err/F_CaIIH_mean) + np.square(cont_R_mean_err/cont_R_mean))), 5)
+        
+        if print_stat:
+            print('CaIIH region used ranges from {}nm to {}nm:'.format(F_CaIIH_region.spectral_axis[0].value, 
+                                                                 F_CaIIH_region.spectral_axis[-1].value))
+            print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
+                                                                 cont_R_region.spectral_axis[-1].value))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Mean of {} flux points in CaIIH: {}±{}'.format(len(F_CaIIH_region.flux), F_CaIIH_mean, F_CaIIH_mean_err))
+            print('Mean of {} flux points in cont R: {}±{}'.format(len(cont_R_region.flux), cont_R_mean, cont_R_mean_err))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            print('Index from mean of flux points in each band: {}±{}'.format(CaIIH_from_mean, sigma_CaIIH_from_mean))
+            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        
+        return CaIIH_from_mean, sigma_CaIIH_from_mean
+    
     ## CaIIHK
     
     elif index_name=='CaIIHK':
@@ -1762,7 +1801,7 @@ def LS_periodogram(x,
         
         plt.figure(figsize=(10,4))
         plt.plot(1/freq, power, color='black')
-        plt.vlines(1/freq[sort_idx[0]], ymin=-0.01, ymax=max(power), colors='red', linestyles='-', linewidth=3, label='P={}d'.format(np.round((1/freq[sort_idx[0]]), 3)))
+        plt.axvline(1/freq[sort_idx[0]], color='red', linestyle='-', linewidth=3, label='P={}d'.format(np.round((1/freq[sort_idx[0]]), 3)))
         plt.xlabel('Period (days)')
         plt.ylabel('Power') # Note here that the Lomb-Scargle power is always a unitless quantity, because it is related to the 𝜒2 of the best-fit periodic model at each frequency.
         plt.title('LombScargle Periodogram with x-axis as logarithmic period')
@@ -1802,7 +1841,7 @@ def LS_periodogram(x,
             
             plt.figure(figsize=(10,4))
             plt.plot(1/freq_samp, power_samp, color='black')
-            plt.vlines(1/freq_samp[np.argmax(power_samp)], ymin=-0.12, ymax=max(power_samp), colors='red', linestyles='-', linewidth=3, label='P={}d'.format(np.round(1/freq_samp[np.argmax(power_samp)], 4)))
+            plt.axvline(1/freq_samp[np.argmax(power_samp)], color='red', linestyle='-', linewidth=3, label='P={}d'.format(np.round(1/freq_samp[np.argmax(power_samp)], 4)))
             plt.xlabel('Period (days)')
             plt.ylabel('Power') 
             plt.title('Sampling Window Function Periodogram')
