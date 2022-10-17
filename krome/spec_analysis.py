@@ -31,7 +31,7 @@ from astropy.modeling.polynomial import Chebyshev1D
 
 def find_string_idx(out_file_path,
                     string,
-                    print_stat=True):
+                    verbose=True):
     
     """
     
@@ -45,7 +45,7 @@ def find_string_idx(out_file_path,
     string: str
     String to check for in the .out file
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the string name not found in the given file
     
     Returns:
@@ -69,7 +69,7 @@ def find_string_idx(out_file_path,
             break
     
     if flag == 0:
-        if print_stat:
+        if verbose:
             print('String', string , 'not found in .out file')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -84,21 +84,21 @@ def find_string_idx(out_file_path,
 
 def obj_params(file_path,
                Instrument,
-               print_stat=True):
+               verbose=True):
     
     """
     
-    Extracts useful object parameters from the .out/.fits file.
+    Extracts useful object parameters from the .out/.meta/.fits file.
     
     Parameters:
     -----------
     file_path: str
-    Path of the .out/.fits file
+    Path of the .out/.meta/.fits file
     
     Instrument: str
-    Instrument type used. Available options: ['NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N']
+    Instrument type used. Available options: ['NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N', 'SOPHIE' and 'ELODIE']
     
-    print_stat: bool, default=True
+    verbose: bool, default=True
     Prints the status of each process within the function.
     
     Returns:
@@ -128,13 +128,13 @@ def obj_params(file_path,
         idx = []
     
         for string in str_list:
-            idx.append(find_string_idx(file_path, string, print_stat=print_stat))
+            idx.append(find_string_idx(file_path, string, verbose=verbose))
             
         try:
             object_parameters['HJD'] = float(file[idx[5]][-14:-1])
         except TypeError:
             object_parameters['HJD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[5]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -142,7 +142,7 @@ def obj_params(file_path,
             object_parameters['RA'] = file[idx[2]][-26:-15].replace(' ', '')
         except TypeError:
             object_parameters['RA'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -150,7 +150,7 @@ def obj_params(file_path,
             object_parameters['DEC'] = file[idx[2]][-11:-1]
         except TypeError:
             object_parameters['DEC'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -158,7 +158,7 @@ def obj_params(file_path,
             object_parameters['AIRMASS'] = float(file[idx[3]][-8:-3])
         except TypeError:
             object_parameters['AIRMASS'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[3]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
            
@@ -166,7 +166,7 @@ def obj_params(file_path,
             object_parameters['T_EXP'] = float(file[idx[4]][25:31])
         except TypeError:
             object_parameters['T_EXP'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[4]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -174,7 +174,7 @@ def obj_params(file_path,
             object_parameters['NUM_EXP'] = float(file[idx[0]][-2:-1])
         except TypeError:
             object_parameters['NUM_EXP'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[0])) 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -182,7 +182,7 @@ def obj_params(file_path,
             object_parameters['GAIN'] = float(file[idx[1]][-12:-1].split()[0])
         except TypeError:
             object_parameters['GAIN'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[1])) 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -190,7 +190,7 @@ def obj_params(file_path,
             object_parameters['RON'] = float(file[idx[1]][-12:-1].split()[1])
         except TypeError:
             object_parameters['RON'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[1]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')    
              
@@ -198,7 +198,7 @@ def obj_params(file_path,
             object_parameters['V_mag'] = float(file[idx[6]][-11:-1].split()[0])
         except TypeError:
             object_parameters['V_mag'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -206,20 +206,20 @@ def obj_params(file_path,
             object_parameters['T_eff'] = float(file[idx[6]][-11:-1].split()[1])
         except TypeError:
             object_parameters['T_eff'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
     elif Instrument=='ESPADONS':
         
         str_list = [
+            'Julian Date = ',
             'Observation date = ',
             'RA = ',
             'DEC = ',
             'V = ',
             'Teffective = ',
             'Distance = ',
-            'Julian Date = ',
             'Airmass = ',
             'Texposure = ',
             'RUNID = ',
@@ -230,69 +230,69 @@ def obj_params(file_path,
         idx = []
     
         for string in str_list:
-            idx.append(find_string_idx(file_path, string, print_stat=print_stat))
+            idx.append(find_string_idx(file_path, string, verbose=verbose))
             
         try:
-            object_parameters['OBS_DATE'] = file[idx[0]][19:-1]
+            object_parameters['JD'] = float(file[idx[0]][14:-1])
+        except TypeError:
+            object_parameters['JD'] = float('nan')
+            if verbose:
+                print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
+                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            
+        try:
+            object_parameters['OBS_DATE'] = file[idx[1]][19:-1]
         except TypeError:
             object_parameters['OBS_DATE'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[0]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['RA'] = float(file[idx[1]][5:-1])
+            object_parameters['RA'] = float(file[idx[2]][5:-1])
         except TypeError:
             object_parameters['RA'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[1]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['DEC'] = float(file[idx[2]][6:-1])
+            object_parameters['DEC'] = float(file[idx[3]][6:-1])
         except TypeError:
             object_parameters['DEC'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[2]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
         try:
-            object_parameters['V_mag'] = float(file[idx[3]][4:-1])
+            object_parameters['V_mag'] = float(file[idx[4]][4:-1])
         except TypeError:
             object_parameters['V_mag'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[3]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
         try:
-            object_parameters['T_eff'] = float(file[idx[4]][13:-9])
+            object_parameters['T_eff'] = float(file[idx[5]][13:-9])
         except TypeError:
             object_parameters['T_eff'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[4]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         try:
-            object_parameters['Dist'] = float(file[idx[5]][11:-9])
+            object_parameters['Dist'] = float(file[idx[6]][11:-9])
         except TypeError:
             object_parameters['Dist'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[5]))
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-        try:
-            object_parameters['JD'] = float(file[idx[6]][14:-1])
-        except TypeError:
-            object_parameters['JD'] = float('nan')
-            if print_stat:
-                print('Object parameter for "{}" not found in the .out file'.format(str_list[6]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
         try:
             object_parameters['AIRMASS'] = float(file[idx[7]][10:-1])
         except TypeError:
             object_parameters['AIRMASS'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[7]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
            
@@ -300,7 +300,7 @@ def obj_params(file_path,
             object_parameters['T_EXP'] = float(file[idx[8]][12:-6])
         except TypeError:
             object_parameters['T_EXP'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[8]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -308,7 +308,7 @@ def obj_params(file_path,
             object_parameters['RUN_ID'] = file[idx[9]][8:-1]
         except TypeError:
             object_parameters['RUN_ID'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[9])) 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -316,7 +316,7 @@ def obj_params(file_path,
             object_parameters['SNR'] = float(file[idx[10]][9:-1])
         except TypeError:
             object_parameters['SNR'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "{}" not found in the .out file'.format(str_list[10])) 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -329,7 +329,7 @@ def obj_params(file_path,
             object_parameters['BJD'] = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
         except KeyError:
             object_parameters['BJD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH ESO DRS BJD" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -337,7 +337,7 @@ def obj_params(file_path,
             object_parameters['RA'] = file[0].header['RA'] # Right Accession
         except KeyError:
             object_parameters['RA'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "RA" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -345,7 +345,7 @@ def obj_params(file_path,
             object_parameters['DEC'] = file[0].header['DEC'] # Declination
         except KeyError:
             object_parameters['DEC'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "DEC" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -353,7 +353,7 @@ def obj_params(file_path,
             object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
         except KeyError:
             object_parameters['AIRMASS'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "AIRMASS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -361,7 +361,7 @@ def obj_params(file_path,
             object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in s
         except KeyError:
             object_parameters['EXPTIME'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "EXPTIME" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -369,7 +369,7 @@ def obj_params(file_path,
             object_parameters['BERV'] = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s
         except KeyError:
             object_parameters['BERV'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH ESO DRS BERV" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -378,7 +378,7 @@ def obj_params(file_path,
             object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         except KeyError:
             object_parameters['OBS_DATE'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "DATE-OBS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -386,7 +386,7 @@ def obj_params(file_path,
             object_parameters['PROG_ID'] = file[0].header['PROG_ID'] # Program ID
         except KeyError:
             object_parameters['PROG_ID'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "PROG_ID" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -394,7 +394,7 @@ def obj_params(file_path,
             object_parameters['SNR'] = file[0].header['SNR'] # Signal to Noise ratio
         except KeyError:
             object_parameters['SNR'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "SNR" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -402,7 +402,7 @@ def obj_params(file_path,
             object_parameters['SIGDET'] = np.round(file[0].header['HIERARCH ESO DRS CCD SIGDET'], 3)  #CCD Readout Noise [e-]
         except KeyError:
             object_parameters['SIGDET'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH ESO DRS CCD SIGDET" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -410,7 +410,7 @@ def obj_params(file_path,
             object_parameters['CONAD'] = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
         except KeyError:
             object_parameters['CONAD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH ESO DRS CCD CONAD" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -427,7 +427,7 @@ def obj_params(file_path,
             object_parameters['BJD'] = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
         except KeyError:
             object_parameters['BJD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH TNG DRS BJD" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -435,7 +435,7 @@ def obj_params(file_path,
             object_parameters['RA'] = file[0].header['RA'] # Right Accession
         except KeyError:
             object_parameters['RA'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "RA" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -443,7 +443,7 @@ def obj_params(file_path,
             object_parameters['DEC'] = file[0].header['DEC'] # Declination
         except KeyError:
             object_parameters['DEC'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "DEC" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -451,7 +451,7 @@ def obj_params(file_path,
             object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
         except KeyError:
             object_parameters['AIRMASS'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "AIRMASS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -459,7 +459,7 @@ def obj_params(file_path,
             object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in seconds
         except KeyError:
             object_parameters['EXPTIME'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "EXPTIME" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -467,7 +467,7 @@ def obj_params(file_path,
             object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
         except KeyError:
             object_parameters['OBS_DATE'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "DATE-OBS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -475,7 +475,7 @@ def obj_params(file_path,
             object_parameters['PROG_ID'] = file[0].header['PROGRAM'] # Program ID
         except KeyError:
             object_parameters['PROG_ID'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "PROGRAM" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -489,7 +489,7 @@ def obj_params(file_path,
             object_parameters['JD'] = file[0].header['HIERARCH OHP DRS BJD'] # Barycentric Julian Date
         except KeyError:
             object_parameters['JD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP DRS MJD"/""HIERARCH OHP DRS BJD"" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -497,7 +497,7 @@ def obj_params(file_path,
             object_parameters['RA'] = file[0].header['HIERARCH OHP TARG ALPHA'] # Right Accession
         except KeyError:
             object_parameters['RA'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP TARG ALPHA" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -505,7 +505,7 @@ def obj_params(file_path,
             object_parameters['DEC'] = file[0].header['HIERARCH OHP TARG DELTA'] # Declination
         except KeyError:
             object_parameters['DEC'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP TARG DELTA" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -513,7 +513,7 @@ def obj_params(file_path,
             object_parameters['EXPTIME'] = file[0].header['HIERARCH OHP CCD DIT'] # Shutter last opening time in seconds
         except KeyError:
             object_parameters['EXPTIME'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP CCD DIT" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -521,7 +521,7 @@ def obj_params(file_path,
             object_parameters['OBS_DATE'] = file[0].header['HIERARCH OHP OBS DATE START'] # Observation Date Start
         except KeyError:
             object_parameters['OBS_DATE'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP OBS DATE START"/"DATE" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -529,7 +529,7 @@ def obj_params(file_path,
             object_parameters['PROG_ID'] = file[0].header['HIERARCH OHP OBS PROG ID'] # Program ID
         except KeyError:
             object_parameters['PROG_ID'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP OBS PROG ID" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -537,7 +537,7 @@ def obj_params(file_path,
             object_parameters['SIGDET'] = np.round(file[0].header['HIERARCH OHP DRS CCD SIGDET'], 3)  #CCD Readout Noise [e-]
         except KeyError:
             object_parameters['SIGDET'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP DRS CCD SIGDET" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -545,7 +545,7 @@ def obj_params(file_path,
             object_parameters['CONAD'] = file[0].header['HIERARCH OHP DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
         except KeyError:
             object_parameters['CONAD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "HIERARCH OHP DRS CCD CONAD" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -562,7 +562,7 @@ def obj_params(file_path,
             object_parameters['JD'] = file[0].header['MJD-OBS'] # Modified Julian Date
         except KeyError:
             object_parameters['JD'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "MJD-OBS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -570,7 +570,7 @@ def obj_params(file_path,
             object_parameters['RA'] = file[0].header['ALPHA'] # Right Accession
         except KeyError:
             object_parameters['RA'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "ALPHA" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -578,7 +578,7 @@ def obj_params(file_path,
             object_parameters['DEC'] = file[0].header['DELTA'] # Declination
         except KeyError:
             object_parameters['DEC'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "DELTA" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -586,7 +586,7 @@ def obj_params(file_path,
             object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Shutter last opening time in seconds
         except KeyError:
             object_parameters['EXPTIME'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "EXPTIME" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -594,7 +594,7 @@ def obj_params(file_path,
             object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date Start
         except KeyError:
             object_parameters['OBS_DATE'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "DATE-OBS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -602,7 +602,7 @@ def obj_params(file_path,
             object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
         except KeyError:
             object_parameters['AIRMASS'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "AIRMASS" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -610,7 +610,7 @@ def obj_params(file_path,
             object_parameters['SNR'] = np.round(file[0].header['SN'], 3)  # Signal-to-Noise ratio
         except KeyError:
             object_parameters['SNR'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "SN" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -618,7 +618,7 @@ def obj_params(file_path,
             object_parameters['GAIN'] = file[0].header['CCDGAIN'] #CCD gain
         except KeyError:
             object_parameters['GAIN'] = float('nan')
-            if print_stat:
+            if verbose:
                 print('Object parameter for "CCDGAIN" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
@@ -628,7 +628,7 @@ def obj_params(file_path,
     return object_parameters
     
 
-## Defining a function to retrieve spectral orders from NARVAL
+## Defining a function to retrieve spectral orders from NARVAL & ESPADONS
 
 def extract_orders(wav,
                    flx,
@@ -637,7 +637,7 @@ def extract_orders(wav,
     
     """
     
-    Extracts the overlapping spectral orders from the NARVAL .s files
+    Extracts the overlapping spectral orders from the NARVAL/ESPADONS .s files
     
     Parameters:
     -----------
@@ -754,7 +754,7 @@ def extract_orders(wav,
         raise ValueError("Input arrays must have the same shape.")
         
         
-## Defining a function to reach check which orders the given lines are found in 
+## Defining a function to check which orders the given lines are found in 
     
 def check_lines(spectral_orders,
                 line_names,
@@ -765,6 +765,7 @@ def check_lines(spectral_orders,
     """
     
     Looks for which spectral order contains the given line ± the bandwidth/2, i.e. the region required for flux calculation.
+    NOTE: This currently ONLY works for NARVAL and ESPADONS.
         
     Parameters
     ----------
@@ -813,12 +814,12 @@ def read_data(file_path,
               out_file_path=None,
               meta_file_path=None,
               ccf_file_path=None,
-              print_stat=True,
+              verbose=True,
               show_plots=True):
     
     """
     
-    Reads the data contained within the .s/.fits file and extract useful information from the .out/.fits file.
+    Reads the data contained within the .s/.fits file and extract useful information from the .out/.meta/.fits file.
     
     Parameters:
     ----------
@@ -829,12 +830,15 @@ def read_data(file_path,
     Instrument type used. Available options: ['NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N', 'SOPHIE', 'ELODIE']
     
     out_file_path: str, default=None
-    File path of the .out file to extract object parameters from
+    File path of the .out file to extract object parameters from. NOTE: Used when Instrument='NARVAL'
+    
+    meta_file_path: str, default=None
+    File path of the .meta file to extract object parameters from. NOTE: Used when Instrument='ESPADONS'
     
     ccf_file_path: str, default=None
     File path of the CCF file to extract the object radial velocity from
     
-    print_stat: bool, default=True
+    verbose: bool, default=True
     Prints the status of each process within the function.
     
     show_plots: bool, default=True
@@ -842,9 +846,9 @@ def read_data(file_path,
     
     Returns:
     --------
-    object parameters: dict (Only if out_file_path given for NARVAL)
+    object parameters: dict (Only if out/meta_file_path given for NARVAL/ESPADONS)
     
-    For NARVAL; spectral orders: list of pandas df
+    For NARVAL/ESPADONS; list of spectral orders
     
     For Others; spectrum: list
     
@@ -852,7 +856,7 @@ def read_data(file_path,
     
     if Instrument=='NARVAL':
         
-        if print_stat:
+        if verbose:
             print('Reading the data from the .s file: {}'.format(file_path))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -866,18 +870,18 @@ def read_data(file_path,
         
         if len(df.columns)==6:
             data_spec = pd.read_csv(file_path, names=col_names_V, skiprows=2, sep=' ', skipinitialspace=True) 
-            if print_stat:
+            if verbose:
                 print('Stokes Profile: [V]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         elif len(df.columns)==3:
             data_spec = pd.read_csv(file_path, names=col_names_I, skiprows=2, sep=' ', skipinitialspace=True)
-            if print_stat:
+            if verbose:
                 print('Stokes Profile: [I]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         else:
             raise ValueError('Input .s file contains unrecognisable number of columns. Recognised numbers are 3 (I profile) and 6 (V profile).')
             
-        if print_stat:    
+        if verbose:    
             print('Extracting all overlapping spectral orders')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -894,13 +898,13 @@ def read_data(file_path,
         
         if out_file_path != None:
             
-            if print_stat:
+            if verbose:
                 print('Extracting useful object parameters from the .out file: {}'.format(out_file_path))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            object_parameters = obj_params(out_file_path, Instrument=Instrument, print_stat=print_stat)
+            object_parameters = obj_params(out_file_path, Instrument=Instrument, verbose=verbose)
             
-            if print_stat:
+            if verbose:
                 keys = [i for i in object_parameters.keys()]
                 vals = [j for j in object_parameters.values()]
                 
@@ -915,7 +919,7 @@ def read_data(file_path,
         
     if Instrument=='ESPADONS':
         
-        if print_stat:
+        if verbose:
             print('Reading the data from the .s file: {}'.format(file_path))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -929,18 +933,18 @@ def read_data(file_path,
         
         if len(df.columns)==6:
             data_spec = pd.read_fwf(file_path, skiprows=2, names=col_names_V) 
-            if print_stat:
+            if verbose:
                 print('Stokes Profile: [V]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         elif len(df.columns)==3:
             data_spec = pd.read_fwf(file_path, skiprows=2, names=col_names_I) 
-            if print_stat:
+            if verbose:
                 print('Stokes Profile: [I]')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         else:
             raise ValueError('Input .s file contains unrecognisable number of columns. Recognised numbers are 3 (I profile) and 6 (V profile).')
             
-        if print_stat:    
+        if verbose:    
             print('Extracting all overlapping spectral orders')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -957,13 +961,13 @@ def read_data(file_path,
         
         if meta_file_path != None:
             
-            if print_stat:
+            if verbose:
                 print('Extracting useful object parameters from the .meta file: {}'.format(meta_file_path))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            object_parameters = obj_params(meta_file_path, Instrument=Instrument, print_stat=print_stat)
+            object_parameters = obj_params(meta_file_path, Instrument=Instrument, verbose=verbose)
             
-            if print_stat:
+            if verbose:
                 keys = [i for i in object_parameters.keys()]
                 vals = [j for j in object_parameters.values()]
                 
@@ -978,7 +982,7 @@ def read_data(file_path,
     
     elif Instrument=='HARPS':
         
-        if print_stat:
+        if verbose:
             print('Reading the data from the .fits file: {}'.format(file_path))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -990,14 +994,14 @@ def read_data(file_path,
         
         #Extracting useful information from the fits file header
         
-        if print_stat:
+        if verbose:
             print('Extracting useful object parameters from the .fits file header')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------') 
         
-        object_parameters = obj_params(file_path, Instrument=Instrument, print_stat=print_stat)
+        object_parameters = obj_params(file_path, Instrument=Instrument, verbose=verbose)
         
         if ccf_file_path:
-            if print_stat:
+            if verbose:
                 print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             ccf_file = fits.open(ccf_file_path) # Opening the CCF FITS file to extract the RV
@@ -1009,7 +1013,7 @@ def read_data(file_path,
                 print('Object parameter for "HIERARCH ESO DRS CCF RV" not found in the CCF fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
-        if print_stat:
+        if verbose:
             keys = [i for i in object_parameters.keys()]
             vals = [j for j in object_parameters.values()]
             
@@ -1042,7 +1046,7 @@ def read_data(file_path,
     
     elif Instrument=='HARPS-N':
         
-        if print_stat:
+        if verbose:
             print('Reading the data from the .fits file: {}'.format(file_path))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -1055,14 +1059,14 @@ def read_data(file_path,
         
         #Extracting useful information from the fits file header
         
-        if print_stat:
+        if verbose:
             print('Extracting useful object parameters from the .fits file header')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        object_parameters = obj_params(file_path, Instrument=Instrument, print_stat=print_stat)
+        object_parameters = obj_params(file_path, Instrument=Instrument, verbose=verbose)
         
         if ccf_file_path:
-            if print_stat:
+            if verbose:
                 print('Extracting RV from the CCF fits file: {}'.format(ccf_file_path))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             ccf_file = fits.open(ccf_file_path)  # Opening the CCF FITS file to extract the RV
@@ -1074,7 +1078,7 @@ def read_data(file_path,
                 print('Object parameter for "HIERARCH TNG DRS CCF RV" not found in the CCF fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        if print_stat:
+        if verbose:
             keys = [i for i in object_parameters.keys()]
             vals = [j for j in object_parameters.values()]
             
@@ -1110,7 +1114,7 @@ def read_data(file_path,
     
     elif Instrument == 'SOPHIE':
         
-        if print_stat:
+        if verbose:
             print('Reading the data from the .fits file: {}'.format(file_path))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -1121,13 +1125,13 @@ def read_data(file_path,
         
         #Extracting useful information from the fits file header
         
-        if print_stat:
+        if verbose:
             print('Extracting useful object parameters from the .fits file header')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        object_parameters = obj_params(file_path, Instrument=Instrument, print_stat=print_stat)
+        object_parameters = obj_params(file_path, Instrument=Instrument, verbose=verbose)
         
-        if print_stat:
+        if verbose:
             keys = [i for i in object_parameters.keys()]
             vals = [j for j in object_parameters.values()]
             
@@ -1193,7 +1197,7 @@ def read_data(file_path,
     
     elif Instrument=='ELODIE':
         
-        if print_stat:
+        if verbose:
             print('Reading the data from the .fits file: {}'.format(file_path))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -1201,13 +1205,13 @@ def read_data(file_path,
         
         #Extracting useful information from the fits file header
         
-        if print_stat:
+        if verbose:
             print('Extracting useful object parameters from the .fits file header')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
-        object_parameters = obj_params(file_path, Instrument=Instrument, print_stat=print_stat)
+        object_parameters = obj_params(file_path, Instrument=Instrument, verbose=verbose)
         
-        if print_stat:
+        if verbose:
             keys = [i for i in object_parameters.keys()]
             vals = [j for j in object_parameters.values()]
             
@@ -1246,7 +1250,7 @@ def read_data(file_path,
 
 def calc_ind(regions,
              index_name,
-             print_stat,
+             verbose,
              CaI_index=False,
              hfv=None):
     
@@ -1260,10 +1264,10 @@ def calc_ind(regions,
     List containing the appropriate regions required for the calculation
     
     index_name: str
-    Name of the index to calculate. Available options are; ['HaI', 'NaI', 'CaIIH', 'HeI', 'CaII_IRT']
+    Name of the index to calculate. Available options are; ['HaI', 'NaI', 'CaIIH', 'CaIIHK', 'HeI', 'CaII_IRT']
     
-    print_stat: bool
-    print_stat argument from within the index_calc function
+    verbose: bool
+    verbose argument from within the index_calc function
     
     CaI_index: bool, default=False
     CaI index calculation condition. Used when index_name='HaI'
@@ -1277,6 +1281,10 @@ def calc_ind(regions,
     For 'HaI'; I_HaI, I_HaI_err, I_CaI, I_CaI_err (NOTE: CaI index values will be returned as NaN if CaI_index=False)
     For 'NaI'; I_NaI, I_NaI_err, F1_mean, F2_mean
     For 'CaIIH'; I_CaIIH, I_CaIIH_err 
+    For 'CaIIHK'; I_CaIIHK, I_CaIIHK_err
+    For 'HeI'; I_HeI, I_HeI_err
+    For 'CaII_IRT'; I_IRT_1, I_IRT_1_err, I_IRT_2, I_IRT_2_err, I_IRT_3, I_IRT_3_err
+    
     
     All returned values are type float()
     
@@ -1306,7 +1314,7 @@ def calc_ind(regions,
         F2_sum_err = [i**2 for i in F2_region.uncertainty.array]
         F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 4)
                    
-        if print_stat:
+        if verbose:
             print('H alpha region used ranges from {:.4f}nm to {:.4f}nm'.format(F_H_alpha_region.spectral_axis[0].value, F_H_alpha_region.spectral_axis[-1].value))
             print('F1 region used ranges from {:.4f}nm to {:.4f}nm'.format(F1_region.spectral_axis[0].value, F1_region.spectral_axis[-1].value))
             print('F2 region used ranges from {:.4f}nm to {:.4f}nm'.format(F2_region.spectral_axis[0].value, F2_region.spectral_axis[-1].value))
@@ -1324,7 +1332,7 @@ def calc_ind(regions,
         
         sigma_Hai_from_mean = np.round((Hai_from_mean*np.sqrt(np.square(F_H_alpha_mean_err/F_H_alpha_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
         
-        if print_stat:
+        if verbose:
     
             print('Mean of {} flux points in H alpha: {:.4f}±{:.4f}'.format(len(F_H_alpha_region.flux), F_H_alpha_mean, F_H_alpha_mean_err))
             print('Mean of {} flux points in F1: {:.4f}±{:.4f}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
@@ -1337,7 +1345,7 @@ def calc_ind(regions,
         
         if CaI_index:
             
-            if print_stat:
+            if verbose:
                 print('Calculating CaI Index')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -1354,7 +1362,7 @@ def calc_ind(regions,
             # Index error calculated in the same way as that for H alpha index above
             sigma_CaI_from_mean = np.round((CaI_from_mean*np.sqrt(np.square(F_CaI_mean_err/F_CaI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
             
-            if print_stat:
+            if verbose:
                 print('CaI region used ranges from {:.4f}nm to {:.4f}nm'.format(F_CaI_region.spectral_axis[0].value, F_CaI_region.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in CaI: {:.4f}±{:.4f}'.format(len(F_CaI_region.flux), F_CaI_mean, F_CaI_mean_err))
@@ -1393,7 +1401,7 @@ def calc_ind(regions,
         F2_sum_err = [i**2 for i in F2_region.uncertainty.array]
         F2_mean_err = np.round((np.sqrt(np.sum(F2_sum_err))/len(F2_sum_err)), 4)
                    
-        if print_stat:
+        if verbose:
             print('HeI D3 region used ranges from {:.4f}nm to {:.4f}nm'.format(F_HeI_region.spectral_axis[0].value, F_HeI_region.spectral_axis[-1].value))
             print('F1 region used ranges from {:.4f}nm to {:.4f}nm'.format(F1_region.spectral_axis[0].value, F1_region.spectral_axis[-1].value))
             print('F2 region used ranges from {:.4f}nm to {:.4f}nm'.format(F2_region.spectral_axis[0].value, F2_region.spectral_axis[-1].value))
@@ -1411,7 +1419,7 @@ def calc_ind(regions,
         
         sigma_Hei_from_mean = np.round((Hei_from_mean*np.sqrt(np.square(F_HeI_mean_err/F_HeI_mean) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
         
-        if print_stat:
+        if verbose:
     
             print('Mean of {} flux points in HeID3: {:.4f}±{:.4f}'.format(len(F_HeI_region.flux), F_HeI_mean, F_HeI_mean_err))
             print('Mean of {} flux points in F1: {:.4f}±{:.4f}'.format(len(F1_region.flux), F1_mean, F1_mean_err))
@@ -1479,7 +1487,7 @@ def calc_ind(regions,
         # Error calculated using error propagation and rounding it up to 4 decimal places
         sigma_NaID_index = np.round((NaID_index*np.sqrt(np.square(sigma_D12/(NaID1_mean + NaID2_mean)) + np.square(F_cont_err/F_cont.value))), 4)
         
-        if print_stat:
+        if verbose:
             print('Using {} highest flux values in each continuum band for the pseudo-cont. calculation'.format(hfv))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Mean of {} out of a total {} flux points in blue cont.: {:.4f}±{:.4f}'.format(len(F1_sorted_flux), len(F1_region.flux), F1_mean, F1_err))
@@ -1518,7 +1526,7 @@ def calc_ind(regions,
         # Error on this index is calculated using error propagation!
         sigma_CaIIH_from_mean = np.round((CaIIH_from_mean*np.sqrt(np.square(F_CaIIH_mean_err/F_CaIIH_mean) + np.square(cont_R_mean_err/cont_R_mean))), 5)
         
-        if print_stat:
+        if verbose:
             print('CaIIH region used ranges from {}nm to {}nm:'.format(F_CaIIH_region.spectral_axis[0].value, 
                                                                  F_CaIIH_region.spectral_axis[-1].value))
             print('Cont R region used ranges from {}nm to {}nm:'.format(cont_R_region.spectral_axis[0].value, 
@@ -1573,7 +1581,7 @@ def calc_ind(regions,
         # Error on this index is calculated using error propagation!
         sigma_CaIIHK_from_mean = np.round((CaIIHK_from_mean*np.sqrt(np.square(sigma_FHK_from_mean/(F_CaIIH_mean+F_CaIIK_mean)) + np.square(sigma_F12_from_mean/(F1_mean+F2_mean)))), 4)
         
-        if print_stat:
+        if verbose:
             print('CaIIH region used ranges from {:.4f}nm to {:.4f}nm:'.format(F_CaIIH_region.spectral_axis[0].value, F_CaIIH_region.spectral_axis[-1].value))
             print('CaIIK region used ranges from {:.4f}nm to {:.4f}nm:'.format(F_CaIIK_region.spectral_axis[0].value, F_CaIIK_region.spectral_axis[-1].value))
             print('F1 region used ranges from {:.4f}nm to {:.4f}nm:'.format(F1_region.spectral_axis[0].value, F1_region.spectral_axis[-1].value))
@@ -1619,7 +1627,7 @@ def calc_ind(regions,
             irt_F2_sum_err = [i**2 for i in irt_F2_region.uncertainty.array]
             irt_F2_mean_err = np.round((np.sqrt(np.sum(irt_F2_sum_err))/len(irt_F2_sum_err)), 4)
                        
-            if print_stat:
+            if verbose:
                 print('---------------------------------------------------------***CaII IRT line {}nm***-------------------------------------------------------------------------'.format(IRT_lines[idx]))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('IRT line region used ranges from {}nm to {}nm'.format(np.round(irt_region.spectral_axis[0].value, 3),
@@ -1642,7 +1650,7 @@ def calc_ind(regions,
             
             IRT_index_list.append(sigma_I_IRT_from_mean)
             
-            if print_stat:
+            if verbose:
         
                 print('Mean of {} flux points in IRT line: {}±{}'.format(len(irt_region.flux), F_irt_mean, F_irt_mean_err))
                 print('Mean of {} flux points in F1: {}±{}'.format(len(irt_F1_region.flux), irt_F1_mean, irt_F1_mean_err))
@@ -1711,7 +1719,7 @@ def LS_periodogram(x,
     fap_method: str, default='bootstrap'
     False Alarm Probability (FAP) calculation method.
     
-    dy: array, default=None
+    dy: list, default=None
     Error on observation values
     
     probabilities: list, default=[0.5, 0.2, 0.1]
@@ -2051,17 +2059,14 @@ def find_nearest(array,
 
 ## Defining a function to calculate the true anomaly, i.e. orbital phase angle from the observation JD
 
-# T_e = 2455959 JD taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2014AcA....64..323M
-# converting T_e from JD to HJD using https://doncarona.tamu.edu/apps/jd/
-
 def ephemerides(file_path,
-                P_orb=2.644,
-                T_e=2455959.0039936211,
-                e=0.152,
+                P_orb,
+                T_e=,
+                e=,
                 P_rot=None,
                 phase_start=None, 
                 Rot_phase=False,
-                print_stat=True,
+                verbose=True,
                 save_results=False,
                 save_name=None):
     
@@ -2074,19 +2079,17 @@ def ephemerides(file_path,
     -----------
     
     file_path: str
-    List of paths of the .out/.fits file containing the OBS_HJD/OBS_BJD
+    List of paths of the .out/.meta/.fits file containing the observation JD
     
-    P_orb: int, default=2.644
+    P_orb: int
     Planetary orbital period in days. 
-    Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
     
-    T_e: int, default=2455959.0039936211
-    Epoch of periastron in HJD since the dates in .out files are HJD. Input in BJD instead if the given file_path is .fits. 
-    Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2014AcA....64..323M
+    T_e: int
+    Epoch of periastron in HJD/BJD depending on the given observation JD
     
-    e: int, default=0.152
+    e: int
     Orbital eccentricity. 
-    Default value for GJ436b taken from http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2018A&A...609A.117T
+    
     
     P_rot: int, default=None
     Stellar rotation period in days.
@@ -2099,7 +2102,7 @@ def ephemerides(file_path,
     Rot_phase: bool, default=False
     Calculates the stellar rotational phases and cycle using the given 'P_rot' and 'phase_start' parameters.
     
-    print_stat: bool, default=True
+    verbose: bool, default=True
     Prints the status of each process within the function.
     
     save_results: bool, default=False
@@ -2126,7 +2129,7 @@ def ephemerides(file_path,
     
     for i in log_progress(range(len(file_path)), desc='Calculating System Ephemerides'):
         
-        if file_path[i][-4:] == '.out':
+        if file_path[i].endswith('out'):
             
             file = open(file_path[i]).readlines() # Opening the .out file and reading each line as a string
                         
@@ -2136,7 +2139,17 @@ def ephemerides(file_path,
             
             JD = float(file[idx][-14:-1]) # Using the line index found above, the HJD is extracted by indexing just that from the line.
             
-        elif file_path[i][-4:] == 'fits':
+        elif file_path[i].endswith('.meta'):
+            
+            file = open(file_path[i]).readlines()
+            
+            string = 'Julian Date = '
+            
+            idx = find_string_idx(file_path[i], string)
+            
+            JD = float(file[idx][14:-1])
+            
+        elif file_path[i].endswith('.fits'):
             
             hdu = fits.open(file_path[i])
             
@@ -2144,6 +2157,13 @@ def ephemerides(file_path,
                 JD = hdu[0].header['HIERARCH ESO DRS BJD']
             except:
                 JD = hdu[0].header['HIERARCH TNG DRS BJD']
+            except:
+                JD = hdu[0].header['HIERARCH OHP OBS MJD']
+            except:
+                JD = hdu[0].header['HIERARCH OHP OBS BJD']
+            except:
+                JD = hdu[0].header['MJD-OBS']
+            
         
         # Calculating the mean anomaly M
         
@@ -2152,7 +2172,7 @@ def ephemerides(file_path,
         # Total orbits done since last periastron
         N = int((JD - T_e)/P_orb)
         
-        if print_stat:
+        if verbose:
             print('Total number of orbits since the given periastron {}: {}'.format(T_e, N))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -2172,13 +2192,13 @@ def ephemerides(file_path,
         
         M = np.round(mean_an, 5)
         
-        if print_stat:
+        if verbose:
             print('Mean Anomaly: {}'.format(M))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         E = np.round((ks.getE(M, e)), 5)
         
-        if print_stat:
+        if verbose:
             print("Eccentric Anomaly: {}".format(E))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
@@ -2192,7 +2212,7 @@ def ephemerides(file_path,
             rot_cycle = np.round(((JD - phase_start)/P_rot), 5)
             rot_phase = np.round((rot_cycle - int(rot_cycle)), 5)
         
-        if print_stat:
+        if verbose:
             print('True Anomaly: {}'.format(f))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('Orbital Phase: {}'.format(orb_phase))
@@ -2213,7 +2233,7 @@ def ephemerides(file_path,
     # Saving the results in a csv file format  
     if save_results:
         
-        if print_stat:
+        if verbose:
             
             print('Saving results in the working directory in file: {}.csv'.format(save_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -2239,14 +2259,54 @@ def normalise_spec(spec1d,
                    F1_band,
                    F2_line,
                    F2_band,
-                   print_stat,
+                   verbose,
                    plot_fit,
                    save_figs,
                    save_figs_name):
     
     """
     
-    Insert Doc Here!
+    Normalises the spectrum using the fit_generic_continuum function from `specutils`
+    
+    Parameters:
+    ----------
+    
+    spec1d: Spectrum1D object
+    Spectrum1D object containing the observation wavelength, flux and flux error
+    
+    degree: int
+    The degree of the Chebyshev1D polynomial to fit to the continuum for normalisation.
+    Normalisation done using Specutils. 
+    For more info, 
+    see https://specutils.readthedocs.io/en/stable/api/specutils.fitting.fit_generic_continuum.html#specutils.fitting.fit_generic_continuum
+    
+    F1_line: int
+    Line core at the left-most edge of the spectral region used for index calculation
+    
+    F1_band: int
+    Bandwith of the F1_line 
+    
+    F2_line: int
+    Line core at the right-most edge of the spectral region used for index calculation
+    
+    F2_band: int
+    Bandwith of the F2_line 
+    
+    verbose: bool
+    Prints the status of each process within the function.
+    
+    plot_fit: bool
+    Plots the conitnuum fitting process
+    
+    save_figs: bool
+    Saves the figures as PDFs in the working directory
+    
+    save_figs_name: str
+    Name with which to save the figures.
+    
+    Returns:
+    --------
+    Normalised spectrum as a Spectrum1D object
     
     """
 
@@ -2256,7 +2316,7 @@ def normalise_spec(spec1d,
         warnings.simplefilter('ignore')
         g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
     
-    if print_stat:
+    if verbose:
         print('Polynomial fit coefficients:')
         print(g_fit)
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -2288,7 +2348,7 @@ def normalise_spec(spec1d,
         
         # Saves the plot in a pdf format in the working directory
         if save_figs:
-            if print_stat:
+            if verbose:
                 print('Saving plot as a PDF in the working directory')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
@@ -2309,19 +2369,69 @@ def tidal_bulge_height(ephem_result_file_path,
                        M_star_err, 
                        R_star, 
                        R_star_err, 
-                       print_stat=True, 
+                       verbose=True, 
                        save_results=False, 
                        save_results_name=None):
     
     """
     
-    Insert Docstring Here
+    Calculates the height of the tidal bulge on an exoplanet due to its host star following Cuntz et al. 2000
+    
+    Parameters:
+    -----------
+    
+    ephem_result_file_path: str
+    Path of the file containing the ephemerides results from the "ephemerides" function
+    
+    a: int
+    semi-major axis (AU)
+    
+    a_err: int
+    error on semi-major axis (AU)
+    
+    e: int
+    eccentricity
+    
+    e_err: int
+    error on eccentricity
+    
+    M_p: int
+    Mass of the exoplanet (M_earth)
+    
+    M_p_err: int
+    error on mass of the exoplanet (M_Earth)
+    
+    M_star: int
+    Mass of the host star (M_sun)
+    
+    M_star_err: int
+    error on mass of the host star (M_sun)
+    
+    R_star: int
+    Radius of the host star (R_sun)
+    
+    R_star_err: int
+    error on the radius of the host star (R_sun)
+    
+    verbose: bool, default=True
+    Prints the status of each process within the function
+    
+    save_results: bool, default=False
+    Saves the results as a .csv file in the working directory
+    
+    save_results_name: str, default=None
+    Name with which to save the results file with
+    
+    Returns:
+    --------
+    
+    JD, Distance (AU), Distance_err (AU), Grav_Perturbation, Grav_Pert_err, Tidal bulge height (m)', Tidal bulge height error (m)
     
     """
     
     ## Reading ephem_results using pandas
     
-    if print_stat:
+    if verbose:
         print('Reading ephemerides results file {} using pandas'.format(ephem_result_file_path))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
@@ -2333,7 +2443,7 @@ def tidal_bulge_height(ephem_result_file_path,
     
     ## Calculating the distance in AU using ellipse equation!
     
-    if print_stat:
+    if verbose:
         print('Calculating planet distance from host star')
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -2341,7 +2451,7 @@ def tidal_bulge_height(ephem_result_file_path,
     
     ## Calculating gravitational perturbation
     
-    if print_stat:
+    if verbose:
         print('Calculating gravitational perturbation')
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -2357,7 +2467,7 @@ def tidal_bulge_height(ephem_result_file_path,
     
     ## Now calculating h_tide from gp above
     
-    if print_stat:
+    if verbose:
         print('Calculating tidal bulge height')
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
@@ -2373,7 +2483,7 @@ def tidal_bulge_height(ephem_result_file_path,
     
     
     if save_results:
-        if print_stat:
+        if verbose:
             print('Saving results as a .csv file in the working directory')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -2389,7 +2499,11 @@ def tidal_bulge_height(ephem_result_file_path,
 
 ## Defining a function to bin the data into evenly-spaced intervals for the Pooled Varince calculation
 
-def bin_data(jd, index, bin_size, bin_min=2, print_stat=True):
+def bin_data(jd, 
+             index, 
+             bin_size, 
+             bin_min=2, 
+             verbose=True):
     
     """
     Bins the given data into evenly-spaced intervals of length, `bin_size`
@@ -2409,7 +2523,7 @@ def bin_data(jd, index, bin_size, bin_min=2, print_stat=True):
     bin_min: int, default=2
     Minimum number of values in any given bin. Bins with values below `bin_min` are discarded
     
-    print_stat: bool
+    verbose: bool
     Prints useful output whilst running the function
     
     Returns:
@@ -2428,7 +2542,7 @@ def bin_data(jd, index, bin_size, bin_min=2, print_stat=True):
         bins.append([bins[-1][1], np.max(jd)]) # For cases when the last element of the last bin is smaller than the maximum of given jd, 
                                                # it creates a new bin to include it. Now bins length is the same as 'bins_1d'
             
-    if print_stat:
+    if verbose:
         print('Total number of bins to check between {} and {} JD are {}'.format(jd.min(), jd.max(), len(bins)))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
@@ -2443,7 +2557,7 @@ def bin_data(jd, index, bin_size, bin_min=2, print_stat=True):
         
     binned_data_list = [x for x in binned_data_list if x != [] and len(x) >=bin_min] # Remove all empty lists and lists with length less than 2
     
-    if print_stat:
+    if verbose:
         print('Total number of bins with more than {} data points are {}'.format(bin_min, len(binned_data_list)))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -2451,7 +2565,12 @@ def bin_data(jd, index, bin_size, bin_min=2, print_stat=True):
 
 ## Defining a function to calculate the Pooled variance 
 
-def pool_var_run(jd, index, bin_size, bin_min=2, method='DR', print_stat=True):
+def pool_var_run(jd, 
+                 index, 
+                 bin_size,
+                 bin_min=2, 
+                 method='DR', 
+                 verbose=True):
     
     """
     Calculated the pooled variance using either the R. A. DONAHUE et al. 1997 (a) method OR the Scandariato et al. 2017 method.
@@ -2474,7 +2593,7 @@ def pool_var_run(jd, index, bin_size, bin_min=2, method='DR', print_stat=True):
     method: str
     Method with which to calculate the Pooled Variance. Available options are 'DR' & 'SG'
     
-    print_stat: bool
+    verbose: bool
     Prints useful output whilst running the function
     
     Returns:
@@ -2485,11 +2604,11 @@ def pool_var_run(jd, index, bin_size, bin_min=2, method='DR', print_stat=True):
     
     """
     
-    binned_data = bin_data(jd, index, bin_size, bin_min, print_stat=print_stat)
+    binned_data = bin_data(jd, index, bin_size, bin_min, verbose=verbose)
     
     if method=='DR':
         
-        if print_stat:
+        if verbose:
             print('Using the Donahue et al. 1997a method')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -2499,11 +2618,13 @@ def pool_var_run(jd, index, bin_size, bin_min=2, method='DR', print_stat=True):
         
     elif method=='SG':
         
-        if print_stat:
+        if verbose:
             print('Using the Scandariato et al. 2017 method')
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         ## In this method, the mean and standard deviation are replaced with median and MAD!
+        
+        ## Defining a function to calculate MAD
         
         def mad(data, axis=None):
             return np.mean(np.absolute(data - np.mean(data, axis)), axis)
@@ -2517,25 +2638,80 @@ def pool_var_run(jd, index, bin_size, bin_min=2, method='DR', print_stat=True):
 
 ## Defining a function to calculated the pooled variance for a given set of binned data!
 
-def Pooled_Variance(jd, index, 
+def Pooled_Variance(jd, 
+                    index, 
                     P_min=1.0, 
                     P_max=100.0, 
                     P_res=1.0, 
                     bin_min=2, 
                     method='DR',
-                    fmt='-k', 
+                    fmt='-ok', 
                     xscale='log',
                     fig_format='png',
                     show_plot=True, 
                     save_plot=False, 
                     save_name=None,
                     custom_p_grid=None,
-                    print_stat=False):
+                    verbose=True):
     
     
     """
+    Calculates the Pooled Variance for a given set of binned data
     
-    Insert Docstring Here
+    
+    Parameters:
+    ----------
+    
+    jd: arr
+    Observation dates 
+    
+    index: arr
+    Index values associated with the observation dates
+    
+    P_min: int, default=1.0
+    Period minimum for the trial periods (d)
+    
+    P_max: int, default=100.0
+    Period maximum for the trial periods (d)
+    
+    P_res: int, default=1.0
+    Resolution of the trial periods grid (d)
+    
+    bin_min: int, default=2
+    Minimum number of values in any given bin. Bins with values below `bin_min` are discarded
+    
+    method: str, default='DR'
+    Method with which to calculate the Pooled Variance. Available options are 'DR' for Donahue, R. & 'SG' for Scandariato, G.
+    
+    fmt: str, default='-ok'
+    Format used by matplotlib for plotting the PV diagram
+    
+    xscale: str, default='log'
+    Scaling of the x-axis used by matplotlib for plotting the PV diagram
+    
+    fig_format:str, default='png'
+    Format with which to plot/save the PV diagram
+    
+    show_plot: bool, default=True
+    Plots the PV diagram
+    
+    save_plot: bool, default=False
+    Saves the PV diagram in the working directory
+    
+    save_name: str, default=None
+    Name with which to save the PV diagram
+    
+    custom_p_grid: list, default=None
+    Custom period grid used for the PV calculation
+    
+    verbose: bool, default=True
+    Prints useful output whilst running the function
+    
+    Returns:
+    -------
+    
+    Period Grid, Pooled Varince
+    type: list, list
     
     """
     
@@ -2546,13 +2722,13 @@ def Pooled_Variance(jd, index,
     else:
         period_grid = custom_p_grid
         
-    if print_stat:
+    if verbose:
         print('Timescales to test range from {}d to {}d with a grid resolution of {}d'.format(period_grid[0], period_grid[-1], np.diff(period_grid)[0]))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
     for t in log_progress(range(len(period_grid)), desc='Calculating Pooled Variance'):
         
-        pool_var_list.append(pool_var_run(jd, index, bin_size=period_grid[t], bin_min=bin_min, method=method, print_stat=print_stat))
+        pool_var_list.append(pool_var_run(jd, index, bin_size=period_grid[t], bin_min=bin_min, method=method, verbose=verbose))
         
     if show_plot:
         
@@ -2570,7 +2746,7 @@ def Pooled_Variance(jd, index,
         plt.show()
         
         if save_plot:
-            if print_stat:
+            if verbose:
                 print('Saving the PV diagram as {}.pdf in the working directory'.format(save_name))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             plt.savefig('{}'.format(save_name+'.'+fig_format), format=fig_format, dpi=300)
