@@ -32,7 +32,7 @@ def corr_plot(x,
               xerr=None,
               yerr=None,
               title=None,
-              print_stat=True,
+              verbose=True,
               save_fig=False,
               save_plot_name=None):
     
@@ -132,7 +132,7 @@ def corr_plot(x,
             f.write('Intercept:' + '\t' + str(intercept) + '\n')
         
         
-    if print_stat:
+    if verbose:
         print('R: {}'.format(p))
         print('p-value: {:.4e}'.format(p_val))
         print('Slope: {} '.format(slope))
@@ -232,7 +232,7 @@ def overplot(file_path,
     List containing file paths of the .s/.fits files
     
     Instrument: str
-    Instrument type used. Available options: ['NARVAL', 'HARPS', 'HARPS-N']
+    Instrument type used. Available options: ['NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N', 'SOPHIE', and 'ELODIE']
     
     save_fig: bool, default=False
     Saves the plot as a PDF in the working directory
@@ -250,7 +250,7 @@ def overplot(file_path,
     
     for file in file_path:
         
-        if Instrument=='NARVAL':
+        if Instrument=='NARVAL' or Instrument=='ESPADONS':
             
             # Skipping first 2 rows of .s file and setting header to None to call columns by their index.
             # Assigning the sep manually and setting skipinitialspace to True to fix the issue of multiple leading spaces; 2 spaces upto 1000nm then 1 space!
@@ -260,7 +260,7 @@ def overplot(file_path,
             spec_all.append(spec)
             
         else:
-            op, spec = read_data(file, Instrument, print_stat=False, show_plots=False)
+            op, spec = read_data(file, Instrument, verbose=False, show_plots=False)
             spec_all.append(spec)
             
     plt.figure(figsize=(10,4))
@@ -269,7 +269,7 @@ def overplot(file_path,
     
     plt.xlabel(r'$\lambda$(nm)')
     
-    if Instrument=='NARVAL':
+    if Instrument=='NARVAL' or Instrument=='ESPADONS':
         plt.ylabel('Normalized Flux')
     else:
         plt.ylabel('Flux (adu)')
@@ -293,8 +293,35 @@ def plot_spectrum(spec,
                   CaI_index=None):
     
     """
+    Plots the spectrum along with the appropriate lines and their bandwidths used for a given index calculation
     
-    Insert Doc Here!
+    Parameters:
+    ------------
+    
+    spec: Spectrum1D object
+    The Spectrum1D object containing the doppler shift corrected spectrum
+    
+    lines: list
+    List containing the lines of the line core and its respective reference continuums
+    
+    Index: str
+    Name of the index for which to plot the spectrum. Available options are 'HaI', 'HeI', 'CaIIH', 'CaIIHK', 'IRT'.
+    
+    Instrument: str,
+    Instrument from which the spec is extracted. Available options are 'NARVAL', 'ESPADONS', 'HARPS', 'HARPS-N', 'SOPHIE' and 'ELODIE'.
+    
+    norm_spec: bool
+    Boolean argument if the given spec is normalised by "normalise_spec"
+    
+    save_figs: bool
+    Save the plots in a pdf format in the working directory
+    
+    save_figs_name: str
+    Name with which to save the figures
+    
+    Returns:
+    --------
+    None. This is a void function
     
     """
     
