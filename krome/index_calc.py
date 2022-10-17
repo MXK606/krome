@@ -47,10 +47,9 @@ def H_alpha_index(file_path,
                   plot_fit=False, 
                   plot_spec=True,
                   plot_only_spec=False,
-                  print_stat=True,
+                  verbose=True,
                   save_results=False, 
                   save_figs=False,
-                  save_figs_name=None,
                   out_file_path=None,
                   meta_file_path=None,
                   ccf_file_path=None,
@@ -120,7 +119,7 @@ def H_alpha_index(file_path,
     plot_only_spec: bool, default: False
     Plots ONLY the spectrum WITHOUT calculating the index.
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -128,9 +127,6 @@ def H_alpha_index(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     out_file_path: list, .out format (NARVAL), default: None
     List containing the paths of the .out files to extract the OBS_HJD along with other useful object parameters. 
@@ -148,7 +144,7 @@ def H_alpha_index(file_path,
     Returns:
     -----------
     NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], H alpha index, error on H alpha index, CaI index and error on CaI index.
-    ESPADONS: OBS_DATE, RA, DEC, V_mag, T_eff, Distance, JD, AIRMASS, T_EXP, RUN_ID, SNR, RV, H alpha index, error on H alpha index, CaI index and error on CaI index.
+    ESPADONS: JD, OBS_DATE, RA, DEC, V_mag, T_eff, Distance, AIRMASS, T_EXP, RUN_ID, SNR, RV, H alpha index, error on H alpha index, CaI index and error on CaI index.
     HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], H alpha index, error on H alpha index, CaI index, error on CaI index
     HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], H alpha index, error on H alpha index, CaI index and error on CaI index
     SOPHIE: JD, RA, DEC, T_EXP, OBS_DATE, PROG_ID, SIGDET, CONAD, RON, RV, H alpha index, error on H alpha index, CaI index and error on CaI index
@@ -180,7 +176,7 @@ def H_alpha_index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                out_file_path=out_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -189,22 +185,22 @@ def H_alpha_index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    out_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
             
-            if print_stat:
+            if verbose:
                 print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
                 print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
                 print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
@@ -245,7 +241,7 @@ def H_alpha_index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                meta_file_path=meta_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -254,23 +250,23 @@ def H_alpha_index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    meta_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"meta_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34.
             
-            if print_stat:
+            if verbose:
                 print('The #34 order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
                 print('The #34 order intensity read from .s file using pandas is: {}'.format(order_34[1]))
                 print('The #34 order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
@@ -298,12 +294,12 @@ def H_alpha_index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -328,7 +324,7 @@ def H_alpha_index(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
             
             if flx_err_nan:
-                if print_stat:
+                if verbose:
                     print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
@@ -340,11 +336,11 @@ def H_alpha_index(file_path,
                     flx_err_ron = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx])
                 
                 if np.isnan(np.sum(flx_err_ron)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
-                if print_stat:
+                if verbose:
                     print('The wavelength array read from the .fits file is: {}'.format(wvl))
                     print('The flux array read from the .fits file is: {}'.format(flx))
                     print('The calculated flux error array is: {}'.format(flx_err_ron))
@@ -376,12 +372,12 @@ def H_alpha_index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -403,7 +399,7 @@ def H_alpha_index(file_path,
             left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, F2_line+2)
             
-            if print_stat:
+            if verbose:
                 print('Calculating the flux error array as the photon noise')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -412,11 +408,11 @@ def H_alpha_index(file_path,
                     flx_err = np.asarray([np.sqrt(flux) for flux in flx]) # Using only photon noise as flx_err approx since no RON info available!
                     
             if np.isnan(np.sum(flx_err)):
-                if print_stat:
+                if verbose:
                     print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-            if print_stat:
+            if verbose:
                 print('The wavelength array read from the .fits file is: {}'.format(wvl))
                 print('The flux array read from the .fits file is: {}'.format(flx))
                 print('The calculated flux error array is: {}'.format(flx_err))
@@ -435,7 +431,7 @@ def H_alpha_index(file_path,
             
             obj_params, spec = read_data(file_path=file_path[i],
                                          Instrument=Instrument,
-                                         print_stat=print_stat,
+                                         verbose=verbose,
                                          show_plots=False)
             
             obj_params['RV'] = radial_velocity 
@@ -444,7 +440,7 @@ def H_alpha_index(file_path,
             
             if len(spec[0]) < 50:
                 
-                if print_stat:
+                if verbose:
                     print('Total {} spectral orders extracted'.format(len(spec[0])))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
@@ -475,11 +471,11 @@ def H_alpha_index(file_path,
                     
                 
             if np.isnan(np.sum(flx_err)):
-                if print_stat:
+                if verbose:
                     print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-            if print_stat:
+            if verbose:
                 print('The wavelength array read from .fits file is: {}'.format(wvl))
                 print('The flux array read from .fits file is: {}'.format(flx))
                 print('The calculated flux error array is: {}'.format(flx_err))
@@ -501,7 +497,7 @@ def H_alpha_index(file_path,
             
             obj_params, spec = read_data(file_path=file_path[i],
                                          Instrument=Instrument,
-                                         print_stat=print_stat,
+                                         verbose=verbose,
                                          show_plots=False)
             
             obj_params['RV'] = radial_velocity
@@ -515,7 +511,7 @@ def H_alpha_index(file_path,
             left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, F2_line+2)
             
-            if print_stat:
+            if verbose:
                 print('Calculating the flux error array as the photon noise')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -524,11 +520,11 @@ def H_alpha_index(file_path,
                     flx_err = np.asarray([np.sqrt(flux) for flux in flx]) 
                     
             if np.isnan(np.sum(flx_err)):
-                if print_stat:
+                if verbose:
                     print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-            if print_stat:
+            if verbose:
                 print('The wavelength array read from the .fits file is: {}'.format(wvl))
                 print('The flux array read from the .fits file is: {}'.format(flx))
                 print('The calculated flux error array is: {}'.format(flx_err))
@@ -544,7 +540,7 @@ def H_alpha_index(file_path,
             
         # Printing spec info
             
-        if print_stat:
+        if verbose:
             print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {:.4f}nm'.format(radial_velocity, shift))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
@@ -556,14 +552,14 @@ def H_alpha_index(file_path,
         # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
         if norm_spec:
-            if print_stat:
+            if verbose:
                 print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Note the continuum normalized spectrum also has new uncertainty values!
             
             spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
-                                  print_stat, plot_fit, save_figs, save_figs_name) 
+                                  verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])) 
             
         else:
             spec = spec1d
@@ -575,7 +571,7 @@ def H_alpha_index(file_path,
             
             lines = [H_alpha_line, H_alpha_band, F1_line, F1_band, F2_line, F2_band, CaI_line, CaI_band]
             
-            plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, save_figs, save_figs_name, CaI_index)
+            plot_spectrum(spec, lines, 'HaI', Instrument, norm_spec, save_figs, str(obj_params[next(iter(obj_params))]), CaI_index)
             
         if plot_only_spec:
             
@@ -604,7 +600,7 @@ def H_alpha_index(file_path,
             
             I_Ha, I_Ha_err, I_CaI, I_CaI_err = calc_ind(regions=regions,
                                                         index_name='HaI',
-                                                        print_stat=print_stat,
+                                                        verbose=verbose,
                                                         CaI_index=CaI_index)
             
             if Instrument=='NARVAL':
@@ -657,7 +653,7 @@ def H_alpha_index(file_path,
         # Saving the results in a csv file format  
         if save_results:
             
-            if print_stat:
+            if verbose:
                 print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
@@ -686,10 +682,9 @@ def NaI_index(file_path,
               norm_spec=False,
               plot_fit=False,
               plot_spec=True,
-              print_stat=True,
+              verbose=True,
               save_results=False,
               save_figs=False,
-              save_figs_name=None,
               results_file_name=None,
               out_file_path=None,
               ccf_file_path=None):
@@ -741,8 +736,7 @@ def NaI_index(file_path,
     NOTE: If you'd like to use all of the flux points within the bandwidth, set this parameter to None.
     
     norm_spec: bool, default: False
-    Normalizes ths spectrum. NOTE: This argument also accepts str type of 'scale' and 'poly1dfit' to normalize the spectrum by either scaling it down
-    to maximum flux of 1.0,  or, by fitting the continuum with a line. But these are ONLY used for Instrument types 'HARPS' & 'HARPS-N'
+    Normalizes ths spectrum. 
     
     plot_fit: bool, default: False
     Plots the continuum fitting normalization processes.
@@ -750,7 +744,7 @@ def NaI_index(file_path,
     plot_spec: bool, default: True
     Plots the final reduced spectrum.
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -758,9 +752,6 @@ def NaI_index(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     results_file_name: str, default: None
     Name of the file with the which the results file is saved
@@ -804,7 +795,7 @@ def NaI_index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                out_file_path=out_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity
@@ -813,15 +804,15 @@ def NaI_index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    out_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -829,7 +820,7 @@ def NaI_index(file_path,
             ord_38 = orders[61-38] # Both order 39 and 38 contain the D1 and D2 lines but only order 38 is used since it has a higher SNR; (see .out file)
             ord_37 = orders[61-37] # order 37 contains the F2 line
             
-            if print_stat:
+            if verbose:
                 print('Using orders #39, #38 and #37 for Index calculation')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -856,7 +847,7 @@ def NaI_index(file_path,
                                flux=ord_37[1]*u.Jy, 
                                uncertainty=StdDevUncertainty(ord_37[2]))
                             
-            if print_stat:
+            if verbose:
                 print('The three spectral orders used range from; {}nm-{}nm, {}nm-{}nm, and {}nm-{}nm'.format(spec1.spectral_axis[0].value, 
                                                                                                               spec1.spectral_axis[-1].value,
                                                                                                               spec2.spectral_axis[0].value, 
@@ -870,137 +861,48 @@ def NaI_index(file_path,
             # Fitting the continuum for each order separately using 'specutils'
         
             if norm_spec:
-                if print_stat:
+                if verbose:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-                
-                spec1 = normalise_spec(spec1,
-                                      degree,
-                                      F1_line,
-                                      F1_band,
-                                      F2_line,
-                                      F2_band,
-                                      print_stat,
-                                      plot_fit,
-                                      save_figs,
-                                      save_figs_name) 
-                    
                 # First order
-                     
-                with warnings.catch_warnings():  # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    g1_fit = fit_generic_continuum(spec1, model=Chebyshev1D(degree)) # Using 'Chebyshev1D' to define an nth order polynomial model
                 
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g1_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+                spec_normalized1 = normalise_spec(spec1,
+                                                  degree,
+                                                  F1_line,
+                                                  F1_band,
+                                                  F1_line,
+                                                  F1_band,
+                                                  verbose,
+                                                  plot_fit,
+                                                  save_figs,
+                                                  str(obj_params[next(iter(obj_params))])+'_F1') 
                 
-                y_cont_fitted1 = g1_fit(spec1.spectral_axis) # Continuum fit y values are calculated by inputting the spectral axis x values into the polynomial fit equation 
-                
-                # The spectrum is divided by the continuum fit to get the normalized spectrum
-                spec_normalized1 = spec1 / y_cont_fitted1 # Note the continuum normalized spectrum also has new uncertainty values!
-                
-                if plot_fit:
-                    f, ax1 = plt.subplots()  
-                    ax1.plot(spec1.spectral_axis, spec1.flux, '-k)  
-                    ax1.plot(spec1.spectral_axis, y_cont_fitted1)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
-                    ax1.set_title("Continuum Fitting First Order") 
-                    
-                    f, ax2 = plt.subplots()  
-                    ax2.plot(spec_normalized1.spectral_axis, spec_normalized1.flux, label='Normalized', alpha=0.6)
-                    ax2.plot(spec1.spectral_axis, spec1.flux, color='red', label='Non-Normalized', alpha=0.6)
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax2.axvline(F1_line-(F1_band/2), linestyle='--', color='black', label='Blue cont. region')
-                    ax2.axvline(F1_line+(F1_band/2), linestyle='--', color='black')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized First Order")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        if print_stat:
-                            print('Saving plots as PDFs in the working directory')
-                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_F1_plot.pdf'.format(save_figs_name), format='pdf')
-                          
                 # Second order
                 
-                with warnings.catch_warnings():  # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    g2_fit = fit_generic_continuum(spec2, model=Chebyshev1D(degree))
+                spec_normalized2 = normalise_spec(spec2,
+                                                  degree,
+                                                  NaID2_line,
+                                                  NaI_band,
+                                                  NaID1_line,
+                                                  NaI_band,
+                                                  verbose,
+                                                  plot_fit,
+                                                  save_figs,
+                                                  str(obj_params[next(iter(obj_params))])+'_F2') 
                 
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g2_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted2 = g2_fit(spec2.spectral_axis)
-                spec_normalized2 = spec2 / y_cont_fitted2
-                
-                if plot_fit:
-                    f, ax1 = plt.subplots()  
-                    ax1.plot(spec2.spectral_axis, spec2.flux)  
-                    ax1.plot(spec2.spectral_axis, y_cont_fitted2)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
-                    ax1.set_title("Continuum Fitting Second Order") 
-                    
-                    f, ax2 = plt.subplots()  
-                    ax2.plot(spec_normalized2.spectral_axis, spec_normalized2.flux, label='Normalized', alpha=0.6)
-                    ax2.plot(spec2.spectral_axis, spec2.flux, color='red', label='Non-Normalized', alpha=0.6)
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax2.axvline(NaID1-1.0, linestyle='--', color='black', label='NaID lines region')
-                    ax2.axvline(NaID2+1.0, linestyle='--', color='black')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized Second Order")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_fit_F2_plot.pdf'.format(save_figs_name), format='pdf')
-                          
                 # Third order
                 
-                with warnings.catch_warnings():  # Ignore warnings
-                    warnings.simplefilter('ignore')
-                    g3_fit = fit_generic_continuum(spec3, model=Chebyshev1D(degree))
-                
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g3_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted3 = g3_fit(spec3.spectral_axis)
-                spec_normalized3 = spec3 / y_cont_fitted3
-                
-                if plot_fit:
-                    f, ax1 = plt.subplots()  
-                    ax1.plot(spec3.spectral_axis, spec3.flux)  
-                    ax1.plot(spec3.spectral_axis, y_cont_fitted3)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
-                    ax1.set_title("Continuum Fitting Third Order") 
-                    
-                    f, ax2 = plt.subplots()  
-                    ax2.plot(spec_normalized3.spectral_axis, spec_normalized3.flux, label='Normalized', alpha=0.6)
-                    ax2.plot(spec3.spectral_axis, spec3.flux, color='red', label='Non-Normalized', alpha=0.6)
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax2.axvline(F2_line-(F2_band/2), linestyle='--', color='black', label='F2 region')
-                    ax2.axvline(F2_line+(F2_band/2), linestyle='--', color='black')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized Third Order")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_fit_F3_plot.pdf'.format(save_figs_name), format='pdf')
+                spec_normalized3 = normalise_spec(spec3,
+                                                  degree,
+                                                  F2_line,
+                                                  F2_band,
+                                                  F2_line,
+                                                  F2_band,
+                                                  verbose,
+                                                  plot_fit,
+                                                  save_figs,
+                                                  str(obj_params[next(iter(obj_params))])+'_F3') 
                 
                 spec1 = spec_normalized1
                 spec2 = spec_normalized2
@@ -1028,7 +930,7 @@ def NaI_index(file_path,
             
             I_NaI, I_NaI_err, F1_mean, F2_mean = calc_ind(regions=regions,
                                                           index_name='NaI',
-                                                          print_stat=print_stat,
+                                                          verbose=verbose,
                                                           hfv=hfv)
             # Plotting the pseudo-continuum as the linear interpolation of the values in each red and blue cont. window!
             
@@ -1054,10 +956,10 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                    if print_stat:
+                    if verbose:
                         print('Saving plots as PDFs in the working directory')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(str(obj_params[next(iter(obj_params))])), format='pdf')
                         
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec2.spectral_axis, spec2.flux, color='blue', label='#38')
@@ -1074,7 +976,7 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                    plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(str(obj_params[next(iter(obj_params))])), format='pdf')
                 
             
             if out_file_path != None:
@@ -1097,12 +999,12 @@ def NaI_index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -1127,7 +1029,7 @@ def NaI_index(file_path,
             
             if flx_err_nan:
                 if np.isnan(obj_params['RON']):
-                    if print_stat:
+                    if verbose:
                         print('File contains NaN in flux errors array. Calculating flux errors using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -1140,7 +1042,7 @@ def NaI_index(file_path,
                         flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
 
                     if np.isnan(np.sum(flx_err_ron)):
-                        if print_stat:
+                        if verbose:
                             print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -1151,7 +1053,7 @@ def NaI_index(file_path,
                                         flux=flx[left_idx:right_idx+1]*u.Jy,
                                         uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
                 else:
-                    if print_stat:
+                    if verbose:
                         print('File contains NaN in flux errors array and could not extract the ReadOut Noise (RON) from FITS file header.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         print('Approximating flux errors as the photon noise instead.')
@@ -1162,7 +1064,7 @@ def NaI_index(file_path,
                         flx_err_pn = [np.sqrt(flux) for flux in flx]
 
                     if np.isnan(np.sum(flx_err_pn)):
-                        if print_stat:
+                        if verbose:
                             print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -1179,88 +1081,27 @@ def NaI_index(file_path,
                                     flux=flx[left_idx:right_idx+1]*u.Jy,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-            if norm_spec=='scale':
-                if print_stat:
-                    print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
+            if norm_spec:
+                if verbose:
+                    print('Normalizing the spectra by fitting a {} degree polynomial to the continuum'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-                flux_norm = (spec1d.flux - min(spec1d.flux))/(max(spec1d.flux) - min(spec1d.flux)) # Same normalization as the ACTIN code. See here for more info on ACTIN https://github.com/gomesdasilva/ACTIN 
-                
-                spec_normalized = Spectrum1D(spectral_axis=spec1d.spectral_axis,
-                                             flux=flux_norm*u.Jy,
-                                             uncertainty=StdDevUncertainty(spec1d.uncertainty.array, unit=u.Jy))
-                                 
-                spec = spec_normalized 
-                
-                if plot_fit:
-                    
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec.spectral_axis, spec.flux, label='Scaled down spectra')
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
-                    ax1.set_title("Continuum Normalized ")  
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        if print_stat:
-                            print('Saving plots as PDFs in the working directory')
-                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
-                            
-            elif norm_spec=='poly1dfit':
-                if print_stat:
-                    print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(1))
-                
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted = g_fit(spec1d.spectral_axis)
-                
-                # Adding a constant offset to the continuum fit to lift it up so it starts from the centre of the spectrum
-                left_init_mean = np.mean(spec1d.flux.value[:100]) + 150.0
-                delta_flx = left_init_mean*u.Jy - y_cont_fitted[0]
-                y_cont_fitted += delta_flx
-                
-                spec_normalized = spec1d / y_cont_fitted
-                
-                spec = spec_normalized
-                
-                if plot_fit:
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
-                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Flux (adu)')
-                    ax1.set_title("Continuum Fitting")
-                    plt.tight_layout()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
-                    
-                    f, ax2 = plt.subplots(figsize=(10,4))  
-                    ax2.plot(spec.spectral_axis, spec.flux, label='Normalized')
-                    ax2.axhline(1.0, ls='--', c='gray')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_norm_plot.pdf'.format(save_figs_name), format='pdf')
+                spec = normalise_spec(spec1d,
+                                      degree,
+                                      F1_line,
+                                      F1_band,
+                                      F2_line,
+                                      F2_band,
+                                      verbose,
+                                      plot_fit,
+                                      save_figs,
+                                      str(obj_params[next(iter(obj_params))]))
                 
                     
             else:
@@ -1287,7 +1128,7 @@ def NaI_index(file_path,
             
             I_NaI, I_NaI_err, F1_mean, F2_mean = calc_ind(regions=regions,
                                                           index_name='NaI',
-                                                          print_stat=print_stat,
+                                                          verbose=verbose,
                                                           hfv=hfv)
             # Plotting the pseudo-continuum as the linear interpolation of the values in each red and blue cont. window!
             
@@ -1316,10 +1157,10 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                    if print_stat:
+                    if verbose:
                         print('Saving plots as PDFs in the working directory')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(str(obj_params[next(iter(obj_params))])), format='pdf')
                         
                 f, ax1  = plt.subplots(figsize=(10,4))
                 ax1.plot(spec.spectral_axis, spec.flux, color='black')
@@ -1339,7 +1180,7 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                    plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_NaID1D2_lines_plot.pdf'.format(str(obj_params[next(iter(obj_params))])), format='pdf')
             
             header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'I_NaI', 'I_NaI_err']
             res = list(obj_params.values()) + [I_NaI, I_NaI_err]
@@ -1356,12 +1197,12 @@ def NaI_index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -1395,82 +1236,27 @@ def NaI_index(file_path,
                               flux=flx[left_idx:right_idx+1]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the NaID1 line of 588.995nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
-            if norm_spec=='scale':
-                if print_stat:
-                    print('Normalizing the spectra by scaling it down to max. flux equals 1.0')
+            if norm_spec:
+                if verbose:
+                    print('Normalizing the spectra by fitting a {} degree polynomial to the continuum'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                flux_norm = (spec1d.flux - min(spec1d.flux))/(max(spec1d.flux) - min(spec1d.flux)) # Same normalization as the ACTIN code!
-                spec_normalized = Spectrum1D(spectral_axis=spec1d.spectral_axis,
-                                             flux=flux_norm*u.Jy,
-                                             uncertainty=StdDevUncertainty(spec1d.uncertainty.array, unit=u.Jy))
-                                 
-                spec = spec_normalized 
-                
-                if plot_fit:
                     
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec.spectral_axis, spec.flux, label='Scaled down spectra')
-                    plt.axhline(1.0, ls='--', c='gray')
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Normalized Flux')
-                    ax1.set_title("Continuum Normalized ")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        if print_stat:
-                            print('Saving plots as PDFs in the working directory')
-                            print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
-                    
-            elif norm_spec=='poly1dfit':
-                if print_stat:
-                    print('Normalizing the spectra by fitting a 1st degree polynomial to the continuum')
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                g_fit = fit_generic_continuum(spec1d, model=Chebyshev1D(1))
-                
-                if print_stat:
-                    print('Polynomial fit coefficients:')
-                    print(g_fit)
-                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-                y_cont_fitted = g_fit(spec1d.spectral_axis)
-                
-                # Adding a constant offset to the continuum fit to lift it up so it starts from the centre of the spectrum
-                left_init_mean = np.mean(spec1d.flux.value[:100]) + 150.0
-                delta_flx = left_init_mean*u.Jy - y_cont_fitted[0]
-                y_cont_fitted += delta_flx
-                
-                spec_normalized = spec1d / y_cont_fitted
-                
-                spec = spec_normalized
-                
-                if plot_fit:
-                    f, ax1 = plt.subplots(figsize=(10,4))  
-                    ax1.plot(spec1d.spectral_axis, spec1d.flux)  
-                    ax1.plot(spec1d.spectral_axis, y_cont_fitted)
-                    ax1.set_xlabel('$\lambda (nm)$')
-                    ax1.set_ylabel('Flux (adu)')
-                    ax1.set_title("Continuum Fitting") 
-                    
-                    f, ax2 = plt.subplots(figsize=(10,4))  
-                    ax2.plot(spec.spectral_axis, spec.flux, label='Normalized')
-                    ax2.axhline(1.0, ls='--', c='gray')
-                    ax2.set_xlabel('$\lambda (nm)$')
-                    ax2.set_ylabel('Normalized Flux')
-                    ax2.set_title("Continuum Normalized")
-                    plt.tight_layout()
-                    plt.legend()
-                    
-                    if save_figs:
-                        plt.savefig('{}_cont_fit_plot.pdf'.format(save_figs_name), format='pdf')
+                spec = normalise_spec(spec1d,
+                                      degree,
+                                      F1_line,
+                                      F1_band,
+                                      F2_line,
+                                      F2_band,
+                                      verbose,
+                                      plot_fit,
+                                      save_figs,
+                                      str(obj_params[next(iter(obj_params))]))
                 
                     
             else:
@@ -1497,7 +1283,7 @@ def NaI_index(file_path,
                 plt.legend()
                 
                 if save_figs:
-                    plt.savefig('{}_reduced_spec_plot.pdf'.format(save_figs_name), format='pdf')
+                    plt.savefig('{}_reduced_spec_plot.pdf'.format(str(obj_params[next(iter(obj_params))])), format='pdf')
                 
                 
             # Extracting the regions required for the index calculation using 'extract_region'
@@ -1520,7 +1306,7 @@ def NaI_index(file_path,
             
             I_NaI, I_NaI_err, F1_mean, F2_mean = calc_ind(regions=regions,
                                                           index_name='NaI',
-                                                          print_stat=print_stat,
+                                                          verbose=verbose,
                                                           hfv=hfv)
             
             # Plotting the pseudo-continuum as the linear interpolation of the values in each red and blue cont. window!
@@ -1537,7 +1323,7 @@ def NaI_index(file_path,
          
     if save_results:
         
-        if print_stat:
+        if verbose:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -1562,10 +1348,9 @@ def CaIIH_Index(file_path,
                 norm_spec=False,
                 plot_fit=False,
                 plot_spec=True,
-                print_stat=True,
+                verbose=True,
                 save_results=False,
                 save_figs=False,
-                save_figs_name=None,
                 results_file_name=None,
                 out_file_path=None,
                 ccf_file_path=None,
@@ -1616,7 +1401,7 @@ def CaIIH_Index(file_path,
     plot_spec: bool, default: True
     Plots the final reduced spectrum.
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -1624,9 +1409,6 @@ def CaIIH_Index(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     results_file_name: str, default: None
     Name of the file with which to save the results file
@@ -1669,7 +1451,7 @@ def CaIIH_Index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                out_file_path=out_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -1678,16 +1460,16 @@ def CaIIH_Index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    out_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -1695,7 +1477,7 @@ def CaIIH_Index(file_path,
             
             order_57 = orders[61-57] # The orders begin from # 61 so to get # 57, we index as 61-57.
             
-            if print_stat:
+            if verbose:
                 print('The #57 order wavelength read from .s file using pandas is: {}'.format(order_57[0]))
                 print('The #57 order intensity read from .s file using pandas is: {}'.format(order_57[1]))
                 print('The #57 order intensity error read from .s file using pandas is: {}'.format(order_57[2]))
@@ -1731,12 +1513,12 @@ def CaIIH_Index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -1764,7 +1546,7 @@ def CaIIH_Index(file_path,
             
             if flx_err_nan:
                 if np.isnan(obj_params['RON']):
-                    if print_stat:
+                    if verbose:
                         print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     # Flux error calculated as photon noise plus CCD readout noise 
@@ -1776,7 +1558,7 @@ def CaIIH_Index(file_path,
                         flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
 
                     if np.isnan(np.sum(flx_err_ron)):
-                        if print_stat:
+                        if verbose:
                             print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -1788,7 +1570,7 @@ def CaIIH_Index(file_path,
                                         uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx], unit=u.Jy))
                 
                 else:
-                    if print_stat:
+                    if verbose:
                         print('File contains NaN in flux errors array and could not extract the ReadOut Noise (RON) from FITS file header.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         print('Approximating flux errors as the photon noise instead.')
@@ -1799,7 +1581,7 @@ def CaIIH_Index(file_path,
                         flx_err_pn = [np.sqrt(flux) for flux in flx]
 
                     if np.isnan(np.sum(flx_err_pn)):
-                        if print_stat:
+                        if verbose:
                             print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -1829,12 +1611,12 @@ def CaIIH_Index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -1872,7 +1654,7 @@ def CaIIH_Index(file_path,
             
         # Printing spec info
             
-        if print_stat:
+        if verbose:
             print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {:.4f}nm'.format(radial_velocity, shift))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
@@ -1884,14 +1666,14 @@ def CaIIH_Index(file_path,
         # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
         if norm_spec:
-            if print_stat:
+            if verbose:
                 print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Note the continuum normalized spectrum also has new uncertainty values!
             
             spec = normalise_spec(spec1d, degree, CaIIH_line, CaIIH_band, F2_line, F2_band,
-                                  print_stat, plot_fit, save_figs, save_figs_name) 
+                                  verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])) 
             
         else:
             spec = spec1d
@@ -1903,7 +1685,7 @@ def CaIIH_Index(file_path,
             
             lines = [CaIIH_line, CaIIH_band, F2_line, F2_band]
             
-            plot_spectrum(spec, lines, 'CaIIH', Instrument, norm_spec, save_figs, save_figs_name)
+            plot_spectrum(spec, lines, 'CaIIH', Instrument, norm_spec, save_figs, str(obj_params[next(iter(obj_params))]))
             
         if plot_only_spec:
             
@@ -1930,7 +1712,7 @@ def CaIIH_Index(file_path,
             
             I_CaIIH, I_CaIIH_err = calc_ind(regions=regions,
                                             index_name='CaIIH',
-                                            print_stat=print_stat)
+                                            verbose=verbose)
                 
             if Instrument=='NARVAL':
                 if out_file_path != None:
@@ -1962,7 +1744,7 @@ def CaIIH_Index(file_path,
         # Saving the results in a csv file format  
         if save_results:
             
-            if print_stat:
+            if verbose:
                 print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -1992,10 +1774,9 @@ def CaIIHK_Index(file_path,
                  plot_fit=False,
                  plot_spec=True,
                  plot_only_spec=False,
-                 print_stat=True,
+                 verbose=True,
                  save_results=False,
                  save_figs=False,
-                 save_figs_name=None,
                  results_file_name=None,
                  out_file_path=None,
                  ccf_file_path=None,
@@ -2050,7 +1831,7 @@ def CaIIHK_Index(file_path,
     plot_only_spec: bool, default: False
     Plots ONLY the spectrum WITHOUT calculating the index
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -2058,9 +1839,6 @@ def CaIIHK_Index(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     results_file_name: str, default: None
     Name of the file with which to save the results file
@@ -2077,7 +1855,7 @@ def CaIIHK_Index(file_path,
     Returns:
     -----------
     NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], CaIIHK index and error on CaIIHK index
-    ESPADONS: OBS_DATE, RA, DEC, V_mag, T_eff, Distance, JD, AIRMASS, T_EXP, RUN_ID, SNR, RV, CaIIHK index and error on CaIIHK index
+    ESPADONS: JD, OBS_DATE, RA, DEC, V_mag, T_eff, Distance, AIRMASS, T_EXP, RUN_ID, SNR, RV, CaIIHK index and error on CaIIHK index
     HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], CaIIHK index and error on CaIIHK index
     HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], CaIIHK index and error on CaIIHK index
     SOPHIE: JD, RA, DEC, T_EXP, OBS_DATE, PROG_ID, SIGDET, CONAD, RON, RV, CaIIHK index and error on CaIIHK index
@@ -2109,7 +1887,7 @@ def CaIIHK_Index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                out_file_path=out_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -2118,16 +1896,16 @@ def CaIIHK_Index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    out_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -2135,7 +1913,7 @@ def CaIIHK_Index(file_path,
             
             CaIIK_order = orders[61-58] # The orders begin from # 61 so to get # 58, we index as 61-58.
             
-            if print_stat:
+            if verbose:
                 print('The CaII K order wavelength read from .s file using pandas is: {}'.format(CaIIK_order[0]))
                 print('The CaII K order intensity read from .s file using pandas is: {}'.format(CaIIK_order[1]))
                 print('The CaII K order intensity error read from .s file using pandas is: {}'.format(CaIIK_order[2]))
@@ -2145,7 +1923,7 @@ def CaIIHK_Index(file_path,
             
             CaIIH_order = orders[61-57] 
             
-            if print_stat:
+            if verbose:
                 print('The CaII H order wavelength read from .s file using pandas is: {}'.format(CaIIH_order[0]))
                 print('The CaII H order intensity read from .s file using pandas is: {}'.format(CaIIH_order[1]))
                 print('The CaII H order intensity error read from .s file using pandas is: {}'.format(CaIIH_order[2]))
@@ -2192,7 +1970,7 @@ def CaIIHK_Index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                meta_file_path=meta_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity 
@@ -2201,23 +1979,23 @@ def CaIIHK_Index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    meta_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"meta_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
             CaIIK_order = orders[61-58] 
             
-            if print_stat:
+            if verbose:
                 print('The CaII K order wavelength read from .s file using pandas is: {}'.format(CaIIK_order[0]))
                 print('The CaII K order intensity read from .s file using pandas is: {}'.format(CaIIK_order[1]))
                 print('The CaII K order intensity error read from .s file using pandas is: {}'.format(CaIIK_order[2]))
@@ -2225,7 +2003,7 @@ def CaIIHK_Index(file_path,
             
             CaIIH_order = orders[61-57] 
             
-            if print_stat:
+            if verbose:
                 print('The CaII H order wavelength read from .s file using pandas is: {}'.format(CaIIH_order[0]))
                 print('The CaII H order intensity read from .s file using pandas is: {}'.format(CaIIH_order[1]))
                 print('The CaII H order intensity error read from .s file using pandas is: {}'.format(CaIIH_order[2]))
@@ -2269,12 +2047,12 @@ def CaIIHK_Index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -2302,7 +2080,7 @@ def CaIIHK_Index(file_path,
             
             if flx_err_nan:
                 if np.isnan(obj_params['RON']):
-                    if print_stat:
+                    if verbose:
                         print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     # Flux error calculated as photon noise plus CCD readout noise 
@@ -2314,7 +2092,7 @@ def CaIIHK_Index(file_path,
                         flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
 
                     if np.isnan(np.sum(flx_err_ron)):
-                        if print_stat:
+                        if verbose:
                             print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -2326,7 +2104,7 @@ def CaIIHK_Index(file_path,
                                         uncertainty=StdDevUncertainty(flx_err_ron[left_idx:right_idx+1], unit=u.Jy))
                 
                 else:
-                    if print_stat:
+                    if verbose:
                         print('File contains NaN in flux errors array and could not extract the ReadOut Noise (RON) from FITS file header.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         print('Approximating flux errors as the photon noise instead.')
@@ -2337,7 +2115,7 @@ def CaIIHK_Index(file_path,
                         flx_err_pn = [np.sqrt(flux) for flux in flx]
 
                     if np.isnan(np.sum(flx_err_pn)):
-                        if print_stat:
+                        if verbose:
                             print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -2367,12 +2145,12 @@ def CaIIHK_Index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -2411,7 +2189,7 @@ def CaIIHK_Index(file_path,
             
             obj_params, spec = read_data(file_path=file_path[i],
                                          Instrument=Instrument,
-                                         print_stat=print_stat,
+                                         verbose=verbose,
                                          show_plots=False)
             
             obj_params['RV'] = radial_velocity 
@@ -2420,7 +2198,7 @@ def CaIIHK_Index(file_path,
             
             if len(spec[0]) < 50:
                 
-                if print_stat:
+                if verbose:
                     print('Total {} spectral orders extracted'.format(len(spec[0])))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
@@ -2442,21 +2220,21 @@ def CaIIHK_Index(file_path,
                     flx_err_F2 = np.asarray([np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx_F2])
                     
                 if np.isnan(np.sum(flx_err_K)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array for the CaII K order contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 if np.isnan(np.sum(flx_err_H)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array for the CaII H order contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
                 if np.isnan(np.sum(flx_err_F2)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array for the F2 line order contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
-                if print_stat:
+                if verbose:
                     print('The CaII K order wavelength read from .fits file is: {}'.format(wvl_K))
                     print('The CaII K order flux read from .fits file is: {}'.format(flx_K))
                     print('The CaII K order calculated flux error is: {}'.format(flx_err_K))
@@ -2518,11 +2296,11 @@ def CaIIHK_Index(file_path,
                     
                 
                 if np.isnan(np.sum(flx_err)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
-                if print_stat:
+                if verbose:
                     print('The wavelength array read from .fits file is: {}'.format(wvl))
                     print('The flux array read from .fits file is: {}'.format(flx))
                     print('The calculated flux error array is: {}'.format(flx_err))
@@ -2547,7 +2325,7 @@ def CaIIHK_Index(file_path,
             
             # Printing spec info
             
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The CaII K order spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d[0].spectral_axis[0].value, spec1d[0].spectral_axis[-1].value))
@@ -2566,27 +2344,27 @@ def CaIIHK_Index(file_path,
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
                 
             if norm_spec:
-                if print_stat:
+                if verbose:
                     print('Normalising spectral orders by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Note the continuum normalized spectrum also has new uncertainty values!
                 
                 spec_K = normalise_spec(spec1d[0], degree, F1_line, F1_band, CaIIK_line, CaIIK_band,
-                                        print_stat, plot_fit, save_figs, save_figs_name) 
+                                        verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])) 
                 
                 if len(spec1d) == 3:
                     
                     spec_H = normalise_spec(spec1d[1], degree, CaIIH_line, CaIIH_band, CaIIH_line, CaIIH_band,
-                                            print_stat, plot_fit, save_figs, save_figs_name)
+                                            verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])+'_F1')
                     
                     spec_F2 = normalise_spec(spec1d[2], degree, F2_line, F2_band, F2_line, F2_band,
-                                             print_stat, plot_fit, save_figs, save_figs_name)
+                                             verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])+'_F2')
                     
                 else:
                     
                     spec_H = normalise_spec(spec1d[1], degree, CaIIH_line, CaIIH_band, F2_line, F2_band,
-                                            print_stat, plot_fit, save_figs, save_figs_name)
+                                            verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))]))
                 
                 
             else:
@@ -2618,7 +2396,7 @@ def CaIIHK_Index(file_path,
                 
                 lines = [CaIIH_line, CaIIH_band, CaIIK_line, CaIIK_band, F1_line, F1_band, F2_line, F2_band]
                 
-                plot_spectrum(spec1d_HK, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
+                plot_spectrum(spec1d_HK, lines, 'CaIIHK', Instrument, norm_spec, save_figs, str(obj_params[next(iter(obj_params))]))
                 
             if plot_only_spec:
                 
@@ -2645,7 +2423,7 @@ def CaIIHK_Index(file_path,
             
             # Printing spec info
                 
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the CaIIH line of 396.847nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
@@ -2657,14 +2435,14 @@ def CaIIHK_Index(file_path,
             # Fitting an nth order polynomial to the continuum for normalisation using specutils
                 
             if norm_spec:
-                if print_stat:
+                if verbose:
                     print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
                 # Note the continuum normalized spectrum also has new uncertainty values!
                 
                 spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
-                                      print_stat, plot_fit, save_figs, save_figs_name) 
+                                      verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])) 
                 
             else:
                 spec = spec1d
@@ -2675,7 +2453,7 @@ def CaIIHK_Index(file_path,
                 
                 lines = [CaIIH_line, CaIIH_band, CaIIK_line, CaIIK_band, F1_line, F1_band, F2_line, F2_band]
                 
-                plot_spectrum(spec, lines, 'CaIIHK', Instrument, norm_spec, save_figs, save_figs_name)
+                plot_spectrum(spec, lines, 'CaIIHK', Instrument, norm_spec, save_figs, str(obj_params[next(iter(obj_params))]))
                 
             if plot_only_spec:
                 
@@ -2707,7 +2485,7 @@ def CaIIHK_Index(file_path,
             
             I_CaIIHK, I_CaIIHK_err = calc_ind(regions=regions,
                                               index_name='CaIIHK',
-                                              print_stat=print_stat)
+                                              verbose=verbose)
                 
             if Instrument=='NARVAL':
                 if out_file_path != None:
@@ -2754,7 +2532,7 @@ def CaIIHK_Index(file_path,
         # Saving the results in a csv file format  
         if save_results:
             
-            if print_stat:
+            if verbose:
                 print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -2781,11 +2559,10 @@ def HeI_index(file_path,
               norm_spec=False,
               plot_fit=False, 
               plot_spec=True,
-              plot_only_spec=False
-              print_stat=True,
+              plot_only_spec=False,
+              verbose=True,
               save_results=False, 
               save_figs=False,
-              save_figs_name=None,
               results_file_name=None,
               out_file_path=None,
               meta_file_path=None,
@@ -2844,7 +2621,7 @@ def HeI_index(file_path,
     plot_only_spec: bool, default: False
     Plots ONLY the spectrum WITHOUT calculating the index.
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -2852,9 +2629,6 @@ def HeI_index(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     results_file_name: str, default: None
     Name of the file with which to save the results file
@@ -2872,7 +2646,7 @@ def HeI_index(file_path,
     Returns:
     -----------
     NARVAL: HJD, RA, DEC, AIRMASS, Exposure time[s], No. of exposures, GAIN [e-/ADU], ReadOut Noise [e-], V_mag, T_eff[K], RV[m/s], HeI index, error on HeI index
-    ESPADONS: OBS_DATE, RA, DEC, V_mag, T_eff, Distance, JD, AIRMASS, T_EXP, RUN_ID, SNR, RV, HeI index, error on HeI index
+    ESPADONS: JD, OBS_DATE, RA, DEC, V_mag, T_eff, Distance, AIRMASS, T_EXP, RUN_ID, SNR, RV, HeI index, error on HeI index
     HARPS: BJD, RA, DEC, AIRMASS, Exposure time[s], Barycentric RV[km/s], OBS_DATE, Program ID, SNR, CCD Readout Noise[e-], CCD conv factor[e-/ADU], ReadOut Noise[ADU], RV[m/s], HeI index, error on HeI index
     HARPS-N: BJD, RA, DEC, AIRMASS, Exposure time[s], OBS_DATE, Program ID', RV[m/s], HeI index, error on HeI index
     SOPHIE: JD, RA, DEC, T_EXP, OBS_DATE, PROG_ID, SIGDET, CONAD, RON, RV, HeI index, error on HeI index
@@ -2904,7 +2678,7 @@ def HeI_index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                out_file_path=out_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -2913,23 +2687,23 @@ def HeI_index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    out_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
             order_38 = orders[61-38] # The orders begin from # 61 so to get # 38, we index as 61-38.
             
-            if print_stat:
+            if verbose:
                 print('The #38 order wavelength read from .s file using pandas is: {}'.format(order_38[0]))
                 print('The #38 order intensity read from .s file using pandas is: {}'.format(order_38[1]))
                 print('The #38 order intensity error read from .s file using pandas is: {}'.format(order_38[2]))
@@ -2967,7 +2741,7 @@ def HeI_index(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                meta_file_path=meta_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -2976,23 +2750,23 @@ def HeI_index(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    meta_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"meta_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
             
             order_38 = orders[61-38] 
             
-            if print_stat:
+            if verbose:
                 print('The #38 order wavelength read from .s file using pandas is: {}'.format(order_38[0]))
                 print('The #38 order intensity read from .s file using pandas is: {}'.format(order_38[1]))
                 print('The #38 order intensity error read from .s file using pandas is: {}'.format(order_38[2]))
@@ -3020,12 +2794,12 @@ def HeI_index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -3050,7 +2824,7 @@ def HeI_index(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
             
             if flx_err_nan:
-                if print_stat:
+                if verbose:
                     print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
@@ -3062,7 +2836,7 @@ def HeI_index(file_path,
                     flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -3093,12 +2867,12 @@ def HeI_index(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -3138,7 +2912,7 @@ def HeI_index(file_path,
             
             obj_params, spec = read_data(file_path=file_path[i],
                                          Instrument=Instrument,
-                                         print_stat=print_stat,
+                                         verbose=verbose,
                                          show_plots=False)
             
             obj_params['RV'] = radial_velocity 
@@ -3147,7 +2921,7 @@ def HeI_index(file_path,
             
             if len(spec[0]) < 50:
                 
-                if print_stat:
+                if verbose:
                     print('Total {} spectral orders extracted'.format(len(spec[0])))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                         
@@ -3178,11 +2952,11 @@ def HeI_index(file_path,
                     
                 
             if np.isnan(np.sum(flx_err)):
-                if print_stat:
+                if verbose:
                     print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-            if print_stat:
+            if verbose:
                 print('The wavelength array read from .fits file is: {}'.format(wvl))
                 print('The flux array read from .fits file is: {}'.format(flx))
                 print('The calculated flux error array is: {}'.format(flx_err))
@@ -3204,7 +2978,7 @@ def HeI_index(file_path,
             
             obj_params, spec = read_data(file_path=file_path[i],
                                          Instrument=Instrument,
-                                         print_stat=print_stat,
+                                         verbose=verbose,
                                          show_plots=False)
             
             obj_params['RV'] = radial_velocity
@@ -3218,7 +2992,7 @@ def HeI_index(file_path,
             left_idx = find_nearest(wvl, F1_line-2) # ± 2nm extra included for both!
             right_idx = find_nearest(wvl, F2_line+2)
             
-            if print_stat:
+            if verbose:
                 print('Calculating the flux error array as the photon noise')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -3227,11 +3001,11 @@ def HeI_index(file_path,
                     flx_err = np.asarray([np.sqrt(flux) for flux in flx]) 
                     
             if np.isnan(np.sum(flx_err)):
-                if print_stat:
+                if verbose:
                     print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
-            if print_stat:
+            if verbose:
                 print('The wavelength array read from the .fits file is: {}'.format(wvl))
                 print('The flux array read from the .fits file is: {}'.format(flx))
                 print('The calculated flux error array is: {}'.format(flx_err))
@@ -3246,7 +3020,7 @@ def HeI_index(file_path,
             
         # Printing spec info
             
-        if print_stat:
+        if verbose:
             print('The doppler shift size using RV {} m/s and the HeID3 line of 587.562nm is: {:.4f}nm'.format(radial_velocity, shift))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             print('The spectral axis ranges from {:.4f}nm to {:.4f}nm.'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
@@ -3257,14 +3031,14 @@ def HeI_index(file_path,
         # Fitting an nth order polynomial to the continuum for normalisation using specutils
             
         if norm_spec:
-            if print_stat:
+            if verbose:
                 print('Normalising the spectra by fitting a {}th order polynomial to the enitre spectral order'.format(degree))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
             # Note the continuum normalized spectrum also has new uncertainty values!
             
             spec = normalise_spec(spec1d, degree, F1_line, F1_band, F2_line, F2_band,
-                                  print_stat, plot_fit, save_figs, save_figs_name) 
+                                  verbose, plot_fit, save_figs, str(obj_params[next(iter(obj_params))])) 
             
         else:
             spec = spec1d
@@ -3276,7 +3050,7 @@ def HeI_index(file_path,
             
             lines = [HeI_line, HeI_band, F1_line, F1_band, F2_line, F2_band]
             
-            plot_spectrum(spec, lines, 'HeI', Instrument, norm_spec, save_figs, save_figs_name)
+            plot_spectrum(spec, lines, 'HeI', Instrument, norm_spec, save_figs, str(obj_params[next(iter(obj_params))]))
             
         if plot_only_spec:
             
@@ -3301,7 +3075,7 @@ def HeI_index(file_path,
             
             I_HeI, I_HeI_err = calc_ind(regions=regions,
                                         index_name='HeI',
-                                        print_stat=print_stat)
+                                        verbose=verbose)
             
             if Instrument=='NARVAL':
                 if out_file_path != None:
@@ -3353,7 +3127,7 @@ def HeI_index(file_path,
         # Saving the results in a csv file format  
         if save_results:
             
-            if print_stat:
+            if verbose:
                 print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
@@ -3375,10 +3149,9 @@ def balmer_decrement(file_path,
                      H_beta_line=486.135,
                      H_beta_band=0.1, 
                      plot_spec=True,
-                     print_stat=True,
+                     verbose=True,
                      save_results=False, 
                      save_figs=False,
-                     save_figs_name=None,
                      results_file_name=None,
                      out_file_path=None,
                      ccf_file_path=None):
@@ -3417,7 +3190,7 @@ def balmer_decrement(file_path,
     plot_spec: bool, default: True
     Plots the final reduced spectrum.
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -3425,9 +3198,6 @@ def balmer_decrement(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     results_file_name: str, default: None
     Name of the file with which to save the results file
@@ -3470,7 +3240,7 @@ def balmer_decrement(file_path,
                 obj_params, orders = read_data(file_path=file_path[i],
                                                out_file_path=out_file_path[i],
                                                Instrument=Instrument,
-                                               print_stat=print_stat,
+                                               verbose=verbose,
                                                show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -3479,16 +3249,16 @@ def balmer_decrement(file_path,
                 
                 orders = read_data(file_path=file_path[i],
                                    Instrument=Instrument,
-                                   print_stat=print_stat,
+                                   verbose=verbose,
                                    out_file_path=None,
                                    show_plots=False)
                 
-                if print_stat:
+                if verbose:
                     print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
 
-            if print_stat:
+            if verbose:
                 print('Total {} spectral orders extracted'.format(len(orders)))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                     
@@ -3496,7 +3266,7 @@ def balmer_decrement(file_path,
             order_34 = orders[61-34] # The orders begin from # 61 so to get # 34, we index as 61-34. This will be tha H_alpha order
             order_46 = orders[61-46] # This will be the H_beta order.
             
-            if print_stat:
+            if verbose:
                 print('The #34 Hα order wavelength read from .s file using pandas is: {}'.format(order_34[0]))
                 print('The #34 Hα order intensity read from .s file using pandas is: {}'.format(order_34[1]))
                 print('The #34 Hα order intensity error read from .s file using pandas is: {}'.format(order_34[2]))
@@ -3536,7 +3306,7 @@ def balmer_decrement(file_path,
             
             # Printing info
             
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the Hα line of 656.2808 nm is: {}nm'.format(radial_velocity, shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The Hα/Hβ spectral regions used range from {}/{}nm to {}/{}nm.'.format(spec1d_alpha.spectral_axis[0].value, spec1d_beta.spectral_axis[0].value, spec1d_alpha.spectral_axis[-1].value, spec1d_beta.spectral_axis[-1].value)) 
@@ -3584,7 +3354,7 @@ def balmer_decrement(file_path,
             
             balmer_dec_err = np.round((balmer_dec*np.sqrt((H_alpha_line_mean_err/H_alpha_line_mean)**2 + (H_beta_line_mean_err/H_beta_line_mean)**2)), 4)
             
-            if print_stat:
+            if verbose:
                 print('Mean of {} flux points in Hα: {}±{}'.format(len(H_alpha_line_region[1]), H_alpha_line_mean, H_alpha_line_mean_err))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in Hβ: {}±{}'.format(len(H_beta_line_region[1]), H_beta_line_mean, H_beta_line_mean_err))
@@ -3626,7 +3396,7 @@ def balmer_decrement(file_path,
                 
                 
                 if save_figs:
-                    plt.savefig('{}.png'.format(save_figs_name), format='png', dpi=300)
+                    plt.savefig('{}.png'.format(str(obj_params[next(iter(obj_params))])), format='png', dpi=300)
                 
             if out_file_path != None:
                 header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'F_H_alpha', 'F_H_alpha_err', 'F_H_beta', 'F_H_beta_err', 'BD', 'BD_err']
@@ -3645,12 +3415,12 @@ def balmer_decrement(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -3675,7 +3445,7 @@ def balmer_decrement(file_path,
             flx_err_nan = np.isnan(np.sum(flx_err)) # NOTE: This returns true if there is one NaN or all are NaN!
             
             if flx_err_nan:
-                if print_stat:
+                if verbose:
                     print('File contains NaN in flux errors array. Calculating flux error using CCD readout noise: {}'.format(np.round(obj_params['RON'], 4)))
                     print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 # Flux error calculated as photon noise plus CCD readout noise 
@@ -3687,7 +3457,7 @@ def balmer_decrement(file_path,
                     flx_err_ron = [np.sqrt(flux + np.square(obj_params['RON'])) for flux in flx]
                 
                 if np.isnan(np.sum(flx_err_ron)):
-                    if print_stat:
+                    if verbose:
                         print('The calculated flux error array contains a few NaN values due to negative flux encountered in the square root.')
                         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
@@ -3704,7 +3474,7 @@ def balmer_decrement(file_path,
                                     flux=flx[left_idx:right_idx+1]*u.Jy,
                                     uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, spec1d.spectral_axis[-1].value))
@@ -3747,7 +3517,7 @@ def balmer_decrement(file_path,
             
             balmer_dec_err = np.round((balmer_dec*np.sqrt((H_alpha_line_mean_err/H_alpha_line_mean)**2 + (H_beta_line_mean_err/H_beta_line_mean)**2)), 4)
             
-            if print_stat:
+            if verbose:
                 print('Mean of {} flux points in Hα: {}±{}'.format(len(H_alpha_line_region[1]), H_alpha_line_mean, H_alpha_line_mean_err))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in Hβ: {}±{}'.format(len(H_beta_line_region[1]), H_beta_line_mean, H_beta_line_mean_err))
@@ -3787,7 +3557,7 @@ def balmer_decrement(file_path,
                 f.tight_layout()
                 
                 if save_figs:
-                    plt.savefig('{}.png'.format(save_figs_name), format='png', dpi=300)
+                    plt.savefig('{}.png'.format(str(obj_params[next(iter(obj_params))])), format='png', dpi=300)
                 
             header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD', 'RON', 'RV', 'F_H_alpha', 'F_H_alpha_err', 'F_H_beta', 'F_H_beta_err', 'BD', 'BD_err']
             res = list(obj_params.values()) + [H_alpha_line_mean, H_alpha_line_mean_err, H_beta_line_mean, H_beta_line_mean_err, balmer_dec, balmer_dec_err]
@@ -3806,12 +3576,12 @@ def balmer_decrement(file_path,
                 obj_params, spec = read_data(file_path=file_path[i],
                                              ccf_file_path=ccf_file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
             else:
                 obj_params, spec = read_data(file_path=file_path[i],
                                              Instrument=Instrument,
-                                             print_stat=print_stat,
+                                             verbose=verbose,
                                              show_plots=False)
                 
                 obj_params['RV'] = radial_velocity # setting obj_params['RV'] to the given radial_velocity argument!
@@ -3844,7 +3614,7 @@ def balmer_decrement(file_path,
                               flux=flx[left_idx:right_idx+1]*u.Jy,
                               uncertainty=StdDevUncertainty(flx_err[left_idx:right_idx+1], unit=u.Jy))
             
-            if print_stat:
+            if verbose:
                 print('The doppler shift size using RV {} m/s and the Hα line of 656.2808nm is: {}nm'.format(obj_params['RV'], shift))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('The spectral region used ranges from {}nm to {}nm. These values are doppler shift corrected and rounded off to 3 decimal places'.format(spec1d.spectral_axis[0].value, 
@@ -3888,7 +3658,7 @@ def balmer_decrement(file_path,
             
             balmer_dec_err = np.round((balmer_dec*np.sqrt((H_alpha_line_mean_err/H_alpha_line_mean)**2 + (H_beta_line_mean_err/H_beta_line_mean)**2)), 4)
             
-            if print_stat:
+            if verbose:
                 print('Mean of {} flux points in Hα: {}±{}'.format(len(H_alpha_line_region[1]), H_alpha_line_mean, H_alpha_line_mean_err))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 print('Mean of {} flux points in Hβ: {}±{}'.format(len(H_beta_line_region[1]), H_beta_line_mean, H_beta_line_mean_err))
@@ -3928,7 +3698,7 @@ def balmer_decrement(file_path,
                 f.tight_layout()
                 
                 if save_figs:
-                    plt.savefig('{}.png'.format(save_figs_name), format='png', dpi=300)
+                    plt.savefig('{}.png'.format(str(obj_params[next(iter(obj_params))])), format='png', dpi=300)
                 
             header = ['BJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'OBS_DATE', 'PROG_ID', 'RV', 'F_H_alpha', 'F_H_alpha_err', 'F_H_beta', 'F_H_beta_err', 'BD', 'BD_err']
             res = list(obj_params.values()) + [H_alpha_line_mean, H_alpha_line_mean_err, H_beta_line_mean, H_beta_line_mean_err, balmer_dec, balmer_dec_err]
@@ -3941,7 +3711,7 @@ def balmer_decrement(file_path,
     
     if save_results:
         
-        if print_stat:
+        if verbose:
             print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -3977,10 +3747,9 @@ def CaII_IRT(file_path,
              IRT_3_F2_band=0.2,
              plot_spec=True,
              plot_only_spec=False,
-             print_stat=True,
+             verbose=True,
              save_results=False, 
              save_figs=False,
-             save_figs_name=None,
              results_file_name=None,
              out_file_path=None):
     
@@ -4024,7 +3793,7 @@ def CaII_IRT(file_path,
     plot_spec: bool, default: True
     Plots the final reduced spectrum.
     
-    print_stat: bool, default: True
+    verbose: bool, default: True
     Prints the status of each process within the function.
     
     save_results: bool, default: False
@@ -4032,9 +3801,6 @@ def CaII_IRT(file_path,
     
     save_figs: bool, default: False
     Save the plots in a pdf format in the working directory
-    
-    save_figs_name: str, default=None
-    Name with which to save the figures. NOTE: This should ideally be the observation date of the given spectrum.
     
     results_file_name: str, default: None
     Name of the file with which to save the results file
@@ -4066,7 +3832,7 @@ def CaII_IRT(file_path,
             obj_params, orders = read_data(file_path=file_path[i],
                                            out_file_path=out_file_path[i],
                                            Instrument='NARVAL',
-                                           print_stat=print_stat,
+                                           verbose=verbose,
                                            show_plots=False)
             
             obj_params['RV'] = radial_velocity # setting radial_velocity as part of the obj_params dictionary for continuity 
@@ -4075,23 +3841,23 @@ def CaII_IRT(file_path,
             
             orders = read_data(file_path=file_path[i],
                                Instrument='NARVAL',
-                               print_stat=print_stat,
+                               verbose=verbose,
                                out_file_path=None,
                                show_plots=False)
             
-            if print_stat:
+            if verbose:
                 print('"out_file_path" not given as an argument. Run will only return the indices and their errros instead.')
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
 
-        if print_stat:
+        if verbose:
             print('Total {} spectral orders extracted'.format(len(orders)))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
         order_27 = orders[61-27] # This order contains the 849.8 IRT line
         order_26 = orders[61-26] # This order contains the other two IRT lines
         
-        if print_stat:
+        if verbose:
             print('The #27 IRT_1 order wavelength read from .s file using pandas is: {}'.format(order_27[0]))
             print('The #27 IRT_1 order intensity read from .s file using pandas is: {}'.format(order_27[1]))
             print('The #27 IRT_1 order intensity error read from .s file using pandas is: {}'.format(order_27[2]))
@@ -4130,7 +3896,7 @@ def CaII_IRT(file_path,
         
         # Printing info
         
-        if print_stat:
+        if verbose:
             print('The doppler shift size using RV {} m/s and the CaII IRT line of 866.2nm is: {}nm'.format(radial_velocity, shift))
             print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
@@ -4150,7 +3916,8 @@ def CaII_IRT(file_path,
                      IRT_2_line, IRT_2_band, IRT_2_F1_line, IRT_2_F1_band, IRT_2_F2_line, IRT_2_F2_band, 
                      IRT_3_line, IRT_3_band, IRT_3_F1_line, IRT_3_F1_band, IRT_3_F2_line, IRT_3_F2_band]
             
-            plot_spectrum(spec=spec1d_all, lines=lines, Index='IRT', Instrument='NARVAL', norm_spec=False, save_figs=save_figs, save_figs_name=save_figs_name)
+            plot_spectrum(spec=spec1d_all, lines=lines, Index='IRT', Instrument='NARVAL', 
+                          norm_spec=False, save_figs=save_figs, str(obj_params[next(iter(obj_params))])=str(obj_params[next(iter(obj_params))]))
             
         if plot_only_spec:
             
@@ -4185,7 +3952,7 @@ def CaII_IRT(file_path,
                 
             # The indices are calculated using the 'calc_ind' function from krome.spec_analysis by inputting the extracted regions as shown below;
             
-            IRT_index_list = calc_ind(regions=regions, index_name='CaII_IRT', print_stat=print_stat)
+            IRT_index_list = calc_ind(regions=regions, index_name='CaII_IRT', verbose=verbose)
             
             if out_file_path != None:
                 header = ['HJD', 'RA', 'DEC', 'AIRMASS', 'T_EXP', 'NUM_EXP', 'GAIN', 'RON', 'V_mag', 'T_eff', 'RV', 'I_IRT1', 'I_IRT1_err', 'I_IRT2', 'I_IRT2_err', 'I_IRT3', 'I_IRT3_err']
@@ -4204,7 +3971,7 @@ def CaII_IRT(file_path,
     
         # Saving the results in a csv file format  
         if save_results:
-            if print_stat:
+            if verbose:
                 print('Saving results in the working directory in file: {}.csv'.format(results_file_name))
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
