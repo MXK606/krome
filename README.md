@@ -16,6 +16,7 @@
 - astropy
 - PyAstronomy
 - specutils
+- uncertainties
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
@@ -27,19 +28,18 @@
 - If you use this software in your research, please cite the article "A Study of the Magnetic Activity and Variability of GJ 436" in the MNRAS journal using the following BibTex entry:
 
 ```
-@ARTICLE{2022arXiv220911258K,
+@ARTICLE{2022MNRAS.tmp.2704K,
        author = {{Kumar}, M. and {Fares}, R.},
-        title = "{A Study of the Magnetic Activity and Variability of GJ 436}",
-      journal = {arXiv e-prints},
-     keywords = {Astrophysics - Solar and Stellar Astrophysics},
+        title = "{A study of the magnetic activity and variability of GJ 436}",
+      journal = {\mnras},
+     keywords = {Stars: Individual: GJ 436, Stars: activity, Stars: chromospheres, Planetary systems, Astrophysics - Solar and Stellar Astrophysics},
          year = 2022,
-        month = sep,
-          eid = {arXiv:2209.11258},
-        pages = {arXiv:2209.11258},
+        month = oct,
+          doi = {10.1093/mnras/stac2766},
 archivePrefix = {arXiv},
        eprint = {2209.11258},
  primaryClass = {astro-ph.SR},
-       adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220911258K},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2022MNRAS.tmp.2704K},
       adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 ```
