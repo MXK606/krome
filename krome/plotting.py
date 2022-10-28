@@ -15,7 +15,7 @@ __version__ = "1.5"
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from scipy import stats
+from scipy.stats import pearsonr
 from krome.spec_analysis import read_data
 
 ## Defining a function that calculates and plots the Pearson R correlation between two datasets  
@@ -94,7 +94,7 @@ def corr_plot(x,
     
     """
     
-    p, p_val = stats.pearsonr(x,y)
+    p, p_val = pearsonr(x,y)
     p = np.round(p, 4)
     
     f, ax = plt.subplots()
@@ -183,10 +183,8 @@ def ephem_plot(ephem_file,
     
     ## Creating figure with two subplots 
     
-    fig = plt.figure(figsize=(10,8)) 
-    gs = fig.add_gridspec(2, 1, hspace=0.3, wspace=0.0)
-    ax1, ax2 = gs.subplots()
-    
+    f, (ax1, ax2) = plt.subplots(2, 1, figsize=(10,8)) 
+   
     ## Assigning plotting variables
     
     xdata = ephem_data['Orbital_Phase']
@@ -210,7 +208,7 @@ def ephem_plot(ephem_file,
     ax2.set_xlabel('Rotational Phase')  
     ax2.set_xlim(-0.05,1.0)
     
-    plt.tight_layout()
+    f.tight_layout()
     
     if save_fig:
         plt.savefig('{}_vs_ephemerides.pdf'.format(index_col_name), format='pdf')
@@ -358,7 +356,7 @@ def plot_spectrum(spec,
             ax1.axvline(lines[6]-(lines[7]/2), linestyle='dashdot', color='black', label='CaI {}±{}nm'.format(lines[6], lines[7]/2))
             ax1.axvline(lines[6]+(lines[7]/2), linestyle='dashdot', color='black')
         
-        ax1.set_xlim(lines[2]-1.1, lines[4]+1.1)
+        ax1.set_xlim(lines[2]-((lines[3]/2) + 0.5), lines[4]+((lines[5]/2) + 0.5))
         ax1.yaxis.set_ticks_position('both')
         ax1.xaxis.set_ticks_position('both')
         ax1.tick_params(direction='in', which='both')
@@ -420,7 +418,7 @@ def plot_spectrum(spec,
         ax1.axvline(lines[2]+(lines[3]/2), linestyle='dotted', color='blue')
         ax1.axvline(lines[4]-(lines[5]/2), linestyle='dashdot', color='red', label='Red cont. {}±{}nm'.format(lines[4], lines[5]/2))
         ax1.axvline(lines[4]+(lines[5]/2), linestyle='dashdot', color='red')
-        ax1.set_xlim(lines[2]-0.5, lines[4]+0.5)
+        ax1.set_xlim(lines[2]-((lines[3]/2) + 0.5), lines[4]+((lines[5]/2) + 0.5))
         ax1.yaxis.set_ticks_position('both')
         ax1.xaxis.set_ticks_position('both')
         ax1.tick_params(direction='in', which='both')
@@ -467,7 +465,7 @@ def plot_spectrum(spec,
         ax1.axvline(lines[0]+(lines[1]/2), linestyle='--', color='black')
         ax1.axvline(lines[2]-(lines[3]/2), linestyle='--', color='red', label='Red cont. {}±{}nm'.format(lines[2], lines[3]/2))
         ax1.axvline(lines[2]+(lines[3]/2), linestyle='--', color='red')
-        ax1.set_xlim(lines[0]-0.5, lines[2]+0.5)
+        ax1.set_xlim(lines[0]-((lines[1]/2) + 0.5), lines[2]+((lines[3]/2) + 0.5))
         
         # Plots the zoomed in region around the CaIIH line.
 
@@ -518,7 +516,7 @@ def plot_spectrum(spec,
         ax1.axvline(lines[4]+(lines[5]/2), linestyle='dotted', color='blue')
         ax1.axvline(lines[6]-(lines[7]/2), linestyle='dashdot', color='red', label='Red cont. {}±{}nm'.format(lines[6], lines[7]/2))
         ax1.axvline(lines[6]+(lines[7]/2), linestyle='dashdot', color='red')
-        ax1.set_xlim(lines[4]-1.5, lines[6]+1.5)
+        ax1.set_xlim(lines[4]-((lines[5]/2) + 0.5), lines[6]+((lines[7]/2) + 0.5))
         ax1.yaxis.set_ticks_position('both')
         ax1.xaxis.set_ticks_position('both')
         ax1.tick_params(direction='in', which='both')
@@ -536,7 +534,7 @@ def plot_spectrum(spec,
         ax2.tick_params(direction='in', which='both')
         ax2.legend()
         
-        ax3.plot(spec.spectral_axis, spec.flux)
+        ax3.plot(spec.spectral_axis, spec.flux, '-k')
         ax3.axvline(lines[2], ymin=0, linestyle='dotted', color='green')
         ax3.axvline(lines[2]-(lines[3]/2), linestyle='-.', color='black', label='CaII K band width = {}nm'.format(lines[2]))
         ax3.axvline(lines[2]+(lines[3]/2), linestyle='-.', color='black')
@@ -563,13 +561,15 @@ def plot_spectrum(spec,
         for i in range(3):
             
             ax_all[i*2].plot(spec.spectral_axis, spec.flux, '-k')
+            ax_all[i*2].set_xlabel('$\lambda (nm)$')
+            ax_all[i*2].set_ylabel('Normalised Flux')
             ax_all[i*2].axvline(lines[0 + i*6]-(lines[1 + i*6]/2), linestyle='--', color='black', label='{} {}±{}nm'.format(IRT_all[i], lines[0 + i*6], lines[1 + i*6]/2))
             ax_all[i*2].axvline(lines[0 + i*6]+(lines[1 + i*6]/2), linestyle='--', color='black')
             ax_all[i*2].axvline(lines[2 + i*6]-(lines[3 + i*6]/2), linestyle='dotted', color='blue', label='Blue cont. {}±{}nm'.format(lines[2 + i*6], lines[3 + i*6]/2))
             ax_all[i*2].axvline(lines[2 + i*6]+(lines[3 + i*6]/2), linestyle='dotted', color='blue')
             ax_all[i*2].axvline(lines[4 + i*6]-(lines[5 + i*6]/2), linestyle='dashdot', color='red', label='Red cont. {}±{}nm'.format(lines[4 + i*6], lines[5 + i*6]/2))
             ax_all[i*2].axvline(lines[4 + i*6]+(lines[5 + i*6]/2), linestyle='dashdot', color='red')
-            ax_all[i*2].set_xlim(lines[2 + i*6]-0.5, lines[4 + i*6]+0.5)
+            ax_all[i*2].set_xlim(lines[2 + i*6]-(lines[3 + i*6]/2)-0.5, lines[4 + i*6]+(lines[5 + i*6]/2)+0.5)
             ax_all[i*2].yaxis.set_ticks_position('both')
             ax_all[i*2].xaxis.set_ticks_position('both')
             ax_all[i*2].tick_params(direction='in', which='both')
@@ -578,6 +578,8 @@ def plot_spectrum(spec,
             # Plots the zoomed in regions around the HeI line.
             
             ax_all[i*2 + 1].plot(spec.spectral_axis, spec.flux, '-k')
+            ax_all[i*2 + 1].set_xlabel('$\lambda (nm)$')
+            ax_all[i*2 + 1].set_ylabel('Normalised Flux')
             ax_all[i*2 + 1].axvline(lines[0 + i*6], ymin=0, linestyle='dotted', color='green')
             ax_all[i*2 + 1].axvline(lines[0 + i*6]-(lines[1 + i*6]/2), linestyle='--', color='black', label='{} band width = {}nm'.format(IRT_all[i], lines[1 + i*6]))
             ax_all[i*2 + 1].axvline(lines[0 + i*6]+(lines[1 + i*6]/2), linestyle='--', color='black')

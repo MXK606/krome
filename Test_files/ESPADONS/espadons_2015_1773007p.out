@@ -1,0 +1,57 @@
+OBJECT = GL436
+File type = Polarization
+Stokes parameter = V
+Continuum = Normalized
+Raw files = 1773007o.fits 1773008o.fits 1773009o.fits 1773010o.fits
+RUNID = 14BF13
+PI NAME = Pascal Fouque
+Mode readout = Normal
+Instrumental Mode = pol
+Coordinates of object : 11:42:11.86 & 26:42:12.9
+Time of observations : 2015 1 9 @ UT 15:30:35 (hour angle = 0.691 hr, airmass = 1.020 )
+Total exposure time : 720.0 s (180.0+180.0+180.0+180.0 s)
+Cosine latitude of observatory : 0.941
+Heliocentric velocity of observer towards star : 23.035 km/s
+Geocentric Julian date (UTC) : 2457032.14624
+Heliocentric Julian date (UTC) : 2457032.14791
+Heliocentric Julian date (TT) : 2457032.14866
+SNR per spec/ccd pxl in order # 61 (372 nm) I> 6 / 6 V> 9 / 10 N> 9 / 10
+SNR per spec/ccd pxl in order # 60 (377 nm) I> 6 / 6 V> 10 / 12 N> 10 / 11
+SNR per spec/ccd pxl in order # 59 (384 nm) I> 6 / 6 V> 12 / 13 N> 12 / 13
+SNR per spec/ccd pxl in order # 58 (390 nm) I> 7 / 7 V> 11 / 12 N> 11 / 12
+SNR per spec/ccd pxl in order # 57 (397 nm) I> 8 / 8 V> 10 / 11 N> 10 / 11
+SNR per spec/ccd pxl in order # 56 (404 nm) I> 10 / 11 V> 10 / 11 N> 10 / 11
+SNR per spec/ccd pxl in order # 55 (412 nm) I> 12 / 14 V> 11 / 12 N> 11 / 12
+SNR per spec/ccd pxl in order # 54 (419 nm) I> 15 / 17 V> 12 / 14 N> 12 / 14
+SNR per spec/ccd pxl in order # 53 (427 nm) I> 17 / 20 V> 14 / 16 N> 14 / 15
+SNR per spec/ccd pxl in order # 52 (435 nm) I> 23 / 26 V> 18 / 20 N> 18 / 20
+SNR per spec/ccd pxl in order # 51 (444 nm) I> 29 / 34 V> 22 / 25 N> 22 / 25
+SNR per spec/ccd pxl in order # 50 (453 nm) I> 37 / 43 V> 28 / 32 N> 27 / 32
+SNR per spec/ccd pxl in order # 49 (462 nm) I> 44 / 52 V> 33 / 39 N> 33 / 39
+SNR per spec/ccd pxl in order # 48 (472 nm) I> 50 / 59 V> 38 / 45 N> 39 / 46
+SNR per spec/ccd pxl in order # 47 (482 nm) I> 56 / 66 V> 44 / 52 N> 44 / 52
+SNR per spec/ccd pxl in order # 46 (492 nm) I> 65 / 77 V> 52 / 61 N> 52 / 62
+SNR per spec/ccd pxl in order # 45 (503 nm) I> 71 / 84 V> 56 / 66 N> 57 / 68
+SNR per spec/ccd pxl in order # 44 (515 nm) I> 77 / 92 V> 61 / 72 N> 62 / 74
+SNR per spec/ccd pxl in order # 43 (527 nm) I> 85 / 101 V> 67 / 80 N> 69 / 82
+SNR per spec/ccd pxl in order # 42 (539 nm) I> 92 / 109 V> 72 / 86 N> 75 / 89
+SNR per spec/ccd pxl in order # 41 (552 nm) I> 97 / 115 V> 78 / 93 N> 78 / 93
+SNR per spec/ccd pxl in order # 40 (566 nm) I> 103 / 122 V> 84 / 100 N> 83 / 98
+SNR per spec/ccd pxl in order # 39 (581 nm) I> 108 / 129 V> 87 / 104 N> 87 / 104
+SNR per spec/ccd pxl in order # 38 (596 nm) I> 115 / 137 V> 92 / 110 N> 92 / 109
+SNR per spec/ccd pxl in order # 37 (612 nm) I> 126 / 150 V> 102 / 121 N> 99 / 118
+SNR per spec/ccd pxl in order # 36 (629 nm) I> 136 / 162 V> 109 / 130 N> 111 / 132
+SNR per spec/ccd pxl in order # 35 (647 nm) I> 154 / 184 V> 124 / 149 N> 124 / 148
+SNR per spec/ccd pxl in order # 34 (666 nm) I> 170 / 203 V> 137 / 164 N> 138 / 165
+SNR per spec/ccd pxl in order # 33 (686 nm) I> 185 / 221 V> 145 / 173 N> 145 / 174
+SNR per spec/ccd pxl in order # 32 (708 nm) I> 204 / 244 V> 159 / 190 N> 159 / 190
+SNR per spec/ccd pxl in order # 31 (731 nm) I> 223 / 268 V> 183 / 219 N> 178 / 213
+SNR per spec/ccd pxl in order # 30 (755 nm) I> 239 / 286 V> 194 / 232 N> 191 / 229
+SNR per spec/ccd pxl in order # 29 (781 nm) I> 257 / 308 V> 213 / 255 N> 212 / 253
+SNR per spec/ccd pxl in order # 28 (809 nm) I> 270 / 323 V> 214 / 257 N> 219 / 262
+SNR per spec/ccd pxl in order # 27 (839 nm) I> 277 / 332 V> 226 / 271 N> 222 / 266
+SNR per spec/ccd pxl in order # 26 (871 nm) I> 281 / 337 V> 224 / 268 N> 227 / 272
+SNR per spec/ccd pxl in order # 25 (906 nm) I> 270 / 324 V> 217 / 260 N> 216 / 259
+SNR per spec/ccd pxl in order # 24 (944 nm) I> 227 / 272 V> 179 / 214 N> 178 / 213
+SNR per spec/ccd pxl in order # 23 (985 nm) I> 163 / 195 V> 130 / 156 N> 127 / 152
+SNR per spec/ccd pxl in order # 22 (1029 nm) I> 66 / 78 V> 48 / 56 N> 47 / 55

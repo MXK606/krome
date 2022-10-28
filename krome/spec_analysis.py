@@ -17,7 +17,7 @@ import csv
 import warnings
 import astropy as ap
 import matplotlib.pyplot as plt
-import astropy.constants as c
+import astropy.constants as cons
 from astropy.io import fits
 from uncertainties import ufloat
 from tqdm.notebook import tqdm as log_progress
@@ -325,94 +325,20 @@ def obj_params(file_path,
         
         file = fits.open(file_path)
         
-        try:
-            object_parameters['BJD'] = file[0].header['HIERARCH ESO DRS BJD'] # Barycentric Julian Date
-        except KeyError:
-            object_parameters['BJD'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH ESO DRS BJD" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        key_list = ['BJD', 'RA', 'DEC', 'AIRMASS', 'EXPTIME', 'BERV', 'OBS_DATE', 'PROG_ID', 'SNR', 'SIGDET', 'CONAD']
+        
+        header_list = ['HIERARCH ESO DRS BJD', 'RA', 'DEC', 'AIRMASS', 'EXPTIME', 'HIERARCH ESO DRS BERV', 'DATE-OBS', 'PROG_ID', 'SNR', 
+                      'HIERARCH ESO DRS CCD SIGDET', 'HIERARCH ESO DRS CCD CONAD']
+        
+        for i in range(len(key_list)):
             
-        try:
-            object_parameters['RA'] = file[0].header['RA'] # Right Accession
-        except KeyError:
-            object_parameters['RA'] = float('nan')
-            if verbose:
-                print('Object parameter for "RA" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['DEC'] = file[0].header['DEC'] # Declination
-        except KeyError:
-            object_parameters['DEC'] = float('nan')
-            if verbose:
-                print('Object parameter for "DEC" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
-        except KeyError:
-            object_parameters['AIRMASS'] = float('nan')
-            if verbose:
-                print('Object parameter for "AIRMASS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        try:
-            object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in s
-        except KeyError:
-            object_parameters['EXPTIME'] = float('nan')
-            if verbose:
-                print('Object parameter for "EXPTIME" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['BERV'] = file[0].header['HIERARCH ESO DRS BERV'] # Barycentric Earth Radial Velocity  km/s
-        except KeyError:
-            object_parameters['BERV'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH ESO DRS BERV" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        
-        try:
-            object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
-        except KeyError:
-            object_parameters['OBS_DATE'] = float('nan')
-            if verbose:
-                print('Object parameter for "DATE-OBS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['PROG_ID'] = file[0].header['PROG_ID'] # Program ID
-        except KeyError:
-            object_parameters['PROG_ID'] = float('nan')
-            if verbose:
-                print('Object parameter for "PROG_ID" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['SNR'] = file[0].header['SNR'] # Signal to Noise ratio
-        except KeyError:
-            object_parameters['SNR'] = float('nan')
-            if verbose:
-                print('Object parameter for "SNR" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        try:
-            object_parameters['SIGDET'] = np.round(file[0].header['HIERARCH ESO DRS CCD SIGDET'], 3)  #CCD Readout Noise [e-]
-        except KeyError:
-            object_parameters['SIGDET'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH ESO DRS CCD SIGDET" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['CONAD'] = file[0].header['HIERARCH ESO DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
-        except KeyError:
-            object_parameters['CONAD'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH ESO DRS CCD CONAD" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            try:
+                object_parameters[key_list[i]] = file[0].header[header_list[i]]
+            except KeyError:
+                object_parameters[key_list[i]] = float('nan')
+                if verbose:
+                    print('Object parameter for "{}" not found in the fits file header'.format(header_list[i])) 
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
@@ -423,65 +349,28 @@ def obj_params(file_path,
         
         file = fits.open(file_path)
         
-        try:
-            object_parameters['BJD'] = file[0].header['HIERARCH TNG DRS BJD'] # Barycentric Julian Date
-        except KeyError:
-            object_parameters['BJD'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH TNG DRS BJD" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        key_list = ['BJD', 'RA', 'DEC', 'AIRMASS', 'EXPTIME', 'OBS_DATE', 'PROG_ID']
+        
+        header_list = ['HIERARCH TNG DRS BJD', 'RA', 'DEC', 'AIRMASS', 'EXPTIME', 'DATE-OBS', 'PROGRAM']
+    
+        for i in range(len(key_list)):
             
-        try:
-            object_parameters['RA'] = file[0].header['RA'] # Right Accession
-        except KeyError:
-            object_parameters['RA'] = float('nan')
-            if verbose:
-                print('Object parameter for "RA" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['DEC'] = file[0].header['DEC'] # Declination
-        except KeyError:
-            object_parameters['DEC'] = float('nan')
-            if verbose:
-                print('Object parameter for "DEC" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
-        except KeyError:
-            object_parameters['AIRMASS'] = float('nan')
-            if verbose:
-                print('Object parameter for "AIRMASS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Exposure time in seconds
-        except KeyError:
-            object_parameters['EXPTIME'] = float('nan')
-            if verbose:
-                print('Object parameter for "EXPTIME" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date
-        except KeyError:
-            object_parameters['OBS_DATE'] = float('nan')
-            if verbose:
-                print('Object parameter for "DATE-OBS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['PROG_ID'] = file[0].header['PROGRAM'] # Program ID
-        except KeyError:
-            object_parameters['PROG_ID'] = float('nan')
-            if verbose:
-                print('Object parameter for "PROGRAM" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            try:
+                object_parameters[key_list[i]] = file[0].header[header_list[i]]
+            except KeyError:
+                object_parameters[key_list[i]] = float('nan')
+                if verbose:
+                    print('Object parameter for "{}" not found in the fits file header'.format(header_list[i])) 
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
                 
     elif Instrument == 'SOPHIE':
         
         file = fits.open(file_path)
+        
+        key_list = ['RA', 'DEC', 'EXPTIME', 'OBS_DATE', 'PROG_ID', 'SIGDET', 'CONAD']
+        
+        header_list = ['HIERARCH OHP TARG ALPHA', 'HIERARCH OHP TARG DELTA', 'HIERARCH OHP CCD DIT', 'HIERARCH OHP OBS DATE START', 
+                       'HIERARCH OHP OBS PROG ID', 'HIERARCH OHP DRS CCD SIGDET', 'HIERARCH OHP DRS CCD CONAD']
         
         try:
             object_parameters['JD'] = file[0].header['HIERARCH OHP OBS MJD'] # Modified Julian Date
@@ -493,61 +382,15 @@ def obj_params(file_path,
                 print('Object parameter for "HIERARCH OHP DRS MJD"/""HIERARCH OHP DRS BJD"" not found in the fits file header') 
                 print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
             
-        try:
-            object_parameters['RA'] = file[0].header['HIERARCH OHP TARG ALPHA'] # Right Accession
-        except KeyError:
-            object_parameters['RA'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP TARG ALPHA" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['DEC'] = file[0].header['HIERARCH OHP TARG DELTA'] # Declination
-        except KeyError:
-            object_parameters['DEC'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP TARG DELTA" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        for i in range(len(key_list)):
             
-        try:
-            object_parameters['EXPTIME'] = file[0].header['HIERARCH OHP CCD DIT'] # Shutter last opening time in seconds
-        except KeyError:
-            object_parameters['EXPTIME'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP CCD DIT" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['OBS_DATE'] = file[0].header['HIERARCH OHP OBS DATE START'] # Observation Date Start
-        except KeyError:
-            object_parameters['OBS_DATE'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP OBS DATE START"/"DATE" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['PROG_ID'] = file[0].header['HIERARCH OHP OBS PROG ID'] # Program ID
-        except KeyError:
-            object_parameters['PROG_ID'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP OBS PROG ID" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-        try:
-            object_parameters['SIGDET'] = np.round(file[0].header['HIERARCH OHP DRS CCD SIGDET'], 3)  #CCD Readout Noise [e-]
-        except KeyError:
-            object_parameters['SIGDET'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP DRS CCD SIGDET" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['CONAD'] = file[0].header['HIERARCH OHP DRS CCD CONAD'] #CCD conversion factor [e-/ADU]; from e- to ADU
-        except KeyError:
-            object_parameters['CONAD'] = float('nan')
-            if verbose:
-                print('Object parameter for "HIERARCH OHP DRS CCD CONAD" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            try:
+                object_parameters[key_list[i]] = file[0].header[header_list[i]]
+            except KeyError:
+                object_parameters[key_list[i]] = float('nan')
+                if verbose:
+                    print('Object parameter for "{}" not found in the fits file header'.format(header_list[i])) 
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
         
         try:
             object_parameters['RON'] = np.round((object_parameters['SIGDET'] * object_parameters['CONAD']), 3) #CCD Readout Noise [ADU]
@@ -558,69 +401,19 @@ def obj_params(file_path,
         
         file = fits.open(file_path)
         
-        try:
-            object_parameters['JD'] = file[0].header['MJD-OBS'] # Modified Julian Date
-        except KeyError:
-            object_parameters['JD'] = float('nan')
-            if verbose:
-                print('Object parameter for "MJD-OBS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+        key_list = ['JD', 'RA', 'DEC', 'EXPTIME', 'OBS_DATE', 'AIRMASS', 'SNR', 'GAIN']
+        
+        header_list = ['MJD-OBS', 'ALPHA', 'DELTA', 'EXPTIME', 'DATE-OBS', 'AIRMASS', 'SN', 'CCDGAIN']
+        
+        for i in range(len(key_list)):
             
-        try:
-            object_parameters['RA'] = file[0].header['ALPHA'] # Right Accession
-        except KeyError:
-            object_parameters['RA'] = float('nan')
-            if verbose:
-                print('Object parameter for "ALPHA" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['DEC'] = file[0].header['DELTA'] # Declination
-        except KeyError:
-            object_parameters['DEC'] = float('nan')
-            if verbose:
-                print('Object parameter for "DELTA" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-            
-        try:
-            object_parameters['EXPTIME'] = file[0].header['EXPTIME'] # Shutter last opening time in seconds
-        except KeyError:
-            object_parameters['EXPTIME'] = float('nan')
-            if verbose:
-                print('Object parameter for "EXPTIME" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['OBS_DATE'] = file[0].header['DATE-OBS'] # Observation Date Start
-        except KeyError:
-            object_parameters['OBS_DATE'] = float('nan')
-            if verbose:
-                print('Object parameter for "DATE-OBS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['AIRMASS'] = file[0].header['AIRMASS'] # Airmass
-        except KeyError:
-            object_parameters['AIRMASS'] = float('nan')
-            if verbose:
-                print('Object parameter for "AIRMASS" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-                
-        try:
-            object_parameters['SNR'] = np.round(file[0].header['SN'], 3)  # Signal-to-Noise ratio
-        except KeyError:
-            object_parameters['SNR'] = float('nan')
-            if verbose:
-                print('Object parameter for "SN" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
-        
-        try:
-            object_parameters['GAIN'] = file[0].header['CCDGAIN'] #CCD gain
-        except KeyError:
-            object_parameters['GAIN'] = float('nan')
-            if verbose:
-                print('Object parameter for "CCDGAIN" not found in the fits file header') 
-                print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
+            try:
+                object_parameters[key_list[i]] = file[0].header[header_list[i]]
+            except KeyError:
+                object_parameters[key_list[i]] = float('nan')
+                if verbose:
+                    print('Object parameter for "{}" not found in the fits file header'.format(header_list[i])) 
+                    print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
     else:
         raise ValueError('Instrument type not recognised. Available options are "NARVAL", "ESPADONS", "HARPS", "HARPS-N", "SOPHIE" and "ELODIE"')
@@ -2061,8 +1854,8 @@ def find_nearest(array,
 
 def ephemerides(file_path,
                 P_orb,
-                T_e=,
-                e=,
+                T_e,
+                e,
                 P_rot=None,
                 phase_start=None, 
                 Rot_phase=False,
@@ -2089,7 +1882,6 @@ def ephemerides(file_path,
     
     e: int
     Orbital eccentricity. 
-    
     
     P_rot: int, default=None
     Stellar rotation period in days.
@@ -2153,16 +1945,13 @@ def ephemerides(file_path,
             
             hdu = fits.open(file_path[i])
             
-            try:
-                JD = hdu[0].header['HIERARCH ESO DRS BJD']
-            except:
-                JD = hdu[0].header['HIERARCH TNG DRS BJD']
-            except:
-                JD = hdu[0].header['HIERARCH OHP OBS MJD']
-            except:
-                JD = hdu[0].header['HIERARCH OHP OBS BJD']
-            except:
-                JD = hdu[0].header['MJD-OBS']
+            header_list = ['HIERARCH ESO DRS BJD', 'HIERARCH TNG DRS BJD', 'HIERARCH OHP OBS MJD', 'HIERARCH OHP OBS BJD', 'MJD-OBS']
+            
+            for header in header_list:
+                try:
+                    JD = hdu[0].header[header]
+                except:
+                    pass
             
         
         # Calculating the mean anomaly M
@@ -2327,15 +2116,16 @@ def normalise_spec(spec1d,
     
     # Plots the polynomial fits
     if plot_fit:
-        f, (ax1, ax2) = plt.subplots(2, 1, figsize=(10,8))  
+        f, (ax1, ax2) = plt.subplots(2, 1, figsize=(10,8))
+        
         ax1.plot(spec1d.spectral_axis, spec1d.flux)  
         ax1.plot(spec1d.spectral_axis, y_cont_fitted)
         ax1.set_xlabel('$\lambda (nm)$')
-        ax1.set_ylabel('Normalized Flux')
+        ax1.set_ylabel('Flux')
         ax1.set_title("Continuum Fitting")
         
-        ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Re-Normalized', alpha=0.6)
-        ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Pipeline Normalized', alpha=0.6)
+        ax2.plot(spec_normalized.spectral_axis, spec_normalized.flux, color='blue', label='Normalized Spec', alpha=0.6)
+        ax2.plot(spec1d.spectral_axis, spec1d.flux, color='red', label='Original Spec', alpha=0.6)
         ax2.axhline(1.0, ls='--', c='gray')
         ax2.axvline(F1_line-(F1_band/2), linestyle='--', color='black', label='Region used for index calc.')
         ax2.axvline(F2_line+(F2_band/2), linestyle='--', color='black')
@@ -2358,7 +2148,7 @@ def normalise_spec(spec1d,
 
 ## Defining a function to calculate the tidal bulge height following Cuntz et al. 2000
 
-def tidal_bulge_height(ephem_result_file_path, 
+def tidal_bulge_height(ephem_file_path, 
                        a, 
                        a_err, 
                        e, 
@@ -2380,7 +2170,7 @@ def tidal_bulge_height(ephem_result_file_path,
     Parameters:
     -----------
     
-    ephem_result_file_path: str
+    ephem_file_path: str
     Path of the file containing the ephemerides results from the "ephemerides" function
     
     a: int
@@ -2432,10 +2222,10 @@ def tidal_bulge_height(ephem_result_file_path,
     ## Reading ephem_results using pandas
     
     if verbose:
-        print('Reading ephemerides results file {} using pandas'.format(ephem_result_file_path))
+        print('Reading ephemerides results file "{}" using pandas'.format(ephem_file_path))
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
-    ephem_data = pd.read_csv(ephem_result_file_path)
+    ephem_data = pd.read_csv(ephem_file_path)
     
     sma = ufloat(a, a_err) 
     ecc = ufloat(e, e_err)
@@ -2455,12 +2245,12 @@ def tidal_bulge_height(ephem_result_file_path,
         print('Calculating gravitational perturbation')
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
 
-    M_pl = (M_p*c.M_earth)/c.M_sun # Converting planet mass from M_earth to M_sun
-    M_pl_err = (M_p_err*c.M_earth)/c.M_sun 
+    M_pl = (M_p*cons.M_earth)/cons.M_sun # Converting planet mass from M_earth to M_sun
+    M_pl_err = (M_p_err*cons.M_earth)/cons.M_sun 
     M_p_ufloat = ufloat(M_pl, M_pl_err)
     M_star_ufloat = ufloat(M_star, M_star_err) # in solar masses
-    R_starl = (R_star*c.R_sun)/c.au # Converting R_star from solar radius to AU since dist calculated above is in AU.
-    R_starl_err = (R_star_err*c.R_sun)/c.au
+    R_starl = (R_star*cons.R_sun)/cons.au # Converting R_star from solar radius to AU since dist calculated above is in AU.
+    R_starl_err = (R_star_err*cons.R_sun)/cons.au
     R_star_ufloat = ufloat(R_starl, R_starl_err)
     
     grav_pert = [(2 * M_p_ufloat * (R_star_ufloat)**3) / (M_star_ufloat * (d - R_star_ufloat)**3) for d in dist]
@@ -2471,7 +2261,7 @@ def tidal_bulge_height(ephem_result_file_path,
         print('Calculating tidal bulge height')
         print('-------------------------------------------------------------------------------------------------------------------------------------------------------------')
     
-    R_star_meters = ufloat(R_star*c.R_sun.value, R_star_err*c.R_sun.value)
+    R_star_meters = ufloat(R_star*cons.R_sun.value, R_star_err*cons.R_sun.value)
 
     h_tide = [(g/2)*(R_star_meters) for g in grav_pert] # using R_star in units of meter for tidal bulge height.
     
